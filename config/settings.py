@@ -59,12 +59,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', 'sac_intranet'),
-        'USER': os.environ.get('DB_USER', 'postgres'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', '123456'),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'nome_do_banco',
+        'USER': 'usuario_do_banco',
+        'PASSWORD': 'sua_senha_aqui',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 
