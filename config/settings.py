@@ -60,9 +60,9 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'nome_do_banco',
-        'USER': 'usuario_do_banco',
-        'PASSWORD': 'sua_senha_aqui',
+        'NAME': 'SAC',
+        'USER': 'admin',
+        'PASSWORD': 'Ionlab@2026#',
         'HOST': 'localhost',
         'PORT': '3306',
     }
