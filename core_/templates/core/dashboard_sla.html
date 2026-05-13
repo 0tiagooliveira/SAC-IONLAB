@@ -1,0 +1,81 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Dashboard SAC + SLA</title>
+  <style>
+    body{font-family:Arial,sans-serif;background:#f5f8fc;color:#17324d;margin:0}
+    .page{max-width:1400px;margin:0 auto;padding:24px}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px}
+    .btn{display:inline-block;background:#0d3b66;color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:700}
+    .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+    .card{background:#fff;border:1px solid #dbe6f0;border-radius:18px;padding:18px;box-shadow:0 8px 20px rgba(0,0,0,.05)}
+    .num{font-size:32px;font-weight:800;margin-top:8px}
+    .grid{display:grid;grid-template-columns:1fr 1.3fr;gap:20px}
+    table{width:100%;border-collapse:collapse;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,.05)}
+    th,td{padding:12px 10px;border-bottom:1px solid #edf2f7;text-align:left;font-size:14px;vertical-align:top}
+    th{background:#f0f6fb;color:#0d3b66}
+    .sla-verde{color:#0b6b3a;font-weight:700}.sla-amarelo{color:#8a6d00;font-weight:700}.sla-vermelho{color:#b3261e;font-weight:700}
+    .tempo-verde{background:#0b6b3a;color:#fff;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700}
+    .tempo-amarelo{background:#f2c94c;color:#111;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700}
+    .tempo-vermelho{background:#d62839;color:#fff;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700}
+    .muted{color:#64748b;font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="top">
+      <div>
+        <h1>Dashboard de SLA do SAC</h1>
+        <div class="muted">Gerado em {{ gerado_em|date:"d/m/Y H:i" }}. Verde &lt; {{ sla_verde_horas }}h, amarelo entre {{ sla_verde_horas }}h e {{ sla_amarelo_horas }}h, vermelho acima de {{ sla_amarelo_horas }}h.</div>
+      </div>
+      <a class="btn" href="/intra/">Voltar ao painel</a>
+    </div>
+
+    <div class="cards">
+      <div class="card"><div>Total de SACs</div><div class="num">{{ resumo.total_sacs }}</div></div>
+      <div class="card"><div>Dentro do SLA</div><div class="num sla-verde">{{ resumo.sla_verde }}</div></div>
+      <div class="card"><div>Atenção</div><div class="num sla-amarelo">{{ resumo.sla_amarelo }}</div></div>
+      <div class="card"><div>Estourados</div><div class="num sla-vermelho">{{ resumo.sla_vermelho }}</div></div>
+    </div>
+
+    <div class="grid">
+      <div>
+        <table>
+          <thead><tr><th>Setor</th><th>Total</th><th>Verde</th><th>Amarelo</th><th>Vermelho</th></tr></thead>
+          <tbody>
+          {% for item in setores %}
+            <tr>
+              <td>{{ item.setor }}</td><td>{{ item.total }}</td><td class="sla-verde">{{ item.verde }}</td><td class="sla-amarelo">{{ item.amarelo }}</td><td class="sla-vermelho">{{ item.vermelho }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5">Nenhum dado disponível.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <table>
+          <thead><tr><th>SAC</th><th>Cliente</th><th>Setor</th><th>Status</th><th>Tempo</th><th>SLA</th><th>Auditoria</th></tr></thead>
+          <tbody>
+          {% for item in cards %}
+            <tr>
+              <td>{{ item.numero_sac }}</td>
+              <td>{{ item.cliente }}</td>
+              <td>{{ item.setor }}</td>
+              <td>{{ item.status }}</td>
+              <td><span class="{{ item.tempo_cor }}">{{ item.tempo_setor }}</span></td>
+              <td class="sla-{{ item.sla_classe }}">{{ item.sla_rotulo }}</td>
+              <td><a href="/sac/{{ item.id }}/auditoria/">Abrir</a></td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="7">Nenhum SAC encontrado.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

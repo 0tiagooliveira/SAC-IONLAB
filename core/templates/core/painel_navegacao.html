@@ -1,0 +1,443 @@
+{% extends 'core/base.html' %}
+{% block title %}Painel principal{% endblock %}
+{% block topbar_title %}Painel principal{% endblock %}
+{% block topbar_subtitle %}Visao geral e atalhos do sistema SAC.{% endblock %}
+{% block extra_head %}
+<style>
+    .home-dashboard {
+        max-width: 1450px;
+        margin: 0 auto;
+        padding: 0 4px 44px;
+        color: #0d3558;
+    }
+    .home-overview,
+    .home-section {
+        border-radius: 26px;
+        border: 1px solid #cfe0ec;
+        background: #fff;
+        box-shadow: 0 18px 46px rgba(13,59,102,.09);
+        overflow: hidden;
+    }
+    .home-overview-head,
+    .home-section-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 22px 26px;
+        background: linear-gradient(90deg, rgba(0,180,199,.13), rgba(255,255,255,.96));
+        border-bottom: 1px solid #dce9f2;
+    }
+    .home-kicker {
+        display: block;
+        color: #60788f;
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+    .home-overview h2,
+    .home-section h2 {
+        margin: 4px 0 0;
+        color: #0d3558;
+        font-size: 25px;
+        line-height: 1.15;
+    }
+    .home-overview-head p,
+    .home-section-head p {
+        margin: 6px 0 0;
+        color: #60788f;
+        font-size: 14px;
+    }
+    .home-btn {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 18px;
+        border-radius: 14px;
+        border: 1px solid #cfe0ec;
+        background: #fff;
+        color: #0d3558;
+        font-weight: 900;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+    .home-btn.primary {
+        background: #0d3b66;
+        color: #fff;
+        border-color: #0d3b66;
+        box-shadow: 0 12px 24px rgba(13,59,102,.16);
+    }
+    .home-kpis {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 14px;
+        padding: 18px;
+    }
+    .home-kpi {
+        min-height: 98px;
+        padding: 18px;
+        border-radius: 18px;
+        border: 1px solid #d6e3ef;
+        background: #fff;
+    }
+    .home-kpi span {
+        display: block;
+        color: #60788f;
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+    }
+    .home-kpi strong {
+        display: block;
+        margin-top: 10px;
+        color: #0d3b66;
+        font-size: 32px;
+        line-height: 1;
+    }
+    .home-kpi.red strong { color: #df2038; }
+    .home-kpi.gold strong { color: #b88300; }
+    .home-kpi.green strong { color: #009b78; }
+    .home-chart-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr 1fr;
+        gap: 14px;
+        padding: 0 18px 18px;
+    }
+    .home-mini-panel {
+        min-height: 132px;
+        padding: 18px;
+        border-radius: 18px;
+        border: 1px solid #d6e3ef;
+        background: #fff;
+    }
+    .home-mini-title {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        color: #0d3558;
+        font-size: 15px;
+        font-weight: 900;
+    }
+    .home-sla-bar {
+        height: 14px;
+        margin: 18px 0 12px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #009b78 0 35%, #d8a414 35% 48%, #df2038 48% 100%);
+    }
+    .home-legend {
+        color: #60788f;
+        font-size: 13px;
+        font-weight: 800;
+    }
+    .home-bar-row {
+        display: grid;
+        grid-template-columns: 128px 1fr 40px;
+        align-items: center;
+        gap: 10px;
+        margin-top: 12px;
+        color: #0d3558;
+        font-size: 13px;
+        font-weight: 800;
+    }
+    .home-track {
+        height: 9px;
+        border-radius: 999px;
+        background: #eaf2f7;
+        overflow: hidden;
+    }
+    .home-track i {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #00a9b8, #0d3b66);
+    }
+    .home-section {
+        margin-top: 26px;
+    }
+    .home-modules {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+        padding: 18px;
+    }
+    .home-module {
+        min-height: 170px;
+        padding: 20px;
+        border-radius: 20px;
+        border: 1px solid #d6e3ef;
+        background: linear-gradient(180deg, #fff, #f8fcff);
+        color: #0d3558;
+        text-decoration: none;
+        box-shadow: 0 8px 22px rgba(13,59,102,.05);
+        transition: transform .16s ease, border-color .16s ease;
+    }
+    .home-module:hover {
+        transform: translateY(-2px);
+        border-color: #88c9d5;
+    }
+    .home-module-icon {
+        width: 46px;
+        height: 46px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #0d3b66, #12647d);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 900;
+    }
+    .home-module h3 {
+        margin: 16px 0 8px;
+        font-size: 19px;
+        color: #0d3558;
+    }
+    .home-module p {
+        margin: 0;
+        color: #60788f;
+        line-height: 1.45;
+        font-size: 14px;
+    }
+    .home-tag {
+        display: inline-flex;
+        margin-top: 16px;
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: #eef7fb;
+        color: #315d7e;
+        font-size: 12px;
+        font-weight: 900;
+    }
+    .home-board {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        padding: 18px;
+    }
+    .home-queue-card {
+        min-height: 180px;
+        padding: 18px;
+        border-radius: 20px;
+        border: 1px solid #d6e3ef;
+        background: #fff;
+    }
+    .home-queue-card h3 {
+        margin: 0 0 12px;
+        color: #0d3558;
+        font-size: 18px;
+    }
+    .home-line,
+    .home-link-line {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 11px 0;
+        border-top: 1px solid #e3edf4;
+        color: #60788f;
+        font-size: 14px;
+        text-decoration: none;
+    }
+    .home-line strong,
+    .home-link-line strong {
+        color: #0d3558;
+    }
+    .home-empty {
+        padding: 13px 0 0;
+        border-top: 1px solid #e3edf4;
+        color: #60788f;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+    @media (max-width: 1200px) {
+        .home-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .home-chart-grid,
+        .home-board { grid-template-columns: 1fr; }
+        .home-modules { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 760px) {
+        .home-dashboard { padding: 0 0 28px; }
+        .home-overview-head,
+        .home-section-head {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+        .home-kpis,
+        .home-modules { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page home-dashboard">
+    <section class="home-overview">
+        <div class="home-overview-head">
+            <div>
+                <span class="home-kicker">Visao geral do SAC</span>
+                <h2>Indicadores, SLA e operacao do mes</h2>
+                <p>Leitura rapida da operacao no mesmo padrao visual das paginas dos setores.</p>
+            </div>
+            <a class="home-btn primary" href="/sac/dashboard/">Abrir dashboard completo</a>
+        </div>
+
+        <div class="home-kpis">
+            <div class="home-kpi">
+                <span>Total abertos</span>
+                <strong>{{ dash_total_abertos }}</strong>
+            </div>
+            <div class="home-kpi red">
+                <span>SACs criticos</span>
+                <strong>{{ dash_total_criticos }}</strong>
+            </div>
+            <div class="home-kpi gold">
+                <span>Maior fila atual</span>
+                <strong>{{ dash_maior_fila_total }}</strong>
+            </div>
+            <div class="home-kpi">
+                <span>SACs parados 24h+</span>
+                <strong>{{ dash_total_parados }}</strong>
+            </div>
+            <div class="home-kpi green">
+                <span>Setor lider</span>
+                <strong style="font-size:22px;line-height:1.15;">{{ dash_setor_maior_fila }}</strong>
+            </div>
+        </div>
+
+        <div class="home-chart-grid">
+            <div class="home-mini-panel">
+                <div class="home-mini-title">
+                    <span>SLA atual</span>
+                    <span>Abertos</span>
+                </div>
+                <div class="home-sla-bar"></div>
+                <div class="home-legend">No prazo &bull; Proximo &bull; Vencido</div>
+            </div>
+
+            <div class="home-mini-panel">
+                <div class="home-mini-title">
+                    <span>Filas por setor</span>
+                    <span>Top 5</span>
+                </div>
+                {% for item in dash_filas_por_setor|slice:":5" %}
+                    <div class="home-bar-row">
+                        <span>{{ item.nome }}</span>
+                        <div class="home-track"><i style="width:{% widthratio item.total dash_maior_fila_total 100 %}%"></i></div>
+                        <span>{{ item.total }}</span>
+                    </div>
+                {% empty %}
+                    <div class="home-empty">Nenhum setor com fila no momento.</div>
+                {% endfor %}
+            </div>
+
+            <div class="home-mini-panel">
+                <div class="home-mini-title">
+                    <span>Auditoria de fluxo</span>
+                    <span>{{ dash_total_inconsistencias }}</span>
+                </div>
+                <div class="home-line"><span>Inconsistencias detectadas</span><strong>{{ dash_total_inconsistencias }}</strong></div>
+                <div class="home-line"><span>Itens parados 24h+</span><strong>{{ dash_total_parados }}</strong></div>
+                <div class="home-line"><span>Setor com maior fila</span><strong>{{ dash_setor_maior_fila }}</strong></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="home-section">
+        <div class="home-section-head">
+            <div>
+                <span class="home-kicker">Acessos do usuario</span>
+                <h2>Atalhos liberados</h2>
+                <p>Apenas os modulos disponiveis para o seu perfil aparecem aqui.</p>
+            </div>
+        </div>
+        <div class="home-modules">
+            {% for item in menu_cards_sac %}
+                <a class="home-module {{ item.accent }}" href="{{ item.url }}">
+                    <div class="home-module-icon">{{ item.icon }}</div>
+                    <h3>{{ item.label }}</h3>
+                    <p>{{ item.description }}</p>
+                    <span class="home-tag">{{ item.tag }}</span>
+                </a>
+            {% empty %}
+                <div class="home-module">
+                    <div class="home-module-icon">SAC</div>
+                    <h3>Nenhum modulo liberado</h3>
+                    <p>Solicite ao administrador a liberacao dos acessos necessarios para o seu perfil.</p>
+                    <span class="home-tag">Acesso pendente</span>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="home-section">
+        <div class="home-section-head">
+            <div>
+                <span class="home-kicker">Operacao</span>
+                <h2>Leitura rapida das filas</h2>
+                <p>Resumo operacional para acompanhar prioridades sem sair do painel.</p>
+            </div>
+        </div>
+        <div class="home-board">
+            <div class="home-queue-card">
+                <h3>Top 5 SACs mais criticos</h3>
+                {% for item in dash_top_criticos %}
+                    {% if item.pode_acessar %}
+                        <a class="home-link-line" href="{{ item.url }}">
+                            <span>{{ item.numero }} - {{ item.cliente }}</span>
+                            <strong>{{ item.setor }}</strong>
+                        </a>
+                    {% else %}
+                        <div class="home-line">
+                            <span>{{ item.numero }} - {{ item.cliente }}</span>
+                            <strong>{{ item.setor }}</strong>
+                        </div>
+                    {% endif %}
+                {% empty %}
+                    <div class="home-empty">Nenhum SAC critico encontrado.</div>
+                {% endfor %}
+            </div>
+
+            <div class="home-queue-card">
+                <h3>Filas por setor</h3>
+                {% for item in dash_filas_por_setor|slice:":6" %}
+                    {% if item.pode_acessar %}
+                        <a class="home-link-line" href="{{ item.url }}">
+                            <span>{{ item.nome }}</span>
+                            <strong>{{ item.total }}</strong>
+                        </a>
+                    {% else %}
+                        <div class="home-line">
+                            <span>{{ item.nome }}</span>
+                            <strong>{{ item.total }}</strong>
+                        </div>
+                    {% endif %}
+                {% empty %}
+                    <div class="home-empty">Nenhum setor encontrado.</div>
+                {% endfor %}
+            </div>
+
+            <div class="home-queue-card">
+                <h3>Auditoria de fluxo</h3>
+                <div class="home-line">
+                    <span>Total de inconsistencias</span>
+                    <strong>{{ dash_total_inconsistencias }}</strong>
+                </div>
+                {% for item in dash_auditoria_fluxo|slice:":4" %}
+                    {% if item.pode_acessar %}
+                        <a class="home-link-line" href="{{ item.url }}">
+                            <span>{{ item.numero }} - {{ item.tipo }}</span>
+                            <strong>{{ item.severidade|upper }}</strong>
+                        </a>
+                    {% else %}
+                        <div class="home-line">
+                            <span>{{ item.numero }} - {{ item.tipo }}</span>
+                            <strong>{{ item.severidade|upper }}</strong>
+                        </div>
+                    {% endif %}
+                {% empty %}
+                    <div class="home-empty">Nenhuma inconsistencia encontrada.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

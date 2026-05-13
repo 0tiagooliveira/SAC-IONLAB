@@ -1,0 +1,138 @@
+{% with resumo=indicadores_globais_sac.resumo setores=indicadores_globais_sac.setores equipamentos_mes=indicadores_globais_sac.ranking_itens.mes_corrente.equipamentos consumiveis_mes=indicadores_globais_sac.ranking_itens.mes_corrente.consumiveis %}
+<section class="global-sla-panel">
+    <div class="global-sla-head">
+        <div>
+            <span>Visao geral do SAC</span>
+            <h3>Indicadores, SLA e campeoes do mes</h3>
+        </div>
+        <a href="/sac/dashboard/{% if request.GET.empresa %}?empresa={{ request.GET.empresa }}{% endif %}">Abrir dashboard completo</a>
+    </div>
+    <div class="global-kpis">
+        <div class="global-kpi">
+            <small>Total abertos</small>
+            <strong>{{ resumo.total_abertos }}</strong>
+        </div>
+        <div class="global-kpi red">
+            {% if indicadores_globais_sac.setor_pagina_atual %}
+                <small>Vencidos</small>
+                <div class="global-kpi-lines">
+                    <span>Total geral</span>
+                    <strong>{{ resumo.sla_vencidos }}</strong>
+                </div>
+                <div class="global-kpi-lines">
+                    <span>Neste setor</span>
+                    <strong>{{ resumo.sla_vencidos_setor_atual|default:0 }}</strong>
+                </div>
+            {% else %}
+                <small>Vencidos</small>
+                <strong>{{ resumo.sla_vencidos }}</strong>
+            {% endif %}
+        </div>
+        <div class="global-kpi gold">
+            {% if indicadores_globais_sac.setor_pagina_atual %}
+                <small>Proximos</small>
+                <div class="global-kpi-lines">
+                    <span>Total geral</span>
+                    <strong>{{ resumo.sla_proximos }}</strong>
+                </div>
+                <div class="global-kpi-lines">
+                    <span>Neste setor</span>
+                    <strong>{{ resumo.sla_proximos_setor_atual|default:0 }}</strong>
+                </div>
+            {% else %}
+                <small>Proximos</small>
+                <strong>{{ resumo.sla_proximos }}</strong>
+            {% endif %}
+        </div>
+        <div class="global-kpi green">
+            {% if indicadores_globais_sac.setor_pagina_atual %}
+                <small>Concluidos mes</small>
+                <div class="global-kpi-lines">
+                    <span>Total geral</span>
+                    <strong>{{ resumo.concluidos_mes }}</strong>
+                </div>
+                <div class="global-kpi-lines">
+                    <span>Neste setor</span>
+                    <strong>{{ resumo.concluidos_mes_setor_atual|default:0 }}</strong>
+                </div>
+            {% else %}
+                <small>Concluidos mes</small>
+                <strong>{{ resumo.concluidos_mes }}</strong>
+            {% endif %}
+        </div>
+        <div class="global-kpi">
+            <small>Tempo medio</small>
+            <strong>{{ resumo.tempo_medio_resolucao }}</strong>
+        </div>
+        <div class="global-kpi green">
+            <small>No prazo</small>
+            <strong>{{ resumo.taxa_conclusao_prazo }}%</strong>
+        </div>
+    </div>
+    <div class="global-chart-grid">
+        <div class="global-chart-card">
+            <div class="global-chart-title">
+                <strong>SLA atual</strong>
+                <span>abertos</span>
+            </div>
+            <div class="sla-bars">
+                {% widthratio resumo.sla_verde resumo.total_abertos 100 as verde_pct %}
+                {% widthratio resumo.sla_proximos resumo.total_abertos 100 as amarelo_pct %}
+                {% widthratio resumo.sla_vencidos resumo.total_abertos 100 as vermelho_pct %}
+                <div class="sla-bar green" style="width:{{ verde_pct|default:'0' }}%"></div>
+                <div class="sla-bar gold" style="width:{{ amarelo_pct|default:'0' }}%"></div>
+                <div class="sla-bar red" style="width:{{ vermelho_pct|default:'0' }}%"></div>
+            </div>
+            <div class="global-legend">
+                <span><i class="green"></i>No prazo</span>
+                <span><i class="gold"></i>Proximo</span>
+                <span><i class="red"></i>Vencido</span>
+            </div>
+        </div>
+        <div class="global-chart-card">
+            <div class="global-chart-title">
+                <strong>Setores com mais SACs</strong>
+                <span>top 5</span>
+            </div>
+            <div class="sector-bars-mini">
+                {% for item in setores|slice:":5" %}
+                    {% widthratio item.total resumo.total_abertos 100 as setor_pct %}
+                    <div class="sector-mini-row">
+                        <span>{{ item.setor }}</span>
+                        <div><i style="width:{{ setor_pct|default:'0' }}%"></i></div>
+                        <b>{{ item.total }}</b>
+                    </div>
+                {% empty %}
+                    <p class="global-empty">Nenhum SAC em aberto.</p>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="global-chart-card">
+            <div class="global-chart-title">
+                <strong>Campeoes do mes</strong>
+                <span>equipamentos e consumiveis</span>
+            </div>
+            <div class="winner-mini">
+                <b>Equipamentos</b>
+                {% with item=equipamentos_mes.0 %}
+                    {% if item %}
+                        <span>{{ item.codigo }} - {{ item.total_sacs }} ocorrencia(s) - {{ item.descricao|truncatechars:58 }}</span>
+                    {% else %}
+                        <span>Sem equipamentos no periodo.</span>
+                    {% endif %}
+                {% endwith %}
+            </div>
+            <div class="winner-mini">
+                <b>Consumiveis</b>
+                {% with item=consumiveis_mes.0 %}
+                    {% if item %}
+                        <span>{{ item.codigo }} - {{ item.total_sacs }} unidade(s) com problema - {{ item.descricao|truncatechars:58 }}</span>
+                    {% else %}
+                        <span>Sem consumiveis no periodo.</span>
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endwith %}

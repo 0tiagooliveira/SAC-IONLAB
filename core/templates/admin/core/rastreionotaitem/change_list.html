@@ -1,0 +1,10 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools %}
+    {{ block.super }}
+    {% if botao_importar_url %}
+    <li>
+        <a href="{{ botao_importar_url }}" class="addlink">Importar novos itens</a>
+    </li>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,34 @@
+<section class="card dados-sac-oficial-card">
+    <style>
+        .dados-sac-oficial-card .dados-sac-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .dados-sac-oficial-card .dados-sac-tempo{margin-top:14px;border-radius:20px;padding:18px;background:linear-gradient(135deg,#0d3b66,#145a8f);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+        .dados-sac-oficial-card .dados-sac-tempo-label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;opacity:.86;font-weight:800;margin-bottom:6px}
+        .dados-sac-oficial-card .dados-sac-tempo-valor{font-size:28px;line-height:1.15;font-weight:900}
+        .dados-sac-oficial-card .dados-sac-tempo-help{font-size:12px;opacity:.85;margin-top:6px}
+        @media(max-width:900px){.dados-sac-oficial-card .dados-sac-grid{grid-template-columns:1fr}.dados-sac-oficial-card .dados-sac-tempo-valor{font-size:23px}}
+    </style>
+    <h2>Dados do SAC</h2>
+    <div class="dados-sac-grid">
+        <div class="field"><label>Número do SAC</label><input type="text" readonly value="{{ dados_sac_oficiais.numero_sac|default:'-' }}"></div>
+        <div class="field"><label>Status atual</label><input type="text" readonly value="{{ dados_sac_oficiais.status_atual|default:'-' }}"></div>
+    </div>
+    <div class="field"><label>Ação em espera atual</label><input type="text" readonly value="{{ dados_sac_oficiais.acao_em_espera_atual|default:'-' }}"></div>
+    <div class="dados-sac-grid">
+        <div class="field"><label>Empresa</label><input type="text" readonly value="{{ dados_sac_oficiais.empresa|default:'-' }}"></div>
+        <div class="field"><label>Setor atual</label><input type="text" readonly value="{{ dados_sac_oficiais.setor_atual|default:'-' }}"></div>
+    </div>
+    <div class="field"><label>Cliente</label><input type="text" readonly value="{{ dados_sac_oficiais.cliente|default:'-' }}"></div>
+    <div class="dados-sac-grid">
+        <div class="field"><label>Nota fiscal</label><input type="text" readonly value="{{ dados_sac_oficiais.nota_fiscal|default:'-' }}"></div>
+        <div class="field"><label>Data de emissão da NF</label><input type="text" readonly value="{{ dados_sac_oficiais.data_emissao_nf|default:'-' }}"></div>
+    </div>
+    <div class="dados-sac-grid">
+        <div class="field"><label>Número da NF de Revenda</label><input type="text" readonly value="{{ dados_sac_oficiais.numero_nf_revenda|default:'-' }}"></div>
+        <div class="field"><label>Data de emissão NF Revenda</label><input type="text" readonly value="{{ dados_sac_oficiais.data_emissao_nf_revenda|default:'-' }}"></div>
+    </div>
+    <div class="dados-sac-tempo">
+        <div class="dados-sac-tempo-label">Tempo de uso oficial</div>
+        <div class="dados-sac-tempo-valor">{{ dados_sac_oficiais.tempo_uso_formatado|default:'Não calculado' }}</div>
+        <div class="dados-sac-tempo-help">Base: data de abertura do SAC menos NF de revenda; se não houver revenda, usa a NF original.</div>
+    </div>
+</section>

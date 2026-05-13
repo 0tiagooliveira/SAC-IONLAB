@@ -1,0 +1,23 @@
+<div class="subcard fluxo-padronizado-box">
+    <style>
+        .fluxo-padronizado-box{border:1px solid #dbe8f3;border-radius:18px;padding:16px;background:#f8fbfe;margin-bottom:16px}
+        .fluxo-padronizado-box .fluxo-padronizado-titulo{margin:0 0 14px;color:#0d3b66;font-size:18px;font-weight:800}
+        .fluxo-padronizado-box .fluxo-padronizado-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+        @media (max-width: 900px){.fluxo-padronizado-box .fluxo-padronizado-grid{grid-template-columns:1fr}}
+    </style>
+    <h3 class="fluxo-padronizado-titulo">{{ fluxo_titulo|default:'Fluxo que será aplicado' }}</h3>
+    <div class="fluxo-padronizado-grid">
+        <div class="field">
+            <label>{{ status_label|default:'Próximo status' }}</label>
+            <input type="text" readonly value="{{ status_valor|default:'-' }}">
+        </div>
+        <div class="field">
+            <label>{{ acao_label|default:'Ação em espera próximo setor' }}</label>
+            <input type="text" readonly value="{{ acao_valor|default:'-' }}">
+        </div>
+        <div class="field">
+            <label>{{ setor_label|default:'Próximo setor' }}</label>
+            <input type="text" readonly value="{{ setor_valor|default:'-' }}">
+        </div>
+    </div>
+</div>

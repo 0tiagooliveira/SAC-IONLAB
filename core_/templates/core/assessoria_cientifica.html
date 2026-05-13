@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessoria Científica</title>
+    <style>
+        :root {
+            --ionlab-blue: #0d3b66;
+            --ionlab-cyan: #00b4c7;
+            --ionlab-bg: #f4f8fc;
+            --ionlab-card: #ffffff;
+            --ionlab-text: #17324d;
+            --ionlab-muted: #64748b;
+            --ionlab-danger: #d62839;
+            --ionlab-success: #14b86a;
+            --shadow: 0 20px 45px rgba(13, 59, 102, 0.12);
+            --radius-xl: 24px;
+            --radius-lg: 18px;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background:
+                radial-gradient(circle at top right, rgba(0, 180, 199, 0.18), transparent 32%),
+                linear-gradient(180deg, #eef6fb 0%, #f8fbfe 48%, #eef4fa 100%);
+            color: var(--ionlab-text);
+        }
+        .page {
+            max-width: 1380px;
+            margin: 0 auto;
+            padding: 32px 24px 48px;
+        }
+        .hero {
+            display: grid;
+            grid-template-columns: 96px 1fr auto;
+            gap: 22px;
+            align-items: center;
+            padding: 28px;
+            border-radius: 28px;
+            background: linear-gradient(135deg, #0d3b66 0%, #145a8f 55%, #0f7490 100%);
+            color: #fff;
+            box-shadow: var(--shadow);
+        }
+        .logo-box {
+            width: 96px; height: 96px; border-radius: 24px;
+            background: rgba(255,255,255,.16); display:flex; align-items:center; justify-content:center;
+            backdrop-filter: blur(8px);
+        }
+        .logo-box img { max-width: 70px; max-height: 70px; }
+        .hero h1 { margin: 0; font-size: 34px; }
+        .hero p { margin: 10px 0 0; color: rgba(255,255,255,.84); line-height: 1.55; }
+        .hero-actions { display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end; }
+        .btn {
+            display:inline-flex; align-items:center; gap:10px; text-decoration:none; font-weight:700;
+            padding: 14px 18px; border-radius: 16px; border:none; cursor:pointer; font-size:14px;
+        }
+        .btn-light { background:#fff; color: var(--ionlab-blue); }
+        .btn-outline { background: rgba(255,255,255,.1); color:#fff; border:1px solid rgba(255,255,255,.25); }
+        .stats {
+            display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:18px; margin-top: 24px;
+        }
+        .stat-card {
+            background: var(--ionlab-card); border-radius: var(--radius-xl); padding: 22px; box-shadow: var(--shadow);
+        }
+        .stat-label { color: var(--ionlab-muted); font-size: 13px; text-transform: uppercase; letter-spacing: .08em; }
+        .stat-value { margin-top: 8px; font-size: 36px; font-weight: 800; color: var(--ionlab-blue); }
+        .section {
+            margin-top: 24px; background: var(--ionlab-card); border-radius: 28px; box-shadow: var(--shadow); overflow: hidden;
+        }
+        .section-header {
+            padding: 22px 24px; border-bottom: 1px solid #e7eef5; display:flex; align-items:center; justify-content:space-between; gap:16px;
+        }
+        .section-title { margin:0; font-size: 24px; color: var(--ionlab-blue); }
+        .section-subtitle { margin:6px 0 0; color: var(--ionlab-muted); font-size: 14px; }
+        .list { padding: 18px; display:grid; gap:16px; }
+        .list-card {
+            display:block; text-decoration:none; color:inherit; border:1px solid #dce8f5; border-radius: 22px; padding: 18px 20px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbfe 100%);
+            transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+        }
+        .list-card:hover { transform: translateY(-2px); box-shadow: 0 16px 32px rgba(13,59,102,.10); border-color: rgba(0,180,199,.45); }
+        .list-grid {
+            display:grid;
+            grid-template-columns: minmax(120px,160px) minmax(200px,1.2fr) minmax(120px,.8fr) minmax(90px,.45fr) minmax(210px,1.15fr) minmax(210px,1.15fr) minmax(120px,.55fr);
+            gap: 14px;
+            align-items: start;
+        }
+        .meta-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--ionlab-muted); margin-bottom:6px; }
+        .meta-value { font-weight: 700; color: var(--ionlab-text); line-height:1.4; }
+        .chip {
+            display:inline-flex; align-items:center; gap:8px; padding: 10px 12px; border-radius: 999px; font-size: 13px; font-weight:700;
+            background:#eef6fb; color: var(--ionlab-blue);
+        }
+        .chip-danger { background: #d62839; color:#fff; }
+        .empty {
+            padding: 40px 24px 50px; text-align:center; color: var(--ionlab-muted);
+        }
+        .empty strong { display:block; color: var(--ionlab-blue); font-size: 20px; margin-bottom: 8px; }
+        @media (max-width: 1200px) {
+            .hero { grid-template-columns: 82px 1fr; }
+            .hero-actions { grid-column: 1 / -1; justify-content:flex-start; }
+            .list-grid { grid-template-columns: repeat(2, minmax(220px,1fr)); }
+        }
+        @media (max-width: 760px) {
+            .page { padding: 20px 14px 36px; }
+            .hero { grid-template-columns: 1fr; }
+            .logo-box { width: 82px; height: 82px; }
+            .hero h1 { font-size: 28px; }
+            .list-grid { grid-template-columns: 1fr; }
+        }
+    
+
+        .dados-oficiais-card {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(150px, 1fr));
+            gap: 12px;
+            padding: 14px;
+            border-radius: 18px;
+            border: 1px solid #dbe8f4;
+            background: #f6fbff;
+        }
+        .tempo-uso-oficial-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 14px;
+            background: #0d3b66;
+            color: #fff;
+            font-weight: 900;
+            font-size: 15px;
+        }
+        @media (max-width: 900px) {
+            .dados-oficiais-card { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 560px) {
+            .dados-oficiais-card { grid-template-columns: 1fr; }
+        }
+
+        .tempo-badge{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;font-size:13px;font-weight:700}
+        .tempo-verde{background:#0b6b3a;color:#fff}
+        .tempo-amarelo{background:#f2c94c;color:#1d1d1d}
+        .tempo-vermelho{background:#d62839;color:#fff}
+
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="hero">
+        <div class="logo-box">
+            <img src="{% static 'core/img/logo-ionlab.png' %}" alt="Ionlab">
+        </div>
+        <div>
+            <h1>Assessoria Científica</h1>
+            <p>Selecione um SAC para abrir a análise técnica. Esta tela não pré-seleciona nenhum SAC e mostra apenas os atendimentos aguardando ação da Assessoria Científica.</p>
+        </div>
+        <div class="hero-actions">
+            <a class="btn btn-light" href="/intra/">⬅ Voltar ao painel</a>
+            <a class="btn btn-outline" href="/sac/abrir/">➕ Abrir novo SAC</a>
+        </div>
+    </div>
+
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-label">SACs aguardando ação</div>
+            <div class="stat-value">{{ total_sacs }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Fluxo da área</div>
+            <div class="stat-value" style="font-size:22px; line-height:1.3;">Fila técnica sem seleção automática</div>
+        </div>
+    </div>
+
+    <section class="section">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Aguardando ação da Assessoria Científica</h2>
+                <p class="section-subtitle">Lista do SAC mais antigo aguardando até o mais recente, com acesso direto à análise técnica.</p>
+            </div>
+        </div>
+
+        {% if sacs_disponiveis %}
+            <div class="list">
+                {% for item in sacs_disponiveis %}
+                    <a class="list-card" href="/sac/{{ item.id }}/analise-tecnica/">
+                        <div class="list-grid">
+                            <div>
+                                <div class="meta-label">Número do SAC</div>
+                                <div class="meta-value">{{ item.numero }}</div>
+                            </div>
+                            <div>
+                                <div class="meta-label">Cliente</div>
+                                <div class="meta-value">{{ item.cliente_nome }}</div>
+                            </div>
+                            <div>
+                                <div class="meta-label">Empresa</div>
+                                <div class="meta-value">{{ item.empresa_nome }}</div>
+                            </div>
+                            <div>
+                                <div class="meta-label">NF</div>
+                                <div class="meta-value">{{ item.nota_fiscal_numero }}</div>
+                            </div>
+                            <div>
+                                <div class="meta-label">Status anterior</div>
+                                <div class="meta-value">{{ item.status_atual_nome|default:item.acao_em_espera_nome }}</div>
+                            </div>
+                            <div>
+                                <div class="meta-label">Ação em espera</div>
+                                <div class="meta-value">{{ item.acao_em_espera_nome|default:"-" }}</div>
+                            </div>
+                            <div>
+                                <div class="meta-label">Tempo aguardando</div>
+                                <div class="meta-value">
+                                    <span class="tempo-badge {{ item.tempo_cor|default:'tempo-verde' }}">{{ item.tempo_espera }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dados-oficiais-card">
+                            <div>
+                                <div class="meta-label">Data emissão NF</div>
+                                <div class="meta-value">{{ item.data_nf|default:"-" }}</div>
+                            </div>
+                            <div>
+                                <div class="meta-label">NF Revenda</div>
+                                <div class="meta-value">{{ item.numero_nf_revenda|default:"-" }}</div>
+                            </div>
+                            <div>
+                                <div class="meta-label">Data NF Revenda</div>
+                                <div class="meta-value">{{ item.data_nf_revenda|default:"-" }}</div>
+                            </div>
+                            <div>
+                                <div class="meta-label">Tempo de uso oficial</div>
+                                <div class="meta-value"><span class="tempo-uso-oficial-chip">{{ item.tempo_uso_oficial|default:"Não calculado" }}</span></div>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty">
+                <strong>Nenhum SAC pendente na Assessoria Científica.</strong>
+                Quando um SAC entrar na fila desta área, ele aparecerá aqui para seleção.
+            </div>
+        {% endif %}
+    </section>
+</div>
+</body>
+</html>

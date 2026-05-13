@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesquisa de SACs</title>
+    <style>
+        :root {
+            --bg-1: #07111f;
+            --bg-2: #0e1c34;
+            --card: rgba(12, 24, 46, 0.82);
+            --card-soft: rgba(255, 255, 255, 0.06);
+            --line: rgba(255, 255, 255, 0.12);
+            --text: #f5f8ff;
+            --muted: #adc0df;
+            --primary: #4da3ff;
+            --primary-2: #7cc6ff;
+            --success: #2ecf89;
+            --shadow: 0 18px 46px rgba(0, 0, 0, 0.28);
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(77, 163, 255, 0.18), transparent 24%),
+                radial-gradient(circle at top right, rgba(46, 207, 137, 0.14), transparent 20%),
+                linear-gradient(135deg, var(--bg-1), var(--bg-2) 55%, #13284b 100%);
+            min-height: 100vh;
+        }
+        .page { max-width: 1500px; margin: 0 auto; padding: 28px; }
+        .hero {
+            background: linear-gradient(135deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03));
+            border: 1px solid var(--line);
+            border-radius: 28px;
+            padding: 28px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+        .hero-top { display:flex; justify-content:space-between; gap:18px; align-items:flex-start; flex-wrap:wrap; }
+        .eyebrow {
+            display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:999px;
+            background: rgba(77, 163, 255, 0.12); border:1px solid rgba(124, 198, 255, 0.22);
+            color: var(--primary-2); font-size:13px; font-weight:700; text-transform:uppercase;
+        }
+        h1 { margin:16px 0 8px; font-size: clamp(28px, 4vw, 46px); }
+        .hero p { margin:0; color: var(--muted); max-width: 900px; line-height:1.55; }
+        .hero-actions { display:flex; gap:12px; flex-wrap:wrap; }
+        .hero-btn {
+            display:inline-flex; align-items:center; gap:10px; padding:13px 18px; border-radius:16px;
+            text-decoration:none; color:#fff; font-weight:700; border:1px solid transparent;
+        }
+        .hero-btn.primary { background: linear-gradient(135deg, #2388ff, #58b0ff); }
+        .hero-btn.secondary { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.12); }
+        .stats { margin-top:22px; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+        .stat { background: var(--card-soft); border:1px solid var(--line); border-radius:18px; padding:16px; }
+        .stat small { display:block; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; }
+        .stat strong { font-size: 28px; }
+        .layout { display:grid; grid-template-columns: 420px 1fr; gap:22px; margin-top: 24px; }
+        .panel { background: var(--card); border:1px solid var(--line); border-radius:24px; box-shadow: var(--shadow); overflow:hidden; }
+        .panel-head { padding:22px 22px 0; }
+        .panel-head h2 { margin:0; font-size:24px; }
+        .panel-head p { margin:8px 0 0; color:var(--muted); }
+        .search-box { padding:22px; border-bottom:1px solid var(--line); }
+        .search-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+        .field label { display:block; font-size:13px; font-weight:700; color:var(--muted); margin-bottom:6px; text-transform:uppercase; }
+        .field input {
+            width:100%; padding:12px 14px; border-radius:14px; border:1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.06); color:#fff; outline:none;
+        }
+        .field input::placeholder { color: #b8cae4; }
+        .search-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+        .btn {
+            display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 16px; border-radius:14px;
+            border:1px solid transparent; text-decoration:none; font-weight:700; cursor:pointer;
+        }
+        .btn-primary { background: linear-gradient(135deg, #2388ff, #58b0ff); color:#fff; }
+        .btn-light { background: rgba(255,255,255,0.05); color:#fff; border-color: rgba(255,255,255,0.12); }
+        .result-list { max-height: 980px; overflow:auto; padding: 12px; }
+        .result-card {
+            display:block; text-decoration:none; color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:18px;
+            background: rgba(255,255,255,0.04); padding:16px; margin-bottom:12px;
+        }
+        .result-card.selected { border-color: rgba(124, 198, 255, 0.5); background: rgba(77, 163, 255, 0.12); }
+        .result-top { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
+        .result-num { font-size:20px; font-weight:800; }
+        .result-badge { padding:7px 10px; border-radius:999px; background:rgba(46, 207, 137, 0.15); color:#9ae3c3; font-size:12px; font-weight:700; }
+        .result-meta { margin-top:10px; display:grid; gap:6px; color:#dfe9ff; font-size:14px; }
+        .detail-wrap { padding:22px; }
+        .section { margin-bottom:22px; }
+        .section h3 { margin:0 0 14px; font-size:18px; }
+        .detail-grid { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:14px; }
+        .info-card, .item-card, .history-card {
+            background: rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:18px; padding:16px;
+        }
+        .info-card small { display:block; color:var(--muted); text-transform:uppercase; margin-bottom:6px; }
+        .info-card strong { display:block; font-size:16px; line-height:1.4; }
+        .stack { display:grid; gap:12px; }
+        .item-card strong, .history-card strong { display:block; margin-bottom:8px; }
+        .muted { color:var(--muted); }
+        .empty { padding:26px; color:var(--muted); }
+        .two-cols { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+        .pill { display:inline-flex; padding:6px 10px; border-radius:999px; background:rgba(124,198,255,0.12); color:#cde5ff; font-size:12px; font-weight:700; margin:0 8px 8px 0; }
+        a.file-link { color:#9ad0ff; text-decoration:none; }
+        @media (max-width: 1200px) {
+            .layout { grid-template-columns: 1fr; }
+            .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 760px) {
+            .page { padding:18px; }
+            .search-grid, .detail-grid, .two-cols, .stats { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="hero">
+            <div class="hero-top">
+                <div>
+                    <div class="eyebrow">🔎 Consulta completa</div>
+                    <h1>Pesquisa de SACs</h1>
+                    <p>Consulte todos os SACs já abertos na base. A lista é exibida do mais recente para o mais antigo, considerando a data de abertura do SAC. Você pode pesquisar por cliente, número do SAC, produto e ocorrência.</p>
+                </div>
+                <div class="hero-actions">
+                    <a href="/intra/" class="hero-btn secondary">← Voltar ao painel</a>
+                    <a href="/sac/abrir/" class="hero-btn primary">➕ Abrir novo SAC</a>
+                </div>
+            </div>
+            <div class="stats">
+                <div class="stat"><small>Total encontrado</small><strong>{{ total_resultados }}</strong></div>
+                <div class="stat"><small>Ordenação</small><strong>Recente → Antigo</strong></div>
+                <div class="stat"><small>SAC selecionado</small><strong>{% if sac_selecionado %}{{ sac_selecionado.numero }}{% else %}Nenhum{% endif %}</strong></div>
+            </div>
+        </div>
+
+        <div class="layout">
+            <div class="panel">
+                <div class="panel-head">
+                    <h2>Buscar SACs</h2>
+                    <p>Use um ou mais filtros para localizar rapidamente qualquer registro já aberto.</p>
+                </div>
+                <div class="search-box">
+                    <form method="get">
+                        <div class="search-grid">
+                            <div class="field">
+                                <label>Cliente</label>
+                                <input type="text" name="cliente" value="{{ filtro_cliente }}" placeholder="Razão social, nome ou contato">
+                            </div>
+                            <div class="field">
+                                <label>Número do SAC</label>
+                                <input type="text" name="numero_sac" value="{{ filtro_numero }}" placeholder="Ex.: 013/2026">
+                            </div>
+                            <div class="field">
+                                <label>Produto</label>
+                                <input type="text" name="produto" value="{{ filtro_produto }}" placeholder="Produto, descrição ou código">
+                            </div>
+                            <div class="field">
+                                <label>Ocorrência</label>
+                                <input type="text" name="ocorrencia" value="{{ filtro_ocorrencia }}" placeholder="Tipo de ocorrência">
+                            </div>
+                        </div>
+                        <div class="search-actions">
+                            <button type="submit" class="btn btn-primary">Pesquisar</button>
+                            <a href="/sac/pesquisa/" class="btn btn-light">Limpar filtros</a>
+                        </div>
+                    </form>
+                </div>
+                <div class="result-list">
+                    {% if sacs %}
+                        {% for item in sacs %}
+                            <a class="result-card {% if sac_selecionado and sac_selecionado.id == item.id %}selected{% endif %}" href="?cliente={{ filtro_cliente|urlencode }}&numero_sac={{ filtro_numero|urlencode }}&produto={{ filtro_produto|urlencode }}&ocorrencia={{ filtro_ocorrencia|urlencode }}&sac={{ item.id }}">
+                                <div class="result-top">
+                                    <div>
+                                        <div class="result-num">{{ item.numero|default:'Sem número' }}</div>
+                                        <div class="muted">{{ item.data_abertura|date:'d/m/Y H:i' }}</div>
+                                    </div>
+                                    <div class="result-badge">{{ item.status_atual_nome }}</div>
+                                </div>
+                                <div class="result-meta">
+                                    <div><strong>Cliente:</strong> {% if item.cliente %}{{ item.cliente.razao_social|default:item.cliente.nome }}{% else %}-{% endif %}</div>
+                                    <div><strong>Produto(s):</strong> {{ item.itens_sac.all|length }}</div>
+                                    <div><strong>Ação em espera:</strong> {% if item.acao_em_espera %}{{ item.acao_em_espera.nome }}{% else %}-{% endif %}</div>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty">Nenhum SAC encontrado com os filtros informados.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="detail-wrap">
+                    {% if sac_selecionado %}
+                        <div class="section">
+                            <h2 style="margin:0 0 8px;">{{ sac_selecionado.numero|default:'SAC sem número' }}</h2>
+                            <p class="muted" style="margin:0;">Abertura em {{ sac_selecionado.data_abertura|date:'d/m/Y H:i' }}{% if sac_selecionado.usuario_abertura %} por {{ sac_selecionado.usuario_abertura }}{% endif %}</p>
+                        </div>
+
+                        <div class="section">
+                            <h3>Dados gerais</h3>
+                            <div class="detail-grid">
+                                <div class="info-card"><small>Empresa</small><strong>{% if sac_selecionado.empresa %}{{ sac_selecionado.empresa.razao_social }}{% else %}-{% endif %}</strong></div>
+                                <div class="info-card"><small>Cliente</small><strong>{% if sac_selecionado.cliente %}{{ sac_selecionado.cliente.razao_social|default:sac_selecionado.cliente.nome }}{% else %}-{% endif %}</strong></div>
+                                <div class="info-card"><small>Nota fiscal</small><strong>{% if sac_selecionado.nota_fiscal %}{{ sac_selecionado.nota_fiscal.numero|default:sac_selecionado.nota_fiscal.numero_nf }}{% else %}-{% endif %}</strong></div>
+                                <div class="info-card"><small>Status atual</small><strong>{{ sac_selecionado.status_atual_nome }}</strong></div>
+                                <div class="info-card"><small>Ação em espera</small><strong>{% if sac_selecionado.acao_em_espera %}{{ sac_selecionado.acao_em_espera.nome }}{% else %}-{% endif %}</strong></div>
+                                <div class="info-card"><small>Setor atual</small><strong>{% if sac_selecionado.setor_atual %}{{ sac_selecionado.setor_atual.nome }}{% else %}-{% endif %}</strong></div>
+                                <div class="info-card"><small>Setor responsável</small><strong>{% if sac_selecionado.setor_responsavel %}{{ sac_selecionado.setor_responsavel.nome }}{% else %}-{% endif %}</strong></div>
+                                <div class="info-card"><small>Título</small><strong>{{ sac_selecionado.titulo|default:'-' }}</strong></div>
+                                <div class="info-card"><small>Descrição</small><strong>{{ sac_selecionado.descricao|default:'-' }}</strong></div>
+                            </div>
+                        </div>
+
+                        <div class="section two-cols">
+                            <div>
+                                <h3>Contato principal</h3>
+                                <div class="stack">
+                                    <div class="info-card"><small>Nome do contato</small><strong>{{ sac_selecionado.contato_nome|default:'-' }}</strong></div>
+                                    <div class="info-card"><small>Telefones</small><strong>{{ sac_selecionado.telefone_1|default:'-' }}{% if sac_selecionado.telefone_2 %} / {{ sac_selecionado.telefone_2 }}{% endif %}</strong></div>
+                                    <div class="info-card"><small>E-mails</small><strong>{{ sac_selecionado.email_1|default:'-' }}{% if sac_selecionado.email_2 %} / {{ sac_selecionado.email_2 }}{% endif %}</strong></div>
+                                </div>
+                            </div>
+                            <div>
+                                <h3>Usuário de contato</h3>
+                                <div class="stack">
+                                    <div class="info-card"><small>Nome</small><strong>{{ sac_selecionado.nome_usuario_contato|default:'-' }}</strong></div>
+                                    <div class="info-card"><small>Empresa</small><strong>{{ sac_selecionado.empresa_usuario_contato|default:'-' }}</strong></div>
+                                    <div class="info-card"><small>Telefone / WhatsApp</small><strong>{{ sac_selecionado.telefone_usuario_contato|default:'-' }}{% if sac_selecionado.whatsapp_usuario_contato %} / {{ sac_selecionado.whatsapp_usuario_contato }}{% endif %}</strong></div>
+                                    <div class="info-card"><small>E-mail</small><strong>{{ sac_selecionado.email_usuario_contato|default:'-' }}</strong></div>
+                                    <div class="info-card"><small>Endereço</small><strong>{{ sac_selecionado.endereco_usuario_contato|default:'-' }}{% if sac_selecionado.cidade_usuario_contato or sac_selecionado.estado_usuario_contato %} - {{ sac_selecionado.cidade_usuario_contato|default:'' }} {{ sac_selecionado.estado_usuario_contato|default:'' }}{% endif %}</strong></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="section">
+                            <h3>Itens do SAC</h3>
+                            {% if sac_selecionado.itens_sac.all %}
+                                <div class="stack">
+                                    {% for item in sac_selecionado.itens_sac.all %}
+                                        <div class="item-card">
+                                            <strong>{{ item.item_nota_fiscal.descricao_item|default:item.item_nota_fiscal.item|default:'Item sem descrição' }}</strong>
+                                            <div><span class="pill">Código: {{ item.item_nota_fiscal.codigo_produto|default:'-' }}</span><span class="pill">Qtde problema: {{ item.quantidade_com_problema }}</span><span class="pill">Rastreio: {{ item.tipo_rastreio }} {% if item.numero_rastreio %}- {{ item.numero_rastreio }}{% endif %}</span></div>
+                                            <div class="muted">Ocorrência: {% if item.tipo_ocorrencia %}{{ item.tipo_ocorrencia.nome }}{% else %}-{% endif %}</div>
+                                            {% if item.observacao_item %}<div class="muted" style="margin-top:8px;">{{ item.observacao_item }}</div>{% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="empty">Nenhum item vinculado a este SAC.</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="section two-cols">
+                            <div>
+                                <h3>Análise técnica</h3>
+                                {% if analise_tecnica %}
+                                    <div class="stack">
+                                        <div class="info-card"><small>Tratativa do problema</small><strong>{% if analise_tecnica.tratativa_problema %}{{ analise_tecnica.tratativa_problema }}{% else %}-{% endif %}</strong></div>
+                                        <div class="info-card"><small>Tipo do problema</small><strong>{% if analise_tecnica.tipo_problema %}{{ analise_tecnica.tipo_problema }}{% else %}-{% endif %}</strong></div>
+                                        <div class="info-card"><small>Próximo status sugerido</small><strong>{% if analise_tecnica.proximo_status_sugerido %}{{ analise_tecnica.proximo_status_sugerido.nome }}{% else %}-{% endif %}</strong></div>
+                                        <div class="info-card"><small>Observação técnica</small><strong>{{ analise_tecnica.observacao_tecnica|default:'-' }}</strong></div>
+                                    </div>
+                                {% else %}
+                                    <div class="empty">Nenhuma análise técnica registrada.</div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h3>Análise comercial</h3>
+                                {% if analise_comercial %}
+                                    <div class="stack">
+                                        <div class="info-card"><small>Cliente confirmou pedido</small><strong>{% if analise_comercial.cliente_confirmou_pedido %}Sim{% else %}Não{% endif %}</strong></div>
+                                        <div class="info-card"><small>Cliente aceita negociação</small><strong>{% if analise_comercial.cliente_aceita_negociacao %}Sim{% else %}Não{% endif %}</strong></div>
+                                        <div class="info-card"><small>Próximo status sugerido</small><strong>{% if analise_comercial.proximo_status_sugerido %}{{ analise_comercial.proximo_status_sugerido.nome }}{% else %}-{% endif %}</strong></div>
+                                        <div class="info-card"><small>Ação em espera</small><strong>{% if analise_comercial.acao_em_espera %}{{ analise_comercial.acao_em_espera.nome }}{% else %}-{% endif %}</strong></div>
+                                        <div class="info-card"><small>Observação comercial</small><strong>{{ analise_comercial.observacao_comercial|default:'-' }}</strong></div>
+                                    </div>
+                                {% else %}
+                                    <div class="empty">Nenhuma análise comercial registrada.</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="section two-cols">
+                            <div>
+                                <h3>Anexos</h3>
+                                {% if anexos %}
+                                    <div class="stack">
+                                        {% for anexo in anexos %}
+                                            <div class="item-card">
+                                                <strong>Anexo {{ forloop.counter }}</strong>
+                                                <a class="file-link" href="{{ anexo.arquivo.url }}" target="_blank">Abrir arquivo</a>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="empty">Nenhum anexo vinculado a este SAC.</div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h3>Histórico do SAC</h3>
+                                {% if sac_selecionado.historicos.all %}
+                                    <div class="stack">
+                                        {% for h in sac_selecionado.historicos.all %}
+                                            <div class="history-card">
+                                                <strong>{{ h.data_evento|date:'d/m/Y H:i' }}{% if h.usuario %} - {{ h.usuario }}{% endif %}</strong>
+                                                <div><span class="pill">Ação: {{ h.acao_executada }}</span>{% if h.status_novo %}<span class="pill">Status novo: {{ h.status_novo.nome }}</span>{% endif %}{% if h.setor_destino %}<span class="pill">Setor destino: {{ h.setor_destino.nome }}</span>{% endif %}</div>
+                                                {% if h.observacao %}<div class="muted" style="margin-top:8px; white-space:pre-line;">{{ h.observacao }}</div>{% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="empty">Nenhum histórico registrado.</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="empty">
+                            Selecione um SAC na lista ao lado para visualizar todas as informações disponíveis sobre ele.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

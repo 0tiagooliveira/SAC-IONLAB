@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mockup - Gestão do SAC</title>
+  <style>
+    :root {
+      --blue-900: #07345d;
+      --blue-800: #0b4778;
+      --blue-700: #0f628f;
+      --cyan: #0097a7;
+      --green: #039b72;
+      --amber: #c98500;
+      --red: #d7263d;
+      --ink: #07345d;
+      --muted: #58708a;
+      --line: #cfe2f2;
+      --soft: #eef7fb;
+      --card: #ffffff;
+      --shadow: 0 18px 42px rgba(7, 52, 93, .12);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top right, rgba(0,151,167,.18), transparent 34%),
+        linear-gradient(180deg, #f7fbff 0%, #eaf4f8 100%);
+    }
+
+    .page {
+      max-width: 1450px;
+      margin: 0 auto;
+      padding: 24px 28px 50px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .title h1 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .title p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .top-actions,
+    .company-tabs,
+    .section-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--blue-900);
+      padding: 12px 17px;
+      font-weight: 800;
+      font-size: 14px;
+      box-shadow: 0 8px 18px rgba(7,52,93,.07);
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, var(--blue-900), var(--blue-700));
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .control-strip {
+      background: rgba(255,255,255,.9);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px 18px;
+      display: grid;
+      grid-template-columns: 230px 1fr;
+      gap: 16px;
+      align-items: center;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .eyebrow {
+      display: block;
+      color: #5b7691;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .control-title {
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .tab {
+      border: 1px solid #bdd4e8;
+      background: #fff;
+      border-radius: 999px;
+      padding: 10px 16px;
+      color: var(--blue-900);
+      font-weight: 900;
+      font-size: 14px;
+    }
+
+    .tab.active {
+      color: #fff;
+      border-color: transparent;
+      background: linear-gradient(135deg, #007f99, #13a085);
+      box-shadow: 0 10px 18px rgba(0,127,153,.2);
+    }
+
+    .overview {
+      background: rgba(255,255,255,.86);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 22px;
+    }
+
+    .overview-head,
+    .section-head {
+      padding: 18px 20px;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      border-bottom: 1px solid #d9e9f5;
+      background: linear-gradient(90deg, rgba(0,151,167,.12), rgba(255,255,255,.75));
+    }
+
+    .overview-head h2,
+    .section-head h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .overview-grid {
+      padding: 18px;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(150px, 1fr));
+      gap: 12px;
+    }
+
+    .kpi {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      min-height: 112px;
+    }
+
+    .kpi label {
+      display: block;
+      font-size: 12px;
+      font-weight: 900;
+      color: #536f8b;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-bottom: 8px;
+    }
+
+    .kpi .number {
+      font-size: 32px;
+      line-height: 1;
+      font-weight: 900;
+      color: var(--blue-900);
+    }
+
+    .kpi .split {
+      display: grid;
+      gap: 7px;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .kpi .split span {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .red { color: var(--red); }
+    .green { color: var(--green); }
+    .amber { color: var(--amber); }
+
+    .charts {
+      padding: 0 18px 18px;
+      display: grid;
+      grid-template-columns: 1fr 1.2fr 1fr;
+      gap: 12px;
+    }
+
+    .mini-panel {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      min-height: 150px;
+    }
+
+    .mini-panel h3 {
+      margin: 0 0 14px;
+      font-size: 16px;
+    }
+
+    .bar {
+      height: 13px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #eaf2f8;
+      display: flex;
+      margin-bottom: 13px;
+    }
+    .bar span:nth-child(1) { background: var(--green); width: 8%; }
+    .bar span:nth-child(2) { background: var(--amber); width: 0%; }
+    .bar span:nth-child(3) { background: var(--red); width: 92%; }
+
+    .sector-row {
+      display: grid;
+      grid-template-columns: 135px 1fr 34px;
+      gap: 10px;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 9px;
+    }
+
+    .track {
+      height: 9px;
+      background: #e8f1f7;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .track i {
+      display: block;
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--cyan), var(--blue-900));
+    }
+
+    .work-section {
+      background: rgba(255,255,255,.9);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      background: linear-gradient(135deg, var(--blue-900), var(--cyan));
+      color: #fff;
+      font-weight: 900;
+      margin-right: 12px;
+    }
+
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+    }
+
+    .section-title-wrap p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .sac-list {
+      padding: 18px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .sac-row {
+      display: grid;
+      grid-template-columns: 105px 1.4fr 1fr 150px 120px;
+      gap: 14px;
+      align-items: center;
+      padding: 14px 16px;
+      border: 1px solid #d8e8f4;
+      border-radius: 15px;
+      background: #fff;
+    }
+
+    .sac-row strong { font-size: 16px; }
+    .sac-row small {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .pill {
+      display: inline-flex;
+      width: fit-content;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      background: #fff2d8;
+      color: #8a5600;
+      border: 1px solid #f0c36a;
+    }
+
+    @media (max-width: 1050px) {
+      .control-strip,
+      .overview-grid,
+      .charts,
+      .sac-row {
+        grid-template-columns: 1fr;
+      }
+      .topbar,
+      .overview-head,
+      .section-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div class="title">
+        <h1>Gestão do SAC</h1>
+        <p>Fila central, encaminhamentos e indicadores operacionais.</p>
+      </div>
+      <div class="top-actions">
+        <button class="btn">Painel</button>
+        <button class="btn primary">+ Novo SAC</button>
+      </div>
+    </header>
+
+    <section class="control-strip">
+      <div>
+        <span class="eyebrow">Filtro global</span>
+        <div class="control-title">Empresa em visualização</div>
+      </div>
+      <div class="company-tabs">
+        <button class="tab active">Agrupado</button>
+        <button class="tab">AMBARLAB</button>
+        <button class="tab">CIORBRASIL</button>
+        <button class="tab">EVENLAB</button>
+        <button class="tab">IONLAB</button>
+        <button class="tab">NATIVILAB</button>
+        <button class="tab">ONIX</button>
+        <button class="tab">VITRALAB</button>
+      </div>
+    </section>
+
+    <section class="overview">
+      <div class="overview-head">
+        <div>
+          <span class="eyebrow">Visão geral do SAC</span>
+          <h2>Indicadores, SLA e campeões do mês</h2>
+        </div>
+        <button class="btn primary">Abrir dashboard completo</button>
+      </div>
+
+      <div class="overview-grid">
+        <article class="kpi">
+          <label>Total abertos</label>
+          <div class="number">55</div>
+          <small>Em andamento no fluxo.</small>
+        </article>
+        <article class="kpi">
+          <label>Vencidos</label>
+          <div class="split">
+            <span>Total geral <b class="red">55</b></span>
+            <span>Neste setor <b class="red">13</b></span>
+          </div>
+        </article>
+        <article class="kpi">
+          <label>Próximos</label>
+          <div class="split">
+            <span>Total geral <b class="amber">0</b></span>
+            <span>Neste setor <b class="amber">0</b></span>
+          </div>
+        </article>
+        <article class="kpi">
+          <label>Concluídos mês</label>
+          <div class="split">
+            <span>Total geral <b class="green">4</b></span>
+            <span>Neste setor <b class="green">4</b></span>
+          </div>
+        </article>
+        <article class="kpi">
+          <label>No prazo</label>
+          <div class="number green">0,0%</div>
+          <small>Finalizados dentro do limite.</small>
+        </article>
+      </div>
+
+      <div class="charts">
+        <article class="mini-panel">
+          <h3>SLA atual</h3>
+          <div class="bar"><span></span><span></span><span></span></div>
+          <small><b class="green">●</b> No prazo &nbsp; <b class="amber">●</b> Próximo &nbsp; <b class="red">●</b> Vencido</small>
+        </article>
+        <article class="mini-panel">
+          <h3>SACs aguardando ação por setor</h3>
+          <div class="sector-row"><span>Logística</span><div class="track"><i style="width:100%"></i></div><b>28</b></div>
+          <div class="sector-row"><span>SAC</span><div class="track"><i style="width:46%"></i></div><b>13</b></div>
+          <div class="sector-row"><span>Assist. Técnica</span><div class="track"><i style="width:28%"></i></div><b>8</b></div>
+          <div class="sector-row"><span>Licitação</span><div class="track"><i style="width:11%"></i></div><b>3</b></div>
+        </article>
+        <article class="mini-panel">
+          <h3>Item campeão do mês</h3>
+          <strong>BMD-10-220V</strong>
+          <small>Referência com mais chamados no período.</small>
+        </article>
+      </div>
+    </section>
+
+    <section class="work-section">
+      <div class="section-head">
+        <div class="section-title-wrap">
+          <div class="section-label">SAC</div>
+          <div>
+            <h2>SACs aguardando ação — Gestão do SAC</h2>
+            <p>Atendimentos parados nesta fila, ordenados por prioridade e tempo de espera.</p>
+          </div>
+        </div>
+        <div class="section-actions">
+          <button class="btn">Exportar</button>
+          <button class="btn primary">Atualizar fila</button>
+        </div>
+      </div>
+
+      <div class="sac-list">
+        <div class="sac-row">
+          <div><strong>273/2024</strong><small>Aberto há 1 ano</small></div>
+          <div><strong>MERCOLAB PRODUTOS PARA LABORATÓRIOS LTDA</strong><small>NF 41123</small></div>
+          <div><span class="pill">Aguardando contato com cliente</span></div>
+          <div><strong>Assessoria Científica</strong><small>Setor atual</small></div>
+          <button class="btn primary">Abrir</button>
+        </div>
+        <div class="sac-row">
+          <div><strong>768/2026</strong><small>Aberto há 16 dias</small></div>
+          <div><strong>Cliente exemplo para visualização</strong><small>NF 53993</small></div>
+          <div><span class="pill">Aguardando inspeção física</span></div>
+          <div><strong>Assistência Técnica</strong><small>Setor atual</small></div>
+          <button class="btn primary">Abrir</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

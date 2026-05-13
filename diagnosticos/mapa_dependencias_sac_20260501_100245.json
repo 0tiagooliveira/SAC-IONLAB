@@ -1,0 +1,4023 @@
+{
+  "gerado_em": "2026-05-01 10:02:45",
+  "base_dir": "C:\\Ionlab\\SAC\\programa\\SAC_Intranet_oficial",
+  "observacao": "Somente leitura. Nao altera arquivos, regras, banco, status, setores ou fluxos.",
+  "resumo": {
+    "BAIXO": 1,
+    "MEDIO": 214
+  },
+  "metricas": {
+    "arquivos_python": 261,
+    "templates_html": 76,
+    "urls_mapeadas": 38,
+    "templates_renderizados": 99
+  },
+  "mapa": {
+    "urls": [
+      {
+        "arquivo": "config/urls.py",
+        "rota": "admin/",
+        "view": "admin.site.urls",
+        "name": ""
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "login/",
+        "view": "login_interno",
+        "name": "login_interno"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "logout/",
+        "view": "logout_interno",
+        "name": "logout_interno"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "",
+        "view": "RedirectView.as_view(url='/intra/'",
+        "name": ""
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "intra/",
+        "view": "painel_navegacao",
+        "name": "painel_navegacao"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "sac/dashboard/",
+        "view": "dashboard_sla",
+        "name": "dashboard_sla"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "sac/gestao/",
+        "view": "gestao_sac",
+        "name": "gestao_sac"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "sac/pesquisa/",
+        "view": "pesquisa_sacs",
+        "name": "pesquisa_sacs"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "sac/assessoria-cientifica/",
+        "view": "assessoria_cientifica",
+        "name": "assessoria_cientifica"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "sac/diretoria/",
+        "view": "analise_diretoria",
+        "name": "analise_diretoria"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "importar/",
+        "view": "importar_notas_excel",
+        "name": "importar"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "importar-rastreios/",
+        "view": "importar_rastreios_excel",
+        "name": "importar_rastreios"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "importar-tabela-pecas/",
+        "view": "importar_tabela_pecas_excel",
+        "name": "importar_tabela_pecas"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "corrigir-banco/",
+        "view": "executar_correcao_banco",
+        "name": "executar_correcao_banco"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "sac/abrir/",
+        "view": "abrir_sac",
+        "name": "abrir_sac"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "sac/<int:sac_id>/analise-tecnica/",
+        "view": "analise_tecnica_sac",
+        "name": "analise_tecnica_sac"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "sac/analise-comercial/",
+        "view": "analise_comercial_sac",
+        "name": "analise_comercial_sac_lista"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "sac/<int:sac_id>/analise-comercial/",
+        "view": "analise_comercial_sac",
+        "name": "analise_comercial_sac"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "sac/gestao-logistica/",
+        "view": "gestao_logistica",
+        "name": "gestao_logistica_lista"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "sac/<int:sac_id>/gestao-logistica/",
+        "view": "gestao_logistica",
+        "name": "gestao_logistica"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "sac/assistencia-tecnica/",
+        "view": "gestao_assistencia_tecnica",
+        "name": "assistencia_tecnica_lista"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "sac/<int:sac_id>/assistencia-tecnica/",
+        "view": "gestao_assistencia_tecnica",
+        "name": "assistencia_tecnica"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "sac/gestao-financeira/",
+        "view": "gestao_financeira",
+        "name": "gestao_financeira_lista"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "sac/<int:sac_id>/gestao-financeira/",
+        "view": "gestao_financeira",
+        "name": "gestao_financeira"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "sac/<int:sac_id>/auditoria/",
+        "view": "auditoria_visual_sac",
+        "name": "auditoria_visual_sac"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "api/clientes/",
+        "view": "buscar_clientes",
+        "name": "buscar_clientes"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "api/contatos-cliente/",
+        "view": "listar_contatos_cliente",
+        "name": "listar_contatos_cliente"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "api/notas-cliente/",
+        "view": "listar_notas_cliente",
+        "name": "listar_notas_cliente"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "api/itens-nota/",
+        "view": "listar_itens_nota",
+        "name": "listar_itens_nota"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "api/rastreios-item/",
+        "view": "listar_rastreios_item",
+        "name": "listar_rastreios_item"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "api/tipo-ocorrencia/",
+        "view": "buscar_tipo_ocorrencia",
+        "name": "buscar_tipo_ocorrencia"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "api/historico-item-rastreio/",
+        "view": "historico_item_rastreio",
+        "name": "historico_item_rastreio"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "api/proximo-numero-sac/",
+        "view": "proximo_numero_sac_api",
+        "name": "proximo_numero_sac_api"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "api/buscar-serial/",
+        "view": "buscar_serial_api",
+        "name": "buscar_serial_api"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "api/buscar-vendedor-por-nota/",
+        "view": "buscar_vendedor_por_nota",
+        "name": "buscar_vendedor_por_nota"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "api/buscar-vendedor/",
+        "view": "buscar_vendedor_por_nota",
+        "name": "buscar_vendedor_por_nota_alias"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "sac/gestao-licitacao/",
+        "view": "gestao_licitacao",
+        "name": "gestao_licitacao_lista"
+      },
+      {
+        "arquivo": "config/urls.py",
+        "rota": "sac/<int:sac_id>/gestao-licitacao/",
+        "view": "gestao_licitacao",
+        "name": "gestao_licitacao"
+      }
+    ],
+    "templates_renderizados": [
+      {
+        "arquivo": "core/views.py",
+        "template": "core/importar.html"
+      },
+      {
+        "arquivo": "core/views.py",
+        "template": "core/importar.html"
+      },
+      {
+        "arquivo": "core/views.py",
+        "template": "core/importar_rastreios.html"
+      },
+      {
+        "arquivo": "core/views.py",
+        "template": "core/importar_rastreios.html"
+      },
+      {
+        "arquivo": "core/views.py",
+        "template": "core/importar_tabela_pecas.html"
+      },
+      {
+        "arquivo": "core/views.py",
+        "template": "core/importar_tabela_pecas.html"
+      },
+      {
+        "arquivo": "core/views.py",
+        "template": "core/analise_comercial_sac.html"
+      },
+      {
+        "arquivo": "core/views.py",
+        "template": "core/painel_navegacao.html"
+      },
+      {
+        "arquivo": "core/views.py",
+        "template": "core/analise_gestao_sac.html"
+      },
+      {
+        "arquivo": "core/views.py",
+        "template": "core/pesquisa_sacs.html"
+      },
+      {
+        "arquivo": "core/views.py",
+        "template": "core/analise_diretoria.html"
+      },
+      {
+        "arquivo": "core/views.py",
+        "template": "core/assessoria_cientifica.html"
+      },
+      {
+        "arquivo": "core/views.py",
+        "template": "core/gestao_logistica.html"
+      },
+      {
+        "arquivo": "core/views.py",
+        "template": "core/gestao_logistica.html"
+      },
+      {
+        "arquivo": "core/views.py",
+        "template": "core/login_interno.html"
+      },
+      {
+        "arquivo": "core/views.py",
+        "template": "core/gestao_licitacao.html"
+      },
+      {
+        "arquivo": "core/views_backup_antes_diretoria.py",
+        "template": "core/importar.html"
+      },
+      {
+        "arquivo": "core/views_backup_antes_diretoria.py",
+        "template": "core/importar.html"
+      },
+      {
+        "arquivo": "core/views_backup_antes_diretoria.py",
+        "template": "core/importar_rastreios.html"
+      },
+      {
+        "arquivo": "core/views_backup_antes_diretoria.py",
+        "template": "core/importar_rastreios.html"
+      },
+      {
+        "arquivo": "core/views_backup_antes_diretoria.py",
+        "template": "core/importar_tabela_pecas.html"
+      },
+      {
+        "arquivo": "core/views_backup_antes_diretoria.py",
+        "template": "core/importar_tabela_pecas.html"
+      },
+      {
+        "arquivo": "core/views_backup_antes_diretoria.py",
+        "template": "core/analise_comercial_sac.html"
+      },
+      {
+        "arquivo": "core/views_backup_antes_diretoria.py",
+        "template": "core/painel_navegacao.html"
+      },
+      {
+        "arquivo": "core/views_backup_antes_diretoria.py",
+        "template": "core/analise_gestao_sac.html"
+      },
+      {
+        "arquivo": "core/views_backup_antes_diretoria.py",
+        "template": "core/pesquisa_sacs.html"
+      },
+      {
+        "arquivo": "core/views_backup_antes_diretoria.py",
+        "template": "core/analise_diretoria.html"
+      },
+      {
+        "arquivo": "core/views_backup_antes_diretoria.py",
+        "template": "core/assessoria_cientifica.html"
+      },
+      {
+        "arquivo": "core/views_backup_antes_diretoria.py",
+        "template": "core/gestao_logistica.html"
+      },
+      {
+        "arquivo": "core/views_backup_antes_diretoria.py",
+        "template": "core/gestao_logistica.html"
+      },
+      {
+        "arquivo": "core/views_backup_antes_diretoria.py",
+        "template": "core/login_interno.html"
+      },
+      {
+        "arquivo": "core/views_backup_antes_diretoria.py",
+        "template": "core/gestao_licitacao.html"
+      },
+      {
+        "arquivo": "core_/views.py",
+        "template": "core/importar.html"
+      },
+      {
+        "arquivo": "core_/views.py",
+        "template": "core/importar.html"
+      },
+      {
+        "arquivo": "core_/views.py",
+        "template": "core/importar_rastreios.html"
+      },
+      {
+        "arquivo": "core_/views.py",
+        "template": "core/importar_rastreios.html"
+      },
+      {
+        "arquivo": "core_/views.py",
+        "template": "core/importar_tabela_pecas.html"
+      },
+      {
+        "arquivo": "core_/views.py",
+        "template": "core/importar_tabela_pecas.html"
+      },
+      {
+        "arquivo": "core_/views.py",
+        "template": "core/analise_comercial_sac.html"
+      },
+      {
+        "arquivo": "core_/views.py",
+        "template": "core/painel_navegacao.html"
+      },
+      {
+        "arquivo": "core_/views.py",
+        "template": "core/analise_gestao_sac.html"
+      },
+      {
+        "arquivo": "core_/views.py",
+        "template": "core/pesquisa_sacs.html"
+      },
+      {
+        "arquivo": "core_/views.py",
+        "template": "core/analise_diretoria.html"
+      },
+      {
+        "arquivo": "core_/views.py",
+        "template": "core/assessoria_cientifica.html"
+      },
+      {
+        "arquivo": "core_/views.py",
+        "template": "core/gestao_logistica.html"
+      },
+      {
+        "arquivo": "core_/views.py",
+        "template": "core/gestao_logistica.html"
+      },
+      {
+        "arquivo": "core_/views.py",
+        "template": "core/login_interno.html"
+      },
+      {
+        "arquivo": "core_/views.py",
+        "template": "core/gestao_licitacao.html"
+      },
+      {
+        "arquivo": "core_/views_backup_antes_diretoria.py",
+        "template": "core/importar.html"
+      },
+      {
+        "arquivo": "core_/views_backup_antes_diretoria.py",
+        "template": "core/importar.html"
+      },
+      {
+        "arquivo": "core_/views_backup_antes_diretoria.py",
+        "template": "core/importar_rastreios.html"
+      },
+      {
+        "arquivo": "core_/views_backup_antes_diretoria.py",
+        "template": "core/importar_rastreios.html"
+      },
+      {
+        "arquivo": "core_/views_backup_antes_diretoria.py",
+        "template": "core/importar_tabela_pecas.html"
+      },
+      {
+        "arquivo": "core_/views_backup_antes_diretoria.py",
+        "template": "core/importar_tabela_pecas.html"
+      },
+      {
+        "arquivo": "core_/views_backup_antes_diretoria.py",
+        "template": "core/analise_comercial_sac.html"
+      },
+      {
+        "arquivo": "core_/views_backup_antes_diretoria.py",
+        "template": "core/painel_navegacao.html"
+      },
+      {
+        "arquivo": "core_/views_backup_antes_diretoria.py",
+        "template": "core/analise_gestao_sac.html"
+      },
+      {
+        "arquivo": "core_/views_backup_antes_diretoria.py",
+        "template": "core/pesquisa_sacs.html"
+      },
+      {
+        "arquivo": "core_/views_backup_antes_diretoria.py",
+        "template": "core/analise_diretoria.html"
+      },
+      {
+        "arquivo": "core_/views_backup_antes_diretoria.py",
+        "template": "core/assessoria_cientifica.html"
+      },
+      {
+        "arquivo": "core_/views_backup_antes_diretoria.py",
+        "template": "core/gestao_logistica.html"
+      },
+      {
+        "arquivo": "core_/views_backup_antes_diretoria.py",
+        "template": "core/gestao_logistica.html"
+      },
+      {
+        "arquivo": "core_/views_backup_antes_diretoria.py",
+        "template": "core/login_interno.html"
+      },
+      {
+        "arquivo": "core_/views_backup_antes_diretoria.py",
+        "template": "core/gestao_licitacao.html"
+      },
+      {
+        "arquivo": "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py",
+        "template": "core/importar.html"
+      },
+      {
+        "arquivo": "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py",
+        "template": "core/importar.html"
+      },
+      {
+        "arquivo": "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py",
+        "template": "core/importar_rastreios.html"
+      },
+      {
+        "arquivo": "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py",
+        "template": "core/importar_rastreios.html"
+      },
+      {
+        "arquivo": "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py",
+        "template": "core/importar_tabela_pecas.html"
+      },
+      {
+        "arquivo": "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py",
+        "template": "core/importar_tabela_pecas.html"
+      },
+      {
+        "arquivo": "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py",
+        "template": "core/analise_comercial_sac.html"
+      },
+      {
+        "arquivo": "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py",
+        "template": "core/painel_navegacao.html"
+      },
+      {
+        "arquivo": "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py",
+        "template": "core/analise_gestao_sac.html"
+      },
+      {
+        "arquivo": "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py",
+        "template": "core/pesquisa_sacs.html"
+      },
+      {
+        "arquivo": "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py",
+        "template": "core/analise_diretoria.html"
+      },
+      {
+        "arquivo": "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py",
+        "template": "core/assessoria_cientifica.html"
+      },
+      {
+        "arquivo": "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py",
+        "template": "core/gestao_logistica.html"
+      },
+      {
+        "arquivo": "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py",
+        "template": "core/gestao_logistica.html"
+      },
+      {
+        "arquivo": "_backup_patch_assistencia_tecnica_parte_1_2_20260426_0934/core/views_modular/views_assistencia_tecnica.py",
+        "template": "core/gestao_assistencia_tecnica.html"
+      },
+      {
+        "arquivo": "core_/views_modular/views_assessoria.py",
+        "template": "core/assessoria_cientifica.html"
+      },
+      {
+        "arquivo": "core_/views_modular/views_assistencia_tecnica.py",
+        "template": "core/gestao_assistencia_tecnica.html"
+      },
+      {
+        "arquivo": "core_/views_modular/views_comercial.py",
+        "template": "core/analise_comercial_sac.html"
+      },
+      {
+        "arquivo": "core_/views_modular/views_dashboard_sla.py",
+        "template": "core/dashboard_sla.html"
+      },
+      {
+        "arquivo": "core_/views_modular/views_dashboard_sla.py",
+        "template": "core/auditoria_visual_sac.html"
+      },
+      {
+        "arquivo": "core_/views_modular/views_diretoria.py",
+        "template": "core/analise_diretoria.html"
+      },
+      {
+        "arquivo": "core_/views_modular/views_financeiro.py",
+        "template": "core/gestao_financeira.html"
+      },
+      {
+        "arquivo": "core_/views_modular/views_gestao.py",
+        "template": "core/analise_gestao_sac.html"
+      },
+      {
+        "arquivo": "core_/views_modular/views_licitacao.py",
+        "template": "core/gestao_licitacao.html"
+      },
+      {
+        "arquivo": "core_/views_modular/views_logistica.py",
+        "template": "core/gestao_logistica.html"
+      },
+      {
+        "arquivo": "core/views_modular/views_assessoria.py",
+        "template": "core/assessoria_cientifica.html"
+      },
+      {
+        "arquivo": "core/views_modular/views_assistencia_tecnica.py",
+        "template": "core/gestao_assistencia_tecnica.html"
+      },
+      {
+        "arquivo": "core/views_modular/views_comercial.py",
+        "template": "core/analise_comercial_sac.html"
+      },
+      {
+        "arquivo": "core/views_modular/views_dashboard_sla.py",
+        "template": "core/dashboard_sla.html"
+      },
+      {
+        "arquivo": "core/views_modular/views_dashboard_sla.py",
+        "template": "core/auditoria_visual_sac.html"
+      },
+      {
+        "arquivo": "core/views_modular/views_diretoria.py",
+        "template": "core/analise_diretoria.html"
+      },
+      {
+        "arquivo": "core/views_modular/views_financeiro.py",
+        "template": "core/gestao_financeira.html"
+      },
+      {
+        "arquivo": "core/views_modular/views_gestao.py",
+        "template": "core/analise_gestao_sac.html"
+      },
+      {
+        "arquivo": "core/views_modular/views_licitacao.py",
+        "template": "core/gestao_licitacao.html"
+      },
+      {
+        "arquivo": "core/views_modular/views_logistica.py",
+        "template": "core/gestao_logistica.html"
+      }
+    ],
+    "forms_por_arquivo": {
+      "core/forms.py": [
+        {
+          "classe": "ImportarNotasExcelForm",
+          "linha": 273
+        },
+        {
+          "classe": "ImportarRastreiosExcelForm",
+          "linha": 281
+        },
+        {
+          "classe": "AberturaSACForm",
+          "linha": 289
+        },
+        {
+          "classe": "AnaliseTecnicaSACForm",
+          "linha": 836
+        },
+        {
+          "classe": "OrcamentoTecnicoExternoForm",
+          "linha": 894
+        },
+        {
+          "classe": "OrcamentoPecaForm",
+          "linha": 919
+        },
+        {
+          "classe": "AnaliseComercialSACForm",
+          "linha": 1005
+        },
+        {
+          "classe": "ImportarTabelaPecasExcelForm",
+          "linha": 1267
+        },
+        {
+          "classe": "GestaoSACPedidoRetornoForm",
+          "linha": 1272
+        },
+        {
+          "classe": "GestaoLogisticaAcaoExecutadaForm",
+          "linha": 1641
+        }
+      ],
+      "core/uuu.py": [
+        {
+          "classe": "ImportarNotasExcelForm",
+          "linha": 273
+        },
+        {
+          "classe": "ImportarRastreiosExcelForm",
+          "linha": 281
+        },
+        {
+          "classe": "AberturaSACForm",
+          "linha": 289
+        },
+        {
+          "classe": "AnaliseTecnicaSACForm",
+          "linha": 825
+        },
+        {
+          "classe": "OrcamentoTecnicoExternoForm",
+          "linha": 883
+        },
+        {
+          "classe": "OrcamentoPecaForm",
+          "linha": 908
+        },
+        {
+          "classe": "AnaliseComercialSACForm",
+          "linha": 994
+        },
+        {
+          "classe": "ImportarTabelaPecasExcelForm",
+          "linha": 1256
+        },
+        {
+          "classe": "GestaoSACPedidoRetornoForm",
+          "linha": 1261
+        },
+        {
+          "classe": "GestaoLogisticaAcaoExecutadaForm",
+          "linha": 1630
+        }
+      ],
+      "core_/forms.py": [
+        {
+          "classe": "ImportarNotasExcelForm",
+          "linha": 273
+        },
+        {
+          "classe": "ImportarRastreiosExcelForm",
+          "linha": 281
+        },
+        {
+          "classe": "AberturaSACForm",
+          "linha": 289
+        },
+        {
+          "classe": "AnaliseTecnicaSACForm",
+          "linha": 836
+        },
+        {
+          "classe": "OrcamentoTecnicoExternoForm",
+          "linha": 894
+        },
+        {
+          "classe": "OrcamentoPecaForm",
+          "linha": 919
+        },
+        {
+          "classe": "AnaliseComercialSACForm",
+          "linha": 1005
+        },
+        {
+          "classe": "ImportarTabelaPecasExcelForm",
+          "linha": 1267
+        },
+        {
+          "classe": "GestaoSACPedidoRetornoForm",
+          "linha": 1272
+        },
+        {
+          "classe": "GestaoLogisticaAcaoExecutadaForm",
+          "linha": 1641
+        }
+      ],
+      "core_/uuu.py": [
+        {
+          "classe": "ImportarNotasExcelForm",
+          "linha": 273
+        },
+        {
+          "classe": "ImportarRastreiosExcelForm",
+          "linha": 281
+        },
+        {
+          "classe": "AberturaSACForm",
+          "linha": 289
+        },
+        {
+          "classe": "AnaliseTecnicaSACForm",
+          "linha": 825
+        },
+        {
+          "classe": "OrcamentoTecnicoExternoForm",
+          "linha": 883
+        },
+        {
+          "classe": "OrcamentoPecaForm",
+          "linha": 908
+        },
+        {
+          "classe": "AnaliseComercialSACForm",
+          "linha": 994
+        },
+        {
+          "classe": "ImportarTabelaPecasExcelForm",
+          "linha": 1256
+        },
+        {
+          "classe": "GestaoSACPedidoRetornoForm",
+          "linha": 1261
+        },
+        {
+          "classe": "GestaoLogisticaAcaoExecutadaForm",
+          "linha": 1630
+        }
+      ],
+      "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/forms.py": [
+        {
+          "classe": "ImportarNotasExcelForm",
+          "linha": 64
+        },
+        {
+          "classe": "ImportarRastreiosExcelForm",
+          "linha": 72
+        },
+        {
+          "classe": "AberturaSACForm",
+          "linha": 80
+        },
+        {
+          "classe": "AnaliseTecnicaSACForm",
+          "linha": 253
+        },
+        {
+          "classe": "OrcamentoTecnicoExternoForm",
+          "linha": 310
+        },
+        {
+          "classe": "OrcamentoPecaForm",
+          "linha": 335
+        },
+        {
+          "classe": "AnaliseComercialSACForm",
+          "linha": 357
+        },
+        {
+          "classe": "ImportarTabelaPecasExcelForm",
+          "linha": 433
+        },
+        {
+          "classe": "GestaoSACPedidoRetornoForm",
+          "linha": 438
+        }
+      ]
+    },
+    "models_por_arquivo": {
+      "core/models.py": [
+        {
+          "model": "Empresa",
+          "linha": 9
+        },
+        {
+          "model": "Setor",
+          "linha": 29
+        },
+        {
+          "model": "AcaoEmEspera",
+          "linha": 55
+        },
+        {
+          "model": "UsuarioSistema",
+          "linha": 93
+        },
+        {
+          "model": "StatusSAC",
+          "linha": 110
+        },
+        {
+          "model": "TipoOcorrencia",
+          "linha": 135
+        },
+        {
+          "model": "Cliente",
+          "linha": 157
+        },
+        {
+          "model": "ClienteContato",
+          "linha": 197
+        },
+        {
+          "model": "Vendedor",
+          "linha": 214
+        },
+        {
+          "model": "NotaFiscal",
+          "linha": 229
+        },
+        {
+          "model": "ItemNotaFiscal",
+          "linha": 288
+        },
+        {
+          "model": "RastreioNotaItem",
+          "linha": 338
+        },
+        {
+          "model": "TratativaProblema",
+          "linha": 362
+        },
+        {
+          "model": "TipoProblema",
+          "linha": 377
+        },
+        {
+          "model": "TecnicoExterno",
+          "linha": 392
+        },
+        {
+          "model": "PecaTabelaPreco",
+          "linha": 413
+        },
+        {
+          "model": "SAC",
+          "linha": 432
+        },
+        {
+          "model": "SACItem",
+          "linha": 560
+        },
+        {
+          "model": "SACAnexo",
+          "linha": 596
+        },
+        {
+          "model": "SacHistorico",
+          "linha": 601
+        },
+        {
+          "model": "OrcamentoTecnicoExterno",
+          "linha": 648
+        },
+        {
+          "model": "OrcamentoTecnicoExternoPeca",
+          "linha": 677
+        },
+        {
+          "model": "SacAnaliseTecnica",
+          "linha": 698
+        },
+        {
+          "model": "SacAnaliseComercial",
+          "linha": 740
+        },
+        {
+          "model": "NaturezaOperacao",
+          "linha": 778
+        },
+        {
+          "model": "FluxoAcaoSetor",
+          "linha": 791
+        }
+      ],
+      "core_/models.py": [
+        {
+          "model": "Empresa",
+          "linha": 9
+        },
+        {
+          "model": "Setor",
+          "linha": 29
+        },
+        {
+          "model": "AcaoEmEspera",
+          "linha": 55
+        },
+        {
+          "model": "UsuarioSistema",
+          "linha": 93
+        },
+        {
+          "model": "StatusSAC",
+          "linha": 110
+        },
+        {
+          "model": "TipoOcorrencia",
+          "linha": 135
+        },
+        {
+          "model": "Cliente",
+          "linha": 157
+        },
+        {
+          "model": "ClienteContato",
+          "linha": 197
+        },
+        {
+          "model": "Vendedor",
+          "linha": 214
+        },
+        {
+          "model": "NotaFiscal",
+          "linha": 229
+        },
+        {
+          "model": "ItemNotaFiscal",
+          "linha": 288
+        },
+        {
+          "model": "RastreioNotaItem",
+          "linha": 338
+        },
+        {
+          "model": "TratativaProblema",
+          "linha": 362
+        },
+        {
+          "model": "TipoProblema",
+          "linha": 377
+        },
+        {
+          "model": "TecnicoExterno",
+          "linha": 392
+        },
+        {
+          "model": "PecaTabelaPreco",
+          "linha": 413
+        },
+        {
+          "model": "SAC",
+          "linha": 432
+        },
+        {
+          "model": "SACItem",
+          "linha": 560
+        },
+        {
+          "model": "SACAnexo",
+          "linha": 596
+        },
+        {
+          "model": "SacHistorico",
+          "linha": 601
+        },
+        {
+          "model": "OrcamentoTecnicoExterno",
+          "linha": 648
+        },
+        {
+          "model": "OrcamentoTecnicoExternoPeca",
+          "linha": 677
+        },
+        {
+          "model": "SacAnaliseTecnica",
+          "linha": 698
+        },
+        {
+          "model": "SacAnaliseComercial",
+          "linha": 740
+        },
+        {
+          "model": "NaturezaOperacao",
+          "linha": 778
+        },
+        {
+          "model": "FluxoAcaoSetor",
+          "linha": 791
+        }
+      ],
+      "_hotfix_20260413/core/models.py": [
+        {
+          "model": "Empresa",
+          "linha": 7
+        },
+        {
+          "model": "Setor",
+          "linha": 27
+        },
+        {
+          "model": "AcaoEmEspera",
+          "linha": 40
+        },
+        {
+          "model": "UsuarioSistema",
+          "linha": 61
+        },
+        {
+          "model": "StatusSAC",
+          "linha": 78
+        },
+        {
+          "model": "TipoOcorrencia",
+          "linha": 90
+        },
+        {
+          "model": "Cliente",
+          "linha": 112
+        },
+        {
+          "model": "ClienteContato",
+          "linha": 152
+        },
+        {
+          "model": "Vendedor",
+          "linha": 169
+        },
+        {
+          "model": "NotaFiscal",
+          "linha": 184
+        },
+        {
+          "model": "ItemNotaFiscal",
+          "linha": 243
+        },
+        {
+          "model": "RastreioNotaItem",
+          "linha": 293
+        },
+        {
+          "model": "TratativaProblema",
+          "linha": 317
+        },
+        {
+          "model": "TipoProblema",
+          "linha": 332
+        },
+        {
+          "model": "TecnicoExterno",
+          "linha": 347
+        },
+        {
+          "model": "PecaTabelaPreco",
+          "linha": 368
+        },
+        {
+          "model": "SAC",
+          "linha": 387
+        },
+        {
+          "model": "SACItem",
+          "linha": 467
+        },
+        {
+          "model": "SACAnexo",
+          "linha": 503
+        },
+        {
+          "model": "SacHistorico",
+          "linha": 508
+        },
+        {
+          "model": "OrcamentoTecnicoExterno",
+          "linha": 554
+        },
+        {
+          "model": "OrcamentoTecnicoExternoPeca",
+          "linha": 583
+        },
+        {
+          "model": "SacAnaliseTecnica",
+          "linha": 604
+        },
+        {
+          "model": "SacAnaliseComercial",
+          "linha": 646
+        },
+        {
+          "model": "NaturezaOperacao",
+          "linha": 684
+        },
+        {
+          "model": "FluxoAcaoSetor",
+          "linha": 697
+        }
+      ]
+    },
+    "imports_core": {
+      "config/urls.py": [
+        {
+          "linha": 7,
+          "import": "from core.views import ("
+        },
+        {
+          "linha": 29,
+          "import": "from core.views_modular.views_gestao import gestao_sac"
+        },
+        {
+          "linha": 30,
+          "import": "from core.views_modular.views_logistica import gestao_logistica"
+        },
+        {
+          "linha": 31,
+          "import": "from core.views_modular.views_comercial import analise_comercial_sac"
+        },
+        {
+          "linha": 32,
+          "import": "from core.views_modular.views_assessoria import assessoria_cientifica"
+        },
+        {
+          "linha": 33,
+          "import": "from core.views_modular.views_diretoria import analise_diretoria"
+        },
+        {
+          "linha": 34,
+          "import": "from core.views_modular.views_licitacao import gestao_licitacao"
+        },
+        {
+          "linha": 35,
+          "import": "from core.views_modular.views_assistencia_tecnica import gestao_assistencia_tecnica"
+        },
+        {
+          "linha": 36,
+          "import": "from core.views_modular.views_financeiro import gestao_financeira"
+        },
+        {
+          "linha": 37,
+          "import": "from core.views_modular.views_dashboard_sla import dashboard_sla, auditoria_visual_sac"
+        }
+      ],
+      "config/urls_backup_padrao_final.py": [
+        {
+          "linha": 7,
+          "import": "from core.views import ("
+        }
+      ],
+      "core/context_processors.py": [
+        {
+          "linha": 1,
+          "import": "from core.models import SAC, Setor"
+        },
+        {
+          "linha": 2,
+          "import": "from core.services.fila_setorial import resumo_filas_por_setor"
+        }
+      ],
+      "core/forms.py": [
+        {
+          "linha": 3,
+          "import": "from core.models import SacHistorico"
+        }
+      ],
+      "core/test_alerta_sac_parado.py": [
+        {
+          "linha": 7,
+          "import": "from core.models import AcaoEmEspera, Empresa, SAC, Setor, StatusSAC, Cliente"
+        },
+        {
+          "linha": 8,
+          "import": "from core.services.monitoramento_sac import listar_sacs_parados"
+        }
+      ],
+      "core/test_auditoria_fluxo.py": [
+        {
+          "linha": 7,
+          "import": "from core.models import AcaoEmEspera, Cliente, Empresa, SAC, Setor, StatusSAC"
+        }
+      ],
+      "core/test_contexto_fila.py": [
+        {
+          "linha": 4,
+          "import": "from core.context_processors import fila_inteligente"
+        },
+        {
+          "linha": 5,
+          "import": "from core.models import AcaoEmEspera, Cliente, Empresa, NotaFiscal, SAC, Setor, StatusSAC"
+        }
+      ],
+      "core/test_fluxo_alertas_e_filas.py": [
+        {
+          "linha": 8,
+          "import": "from core.models import AcaoEmEspera, Cliente, Empresa, FluxoAcaoSetor, NotaFiscal, SAC, Setor, StatusSAC"
+        },
+        {
+          "linha": 9,
+          "import": "from core.services.fluxo_sac import diagnosticar_fluxo_inicial, obter_fluxo_dinamico"
+        },
+        {
+          "linha": 10,
+          "import": "from core.services.sac_bridge import sac_aguardando_acao_comercial_queryset as _sac_aguarda_acao_comercial_queryset, sac_aguardando_acao_diretoria_queryset as _sac_aguardando_acao_diretoria_queryset"
+        }
+      ],
+      "core/test_fluxo_alertas_telas_criticas.py": [
+        {
+          "linha": 4,
+          "import": "from core.models import AcaoEmEspera, Cliente, Empresa, FluxoAcaoSetor, NotaFiscal, SAC, Setor, StatusSAC"
+        }
+      ],
+      "core/test_logistica_completa.py": [
+        {
+          "linha": 4,
+          "import": "from core.forms import GestaoLogisticaAcaoExecutadaForm"
+        },
+        {
+          "linha": 5,
+          "import": "from core.models import ("
+        },
+        {
+          "linha": 18,
+          "import": "from core.views_modular.views_logistica import _dados_historico_logistica"
+        }
+      ],
+      "core/test_modelos_codigo.py": [
+        {
+          "linha": 5,
+          "import": "from core.models import AcaoEmEspera, Setor, StatusSAC"
+        }
+      ],
+      "core/test_monitoramento_sac.py": [
+        {
+          "linha": 6,
+          "import": "from core.models import AcaoEmEspera, Empresa, SAC, Setor, StatusSAC"
+        },
+        {
+          "linha": 7,
+          "import": "from core.services.monitoramento_sac import listar_sacs_parados, auditar_fluxo_operacional"
+        }
+      ],
+      "core/test_services.py": [
+        {
+          "linha": 4,
+          "import": "from core.models import AcaoEmEspera, Cliente, Empresa, SAC, SacHistorico, Setor, StatusSAC"
+        },
+        {
+          "linha": 5,
+          "import": "from core.services.fluxo_sac import ("
+        },
+        {
+          "linha": 10,
+          "import": "from core.services.historico_sac import registrar_historico_sac"
+        }
+      ],
+      "core/test_transicao_nf_pendente.py": [
+        {
+          "linha": 4,
+          "import": "from core.models import AcaoEmEspera, Cliente, Empresa, NotaFiscal, SAC, Setor, StatusSAC"
+        },
+        {
+          "linha": 5,
+          "import": "from core.services.sac_transicao_unificada import ErroTransicaoSAC, aplicar_transicao_sac"
+        }
+      ],
+      "core/test_transicao_unificada.py": [
+        {
+          "linha": 4,
+          "import": "from core.models import AcaoEmEspera, Cliente, Empresa, SAC, Setor, StatusSAC"
+        },
+        {
+          "linha": 5,
+          "import": "from core.services.sac_transicao_unificada import aplicar_transicao_sac"
+        }
+      ],
+      "core/test_views_smoke.py": [
+        {
+          "linha": 5,
+          "import": "from core.models import AcaoEmEspera, Cliente, Empresa, NotaFiscal, SAC, Setor, StatusSAC"
+        }
+      ],
+      "core/uuu.py": [
+        {
+          "linha": 3,
+          "import": "from core.models import SacHistorico"
+        }
+      ],
+      "core/views.py": [
+        {
+          "linha": 3912,
+          "import": "from core.models import SAC"
+        },
+        {
+          "linha": 4632,
+          "import": "from core.views_modular.views_gestao import gestao_sac as gestao_sac"
+        },
+        {
+          "linha": 4636,
+          "import": "from core.views_modular.views_logistica import gestao_logistica as gestao_logistica"
+        },
+        {
+          "linha": 4640,
+          "import": "from core.views_modular.views_assistencia_tecnica import gestao_assistencia_tecnica as gestao_assistencia_tecnica"
+        },
+        {
+          "linha": 4641,
+          "import": "from core.services.sac_bridge import ("
+        },
+        {
+          "linha": 4647,
+          "import": "from core.views_modular.views_comercial import analise_comercial_sac as analise_comercial_sac"
+        },
+        {
+          "linha": 4648,
+          "import": "from core.views_modular.views_assessoria import assessoria_cientifica as assessoria_cientifica"
+        },
+        {
+          "linha": 4649,
+          "import": "from core.views_modular.views_diretoria import analise_diretoria as analise_diretoria"
+        },
+        {
+          "linha": 4650,
+          "import": "from core.views_modular.views_licitacao import gestao_licitacao as gestao_licitacao"
+        }
+      ],
+      "core/views_backup_antes_diretoria.py": [
+        {
+          "linha": 3320,
+          "import": "from core.models import SAC"
+        },
+        {
+          "linha": 4028,
+          "import": "from core.views_modular.views_gestao import gestao_sac as gestao_sac"
+        },
+        {
+          "linha": 4032,
+          "import": "from core.views_modular.views_logistica import gestao_logistica as gestao_logistica"
+        }
+      ],
+      "core_/context_processors.py": [
+        {
+          "linha": 1,
+          "import": "from core.models import SAC, Setor"
+        },
+        {
+          "linha": 2,
+          "import": "from core.services.fila_setorial import resumo_filas_por_setor"
+        }
+      ],
+      "core_/forms.py": [
+        {
+          "linha": 3,
+          "import": "from core.models import SacHistorico"
+        }
+      ],
+      "core_/test_alerta_sac_parado.py": [
+        {
+          "linha": 7,
+          "import": "from core.models import AcaoEmEspera, Empresa, SAC, Setor, StatusSAC, Cliente"
+        },
+        {
+          "linha": 8,
+          "import": "from core.services.monitoramento_sac import listar_sacs_parados"
+        }
+      ],
+      "core_/test_auditoria_fluxo.py": [
+        {
+          "linha": 7,
+          "import": "from core.models import AcaoEmEspera, Cliente, Empresa, SAC, Setor, StatusSAC"
+        }
+      ],
+      "core_/test_contexto_fila.py": [
+        {
+          "linha": 4,
+          "import": "from core.context_processors import fila_inteligente"
+        },
+        {
+          "linha": 5,
+          "import": "from core.models import AcaoEmEspera, Cliente, Empresa, NotaFiscal, SAC, Setor, StatusSAC"
+        }
+      ],
+      "core_/test_fluxo_alertas_e_filas.py": [
+        {
+          "linha": 8,
+          "import": "from core.models import AcaoEmEspera, Cliente, Empresa, FluxoAcaoSetor, NotaFiscal, SAC, Setor, StatusSAC"
+        },
+        {
+          "linha": 9,
+          "import": "from core.services.fluxo_sac import diagnosticar_fluxo_inicial, obter_fluxo_dinamico"
+        },
+        {
+          "linha": 10,
+          "import": "from core.services.sac_bridge import sac_aguardando_acao_comercial_queryset as _sac_aguarda_acao_comercial_queryset, sac_aguardando_acao_diretoria_queryset as _sac_aguardando_acao_diretoria_queryset"
+        }
+      ],
+      "core_/test_fluxo_alertas_telas_criticas.py": [
+        {
+          "linha": 4,
+          "import": "from core.models import AcaoEmEspera, Cliente, Empresa, FluxoAcaoSetor, NotaFiscal, SAC, Setor, StatusSAC"
+        }
+      ],
+      "core_/test_logistica_completa.py": [
+        {
+          "linha": 4,
+          "import": "from core.forms import GestaoLogisticaAcaoExecutadaForm"
+        },
+        {
+          "linha": 5,
+          "import": "from core.models import ("
+        },
+        {
+          "linha": 18,
+          "import": "from core.views_modular.views_logistica import _dados_historico_logistica"
+        }
+      ],
+      "core_/test_modelos_codigo.py": [
+        {
+          "linha": 5,
+          "import": "from core.models import AcaoEmEspera, Setor, StatusSAC"
+        }
+      ],
+      "core_/test_monitoramento_sac.py": [
+        {
+          "linha": 6,
+          "import": "from core.models import AcaoEmEspera, Empresa, SAC, Setor, StatusSAC"
+        },
+        {
+          "linha": 7,
+          "import": "from core.services.monitoramento_sac import listar_sacs_parados, auditar_fluxo_operacional"
+        }
+      ],
+      "core_/test_services.py": [
+        {
+          "linha": 4,
+          "import": "from core.models import AcaoEmEspera, Cliente, Empresa, SAC, SacHistorico, Setor, StatusSAC"
+        },
+        {
+          "linha": 5,
+          "import": "from core.services.fluxo_sac import ("
+        },
+        {
+          "linha": 10,
+          "import": "from core.services.historico_sac import registrar_historico_sac"
+        }
+      ],
+      "core_/test_transicao_nf_pendente.py": [
+        {
+          "linha": 4,
+          "import": "from core.models import AcaoEmEspera, Cliente, Empresa, NotaFiscal, SAC, Setor, StatusSAC"
+        },
+        {
+          "linha": 5,
+          "import": "from core.services.sac_transicao_unificada import ErroTransicaoSAC, aplicar_transicao_sac"
+        }
+      ],
+      "core_/test_transicao_unificada.py": [
+        {
+          "linha": 4,
+          "import": "from core.models import AcaoEmEspera, Cliente, Empresa, SAC, Setor, StatusSAC"
+        },
+        {
+          "linha": 5,
+          "import": "from core.services.sac_transicao_unificada import aplicar_transicao_sac"
+        }
+      ],
+      "core_/test_views_smoke.py": [
+        {
+          "linha": 5,
+          "import": "from core.models import AcaoEmEspera, Cliente, Empresa, NotaFiscal, SAC, Setor, StatusSAC"
+        }
+      ],
+      "core_/uuu.py": [
+        {
+          "linha": 3,
+          "import": "from core.models import SacHistorico"
+        }
+      ],
+      "core_/views.py": [
+        {
+          "linha": 3902,
+          "import": "from core.models import SAC"
+        },
+        {
+          "linha": 4622,
+          "import": "from core.views_modular.views_gestao import gestao_sac as gestao_sac"
+        },
+        {
+          "linha": 4626,
+          "import": "from core.views_modular.views_logistica import gestao_logistica as gestao_logistica"
+        },
+        {
+          "linha": 4630,
+          "import": "from core.views_modular.views_assistencia_tecnica import gestao_assistencia_tecnica as gestao_assistencia_tecnica"
+        },
+        {
+          "linha": 4631,
+          "import": "from core.services.sac_bridge import ("
+        },
+        {
+          "linha": 4637,
+          "import": "from core.views_modular.views_comercial import analise_comercial_sac as analise_comercial_sac"
+        },
+        {
+          "linha": 4638,
+          "import": "from core.views_modular.views_assessoria import assessoria_cientifica as assessoria_cientifica"
+        },
+        {
+          "linha": 4639,
+          "import": "from core.views_modular.views_diretoria import analise_diretoria as analise_diretoria"
+        },
+        {
+          "linha": 4640,
+          "import": "from core.views_modular.views_licitacao import gestao_licitacao as gestao_licitacao"
+        }
+      ],
+      "core_/views_backup_antes_diretoria.py": [
+        {
+          "linha": 3320,
+          "import": "from core.models import SAC"
+        },
+        {
+          "linha": 4028,
+          "import": "from core.views_modular.views_gestao import gestao_sac as gestao_sac"
+        },
+        {
+          "linha": 4032,
+          "import": "from core.views_modular.views_logistica import gestao_logistica as gestao_logistica"
+        }
+      ],
+      "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/sac_transicao_unificada - Copia.py": [
+        {
+          "linha": 10,
+          "import": "from core.services.sac_transicao_unificada import aplicar_transicao_sac"
+        },
+        {
+          "linha": 31,
+          "import": "from core.models import AcaoEmEspera, SAC, SacHistorico, Setor, StatusSAC"
+        },
+        {
+          "linha": 35,
+          "import": "from core.services.fluxo_sac import ("
+        }
+      ],
+      "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/tests.py": [
+        {
+          "linha": 4,
+          "import": "from core.models import Cliente, Empresa, SAC, Setor, StatusSAC"
+        },
+        {
+          "linha": 5,
+          "import": "from core.services import ("
+        }
+      ],
+      "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py": [
+        {
+          "linha": 2416,
+          "import": "from core.models import SAC"
+        }
+      ],
+      "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/services_raiz/historico_sac.py": [
+        {
+          "linha": 1,
+          "import": "from core.models import SacHistorico"
+        }
+      ],
+      "_backup_patch_assistencia_tecnica_parte_1_2_20260426_0934/core/views_modular/views_assistencia_tecnica.py": [
+        {
+          "linha": 12,
+          "import": "from core.models import AcaoEmEspera, SAC, Setor, StatusSAC"
+        },
+        {
+          "linha": 13,
+          "import": "from core.services.fila_setorial import queryset_fila_por_setor"
+        },
+        {
+          "linha": 14,
+          "import": "from core.services.historico_padronizado import compor_observacao_padronizada, montar_historico_detalhado"
+        },
+        {
+          "linha": 15,
+          "import": "from core.services.sac_dados_padrao import montar_dados_padrao_sac"
+        },
+        {
+          "linha": 16,
+          "import": "from core.services.sac_transicao_unificada import ErroTransicaoSAC, aplicar_transicao_sac"
+        },
+        {
+          "linha": 17,
+          "import": "from core.services.sac_visual import ("
+        }
+      ],
+      "core_/management/cadastrar_empresas.py": [
+        {
+          "linha": 2,
+          "import": "from core.models import Empresa"
+        }
+      ],
+      "core_/services/alertas_sla.py": [
+        {
+          "linha": 10,
+          "import": "from core.models import SAC"
+        },
+        {
+          "linha": 11,
+          "import": "from core.services.comunicacao_cliente import enviar_email_cliente_sac, numero_sac_seguro"
+        },
+        {
+          "linha": 12,
+          "import": "from core.services.destinatarios_sac import emails_envolvidos_internos_sac"
+        },
+        {
+          "linha": 13,
+          "import": "from core.services.sla_inteligente import calcular_sla_sac"
+        }
+      ],
+      "core_/services/comunicacao_cliente.py": [
+        {
+          "linha": 11,
+          "import": "from core.services.destinatarios_sac import emails_cliente_sac"
+        },
+        {
+          "linha": 12,
+          "import": "from core.services.sla_inteligente import calcular_sla_sac"
+        }
+      ],
+      "core_/services/dashboard_sla.py": [
+        {
+          "linha": 11,
+          "import": "from core.models import SAC, SacHistorico"
+        },
+        {
+          "linha": 12,
+          "import": "from core.services.sac_visual import formatar_numero_sac, resumo_tempo_setor"
+        }
+      ],
+      "core_/services/destinatarios_sac.py": [
+        {
+          "linha": 7,
+          "import": "from core.models import SacHistorico"
+        }
+      ],
+      "core_/services/fila_setorial.py": [
+        {
+          "linha": 10,
+          "import": "from core.models import SAC, Setor"
+        },
+        {
+          "linha": 11,
+          "import": "from core.services.regras_sac import ("
+        }
+      ],
+      "core_/services/fluxo_comercial.py": [
+        {
+          "linha": 7,
+          "import": "from core.models import AcaoEmEspera, Setor, StatusSAC"
+        },
+        {
+          "linha": 8,
+          "import": "from core.services.regras_sac import ("
+        }
+      ],
+      "core_/services/fluxo_formularios.py": [
+        {
+          "linha": 6,
+          "import": "from core.models import AcaoEmEspera, Setor, StatusSAC"
+        },
+        {
+          "linha": 7,
+          "import": "from core.services.regras_sac import ("
+        }
+      ],
+      "core_/services/fluxo_licitacao.py": [
+        {
+          "linha": 6,
+          "import": "from core.models import AcaoEmEspera, Setor, StatusSAC"
+        },
+        {
+          "linha": 7,
+          "import": "from core.services.regras_sac import resolver_acao_por_codigo, resolver_setor_por_codigo, resolver_status_por_codigo"
+        }
+      ],
+      "core_/services/fluxo_sac.py": [
+        {
+          "linha": 5,
+          "import": "from core.models import SAC, AcaoEmEspera, Setor, StatusSAC, FluxoAcaoSetor"
+        },
+        {
+          "linha": 6,
+          "import": "from core.services.regras_sac import ("
+        }
+      ],
+      "core_/services/historico_sac.py": [
+        {
+          "linha": 5,
+          "import": "from core.models import SAC, SacHistorico, Setor, StatusSAC"
+        }
+      ],
+      "core_/services/monitoramento_sac.py": [
+        {
+          "linha": 11,
+          "import": "from core.models import SAC"
+        },
+        {
+          "linha": 12,
+          "import": "from core.services.fila_setorial import base_sacs_em_aberto, queryset_fila_por_setor"
+        }
+      ],
+      "core_/services/regras_sac.py": [
+        {
+          "linha": 7,
+          "import": "from core.models import AcaoEmEspera, Setor, StatusSAC"
+        }
+      ],
+      "core_/services/sac_bridge.py": [
+        {
+          "linha": 6,
+          "import": "from core.models import SAC, SacHistorico, Setor, StatusSAC, AcaoEmEspera"
+        },
+        {
+          "linha": 7,
+          "import": "from core.services.fluxo_licitacao import ("
+        },
+        {
+          "linha": 12,
+          "import": "from core.services.fila_setorial import queryset_fila_por_setor"
+        },
+        {
+          "linha": 13,
+          "import": "from core.services.regras_sac import ("
+        }
+      ],
+      "core_/services/sac_transicao_unificada.py": [
+        {
+          "linha": 10,
+          "import": "from core.models import AcaoEmEspera, SAC, SacHistorico, Setor, StatusSAC"
+        },
+        {
+          "linha": 11,
+          "import": "from core.services.historico_sac import registrar_historico_sac"
+        },
+        {
+          "linha": 12,
+          "import": "from core.services.sac_auditoria import registrar_log_sac"
+        },
+        {
+          "linha": 13,
+          "import": "from core.services.fluxo_sac import ("
+        },
+        {
+          "linha": 18,
+          "import": "from core.services.regras_sac import ("
+        }
+      ],
+      "core_/services/sac_visual.py": [
+        {
+          "linha": 10,
+          "import": "from core.models import Setor"
+        },
+        {
+          "linha": 11,
+          "import": "from core.services.regras_sac import codigo_setor, resolver_setor_por_codigo"
+        }
+      ],
+      "core_/services/vendedor_service.py": [
+        {
+          "linha": 3,
+          "import": "from core.models import Vendedor"
+        }
+      ],
+      "core_/views_modular/views_assessoria.py": [
+        {
+          "linha": 5,
+          "import": "from core.services.sac_bridge import sac_aguardando_acao_assessoria_queryset"
+        },
+        {
+          "linha": 6,
+          "import": "from core.services.sac_dados_oficiais import montar_dados_sac_oficiais"
+        },
+        {
+          "linha": 7,
+          "import": "from core.services.sac_visual import ("
+        }
+      ],
+      "core_/views_modular/views_assistencia_tecnica.py": [
+        {
+          "linha": 14,
+          "import": "from core.models import AcaoEmEspera, FluxoAcaoSetor, PecaTabelaPreco, SAC, SACAnexo, SacHistorico, Setor, StatusSAC"
+        },
+        {
+          "linha": 15,
+          "import": "from core.services.fila_setorial import queryset_fila_por_setor"
+        },
+        {
+          "linha": 16,
+          "import": "from core.services.historico_padronizado import compor_observacao_padronizada, montar_historico_detalhado"
+        },
+        {
+          "linha": 17,
+          "import": "from core.services.sac_dados_padrao import montar_dados_padrao_sac"
+        },
+        {
+          "linha": 18,
+          "import": "from core.services.sac_dados_oficiais import montar_dados_sac_oficiais"
+        },
+        {
+          "linha": 19,
+          "import": "from core.services.sac_transicao_unificada import ErroTransicaoSAC, aplicar_transicao_sac"
+        },
+        {
+          "linha": 20,
+          "import": "from core.services.sac_visual import ("
+        }
+      ],
+      "core_/views_modular/views_comercial.py": [
+        {
+          "linha": 9,
+          "import": "from core.services.sac_dados_oficiais import montar_dados_sac_oficiais"
+        },
+        {
+          "linha": 11,
+          "import": "from core.forms import AnaliseComercialSACForm"
+        },
+        {
+          "linha": 12,
+          "import": "from core.models import SAC, AcaoEmEspera, SacAnaliseComercial, Setor"
+        },
+        {
+          "linha": 13,
+          "import": "from core.services.fluxo_sac import diagnosticar_fluxo_inicial, validar_transicao_basica"
+        },
+        {
+          "linha": 14,
+          "import": "from core.services.sac_transicao_unificada import aplicar_transicao_sac"
+        },
+        {
+          "linha": 15,
+          "import": "from core.services.sac_bridge import ("
+        },
+        {
+          "linha": 20,
+          "import": "from core.services.historico_padronizado import compor_observacao_padronizada, montar_historico_detalhado"
+        },
+        {
+          "linha": 21,
+          "import": "from core.services.sac_visual import ("
+        }
+      ],
+      "core_/views_modular/views_dashboard_sla.py": [
+        {
+          "linha": 5,
+          "import": "from core.models import SAC"
+        },
+        {
+          "linha": 6,
+          "import": "from core.services.dashboard_sla import montar_auditoria_visual_sac, montar_dashboard_sla"
+        }
+      ],
+      "core_/views_modular/views_diretoria.py": [
+        {
+          "linha": 9,
+          "import": "from core.models import SAC"
+        },
+        {
+          "linha": 10,
+          "import": "from core.services.sac_transicao_unificada import aplicar_transicao_sac"
+        },
+        {
+          "linha": 11,
+          "import": "from core.services.regras_sac import resolver_acao_por_codigo"
+        },
+        {
+          "linha": 12,
+          "import": "from core.services.sac_bridge import ("
+        },
+        {
+          "linha": 21,
+          "import": "from core.services.historico_padronizado import montar_historico_detalhado"
+        },
+        {
+          "linha": 22,
+          "import": "from core.services.sac_dados_oficiais import montar_dados_sac_oficiais"
+        },
+        {
+          "linha": 23,
+          "import": "from core.services.sac_visual import ("
+        }
+      ],
+      "core_/views_modular/views_financeiro.py": [
+        {
+          "linha": 13,
+          "import": "from core.models import SAC, SACAnexo, StatusSAC, AcaoEmEspera, Setor"
+        },
+        {
+          "linha": 14,
+          "import": "from core.services.fila_setorial import queryset_fila_por_setor"
+        },
+        {
+          "linha": 15,
+          "import": "from core.services.historico_padronizado import compor_observacao_padronizada, montar_historico_detalhado"
+        },
+        {
+          "linha": 16,
+          "import": "from core.services.sac_dados_oficiais import montar_dados_sac_oficiais"
+        },
+        {
+          "linha": 17,
+          "import": "from core.services.sac_transicao_unificada import aplicar_transicao_sac"
+        },
+        {
+          "linha": 18,
+          "import": "from core.services.sac_visual import ("
+        }
+      ],
+      "core_/views_modular/views_gestao.py": [
+        {
+          "linha": 7,
+          "import": "from core.forms import GestaoSACPedidoRetornoForm"
+        },
+        {
+          "linha": 8,
+          "import": "from core.models import SAC, SACAnexo, StatusSAC, AcaoEmEspera, Setor"
+        },
+        {
+          "linha": 9,
+          "import": "from core.services.fluxo_sac import validar_transicao_basica"
+        },
+        {
+          "linha": 10,
+          "import": "from core.services.sac_transicao_unificada import aplicar_transicao_sac"
+        },
+        {
+          "linha": 11,
+          "import": "from core.services.sac_dados_padrao import montar_dados_padrao_sac"
+        },
+        {
+          "linha": 12,
+          "import": "from core.services.sac_dados_oficiais import montar_dados_sac_oficiais"
+        },
+        {
+          "linha": 13,
+          "import": "from core.services.fila_setorial import queryset_fila_por_setor"
+        },
+        {
+          "linha": 14,
+          "import": "from core.services.sac_visual import obter_setor_por_codigo, montar_contexto_itens_sac, formatar_numero_sac, resumo_tempo_setor"
+        },
+        {
+          "linha": 15,
+          "import": "from core.services.historico_padronizado import compor_observacao_padronizada, montar_historico_detalhado"
+        }
+      ],
+      "core_/views_modular/views_licitacao.py": [
+        {
+          "linha": 6,
+          "import": "from core.models import SAC, SacAnaliseComercial"
+        },
+        {
+          "linha": 7,
+          "import": "from core.services.fluxo_sac import diagnosticar_fluxo_inicial"
+        },
+        {
+          "linha": 8,
+          "import": "from core.services.historico_padronizado import montar_historico_detalhado"
+        },
+        {
+          "linha": 9,
+          "import": "from core.services.sac_dados_oficiais import montar_dados_sac_oficiais"
+        },
+        {
+          "linha": 10,
+          "import": "from core.services.sac_transicao_unificada import aplicar_transicao_sac"
+        },
+        {
+          "linha": 11,
+          "import": "from core.services.sac_bridge import ("
+        },
+        {
+          "linha": 18,
+          "import": "from core.services.sac_visual import ("
+        },
+        {
+          "linha": 233,
+          "import": "from core.views_modular.views_gestao import gestao_sac as gestao_sac"
+        },
+        {
+          "linha": 237,
+          "import": "from core.views_modular.views_logistica import gestao_logistica as gestao_logistica"
+        }
+      ],
+      "core_/views_modular/views_logistica.py": [
+        {
+          "linha": 6,
+          "import": "from core.forms import GestaoLogisticaAcaoExecutadaForm"
+        },
+        {
+          "linha": 7,
+          "import": "from core.models import SAC, SacHistorico, StatusSAC, AcaoEmEspera, Setor"
+        },
+        {
+          "linha": 8,
+          "import": "from core.services.sac_dados_padrao import montar_dados_padrao_sac"
+        },
+        {
+          "linha": 9,
+          "import": "from core.services.sac_dados_oficiais import montar_dados_sac_oficiais"
+        },
+        {
+          "linha": 10,
+          "import": "from core.services.sac_transicao_unificada import ErroTransicaoSAC, aplicar_transicao_sac"
+        },
+        {
+          "linha": 11,
+          "import": "from core.services.fila_setorial import queryset_fila_por_setor"
+        },
+        {
+          "linha": 12,
+          "import": "from core.services.sac_visual import ("
+        }
+      ],
+      "core_/management/commands/alertar_sac_parado.py": [
+        {
+          "linha": 3,
+          "import": "from core.services.monitoramento_sac import listar_sacs_parados"
+        }
+      ],
+      "core_/management/commands/auditar_dados_sac.py": [
+        {
+          "linha": 4,
+          "import": "from core.models import SAC"
+        }
+      ],
+      "core_/management/commands/auditar_fluxo_sac.py": [
+        {
+          "linha": 3,
+          "import": "from core.services.monitoramento_sac import auditar_fluxo_operacional"
+        }
+      ],
+      "core_/management/commands/auditar_sac.py": [
+        {
+          "linha": 4,
+          "import": "from core.models import SAC, FluxoAcaoSetor, AcaoEmEspera"
+        },
+        {
+          "linha": 5,
+          "import": "from core.services.regras_sac import eh_status_concluido"
+        }
+      ],
+      "core_/management/commands/blindar_fluxo.py": [
+        {
+          "linha": 3,
+          "import": "from core.models import AcaoEmEspera, Setor"
+        },
+        {
+          "linha": 6,
+          "import": "from core.models import FluxoAcaoSetor"
+        }
+      ],
+      "core_/management/commands/cadastrar_empresas.py": [
+        {
+          "linha": 2,
+          "import": "from core.models import Empresa"
+        }
+      ],
+      "core_/management/commands/cadastrar_fluxo_sac_base.py": [
+        {
+          "linha": 3,
+          "import": "from core.models import StatusSAC, TratativaProblema, TipoProblema"
+        }
+      ],
+      "core_/management/commands/cadastrar_setores.py": [
+        {
+          "linha": 2,
+          "import": "from core.models import Setor"
+        }
+      ],
+      "core_/management/commands/cadastrar_status_sac.py": [
+        {
+          "linha": 2,
+          "import": "from core.models import StatusSAC"
+        }
+      ],
+      "core_/management/commands/cadastrar_tipos_ocorrencia.py": [
+        {
+          "linha": 2,
+          "import": "from core.models import TipoOcorrencia"
+        }
+      ],
+      "core_/management/commands/corrigir_clientes_duplicados.py": [
+        {
+          "linha": 4,
+          "import": "from core.models import Cliente, ClienteContato, NotaFiscal, SAC"
+        }
+      ],
+      "core_/management/commands/garantir_fluxo_assistencia_tecnica.py": [
+        {
+          "linha": 5,
+          "import": "from core.models import AcaoEmEspera, Setor, StatusSAC"
+        }
+      ],
+      "core_/management/commands/popular_vendedores_existentes.py": [
+        {
+          "linha": 3,
+          "import": "from core.models import NotaFiscal, Vendedor"
+        },
+        {
+          "linha": 4,
+          "import": "from core.services.vendedor_service import atualizar_cadastro_vendedor"
+        }
+      ],
+      "core_/management/commands/processar_alertas_sla.py": [
+        {
+          "linha": 5,
+          "import": "from core.services.alertas_sla import processar_alertas_sla"
+        }
+      ],
+      "core/management/cadastrar_empresas.py": [
+        {
+          "linha": 2,
+          "import": "from core.models import Empresa"
+        }
+      ],
+      "core/services/alertas_sla.py": [
+        {
+          "linha": 10,
+          "import": "from core.models import SAC"
+        },
+        {
+          "linha": 11,
+          "import": "from core.services.comunicacao_cliente import enviar_email_cliente_sac, numero_sac_seguro"
+        },
+        {
+          "linha": 12,
+          "import": "from core.services.destinatarios_sac import emails_envolvidos_internos_sac"
+        },
+        {
+          "linha": 13,
+          "import": "from core.services.sla_inteligente import calcular_sla_sac"
+        }
+      ],
+      "core/services/comunicacao_cliente.py": [
+        {
+          "linha": 11,
+          "import": "from core.services.destinatarios_sac import emails_cliente_sac"
+        },
+        {
+          "linha": 12,
+          "import": "from core.services.sla_inteligente import calcular_sla_sac"
+        }
+      ],
+      "core/services/dashboard_sla.py": [
+        {
+          "linha": 11,
+          "import": "from core.models import SAC, SacHistorico"
+        },
+        {
+          "linha": 12,
+          "import": "from core.services.sac_visual import formatar_numero_sac, resumo_tempo_setor"
+        }
+      ],
+      "core/services/destinatarios_sac.py": [
+        {
+          "linha": 7,
+          "import": "from core.models import SacHistorico"
+        }
+      ],
+      "core/services/fila_setorial.py": [
+        {
+          "linha": 10,
+          "import": "from core.models import SAC, Setor"
+        },
+        {
+          "linha": 11,
+          "import": "from core.services.regras_sac import ("
+        }
+      ],
+      "core/services/fluxo_comercial.py": [
+        {
+          "linha": 7,
+          "import": "from core.models import AcaoEmEspera, Setor, StatusSAC"
+        },
+        {
+          "linha": 8,
+          "import": "from core.services.regras_sac import ("
+        }
+      ],
+      "core/services/fluxo_formularios.py": [
+        {
+          "linha": 6,
+          "import": "from core.models import AcaoEmEspera, Setor, StatusSAC"
+        },
+        {
+          "linha": 7,
+          "import": "from core.services.regras_sac import ("
+        }
+      ],
+      "core/services/fluxo_licitacao.py": [
+        {
+          "linha": 6,
+          "import": "from core.models import AcaoEmEspera, Setor, StatusSAC"
+        },
+        {
+          "linha": 7,
+          "import": "from core.services.regras_sac import resolver_acao_por_codigo, resolver_setor_por_codigo, resolver_status_por_codigo"
+        }
+      ],
+      "core/services/fluxo_sac.py": [
+        {
+          "linha": 5,
+          "import": "from core.models import SAC, AcaoEmEspera, Setor, StatusSAC, FluxoAcaoSetor"
+        },
+        {
+          "linha": 6,
+          "import": "from core.services.regras_sac import ("
+        }
+      ],
+      "core/services/historico_sac.py": [
+        {
+          "linha": 5,
+          "import": "from core.models import SAC, SacHistorico, Setor, StatusSAC"
+        }
+      ],
+      "core/services/monitoramento_sac.py": [
+        {
+          "linha": 11,
+          "import": "from core.models import SAC"
+        },
+        {
+          "linha": 12,
+          "import": "from core.services.fila_setorial import base_sacs_em_aberto, queryset_fila_por_setor"
+        }
+      ],
+      "core/services/regras_sac.py": [
+        {
+          "linha": 7,
+          "import": "from core.models import AcaoEmEspera, Setor, StatusSAC"
+        }
+      ],
+      "core/services/sac_bridge.py": [
+        {
+          "linha": 6,
+          "import": "from core.models import SAC, SacHistorico, Setor, StatusSAC, AcaoEmEspera"
+        },
+        {
+          "linha": 7,
+          "import": "from core.services.fluxo_licitacao import ("
+        },
+        {
+          "linha": 12,
+          "import": "from core.services.fila_setorial import queryset_fila_por_setor"
+        },
+        {
+          "linha": 13,
+          "import": "from core.services.regras_sac import ("
+        }
+      ],
+      "core/services/sac_transicao_unificada.py": [
+        {
+          "linha": 10,
+          "import": "from core.models import AcaoEmEspera, SAC, SacHistorico, Setor, StatusSAC"
+        },
+        {
+          "linha": 11,
+          "import": "from core.services.historico_sac import registrar_historico_sac"
+        },
+        {
+          "linha": 12,
+          "import": "from core.services.sac_auditoria import registrar_log_sac"
+        },
+        {
+          "linha": 13,
+          "import": "from core.services.fluxo_sac import ("
+        },
+        {
+          "linha": 18,
+          "import": "from core.services.regras_sac import ("
+        }
+      ],
+      "core/services/sac_visual.py": [
+        {
+          "linha": 10,
+          "import": "from core.models import Setor"
+        },
+        {
+          "linha": 11,
+          "import": "from core.services.regras_sac import codigo_setor, resolver_setor_por_codigo"
+        }
+      ],
+      "core/services/vendedor_service.py": [
+        {
+          "linha": 3,
+          "import": "from core.models import Vendedor"
+        }
+      ],
+      "core/views_modular/views_assessoria.py": [
+        {
+          "linha": 5,
+          "import": "from core.services.sac_bridge import sac_aguardando_acao_assessoria_queryset"
+        },
+        {
+          "linha": 6,
+          "import": "from core.services.sac_dados_oficiais import montar_dados_sac_oficiais"
+        },
+        {
+          "linha": 7,
+          "import": "from core.services.sac_visual import ("
+        }
+      ],
+      "core/views_modular/views_assistencia_tecnica.py": [
+        {
+          "linha": 14,
+          "import": "from core.models import AcaoEmEspera, FluxoAcaoSetor, PecaTabelaPreco, SAC, SACAnexo, SacHistorico, Setor, StatusSAC"
+        },
+        {
+          "linha": 15,
+          "import": "from core.services.fila_setorial import queryset_fila_por_setor"
+        },
+        {
+          "linha": 16,
+          "import": "from core.services.historico_padronizado import compor_observacao_padronizada, montar_historico_detalhado"
+        },
+        {
+          "linha": 17,
+          "import": "from core.services.sac_dados_padrao import montar_dados_padrao_sac"
+        },
+        {
+          "linha": 18,
+          "import": "from core.services.sac_dados_oficiais import montar_dados_sac_oficiais"
+        },
+        {
+          "linha": 19,
+          "import": "from core.services.sac_transicao_unificada import ErroTransicaoSAC, aplicar_transicao_sac"
+        },
+        {
+          "linha": 20,
+          "import": "from core.services.sac_visual import ("
+        }
+      ],
+      "core/views_modular/views_comercial.py": [
+        {
+          "linha": 9,
+          "import": "from core.services.sac_dados_oficiais import montar_dados_sac_oficiais"
+        },
+        {
+          "linha": 11,
+          "import": "from core.forms import AnaliseComercialSACForm"
+        },
+        {
+          "linha": 12,
+          "import": "from core.models import SAC, AcaoEmEspera, SacAnaliseComercial, Setor"
+        },
+        {
+          "linha": 13,
+          "import": "from core.services.fluxo_sac import diagnosticar_fluxo_inicial, validar_transicao_basica"
+        },
+        {
+          "linha": 14,
+          "import": "from core.services.sac_transicao_unificada import aplicar_transicao_sac"
+        },
+        {
+          "linha": 15,
+          "import": "from core.services.sac_bridge import ("
+        },
+        {
+          "linha": 20,
+          "import": "from core.services.historico_padronizado import compor_observacao_padronizada, montar_historico_detalhado"
+        },
+        {
+          "linha": 21,
+          "import": "from core.services.sac_visual import ("
+        }
+      ],
+      "core/views_modular/views_dashboard_sla.py": [
+        {
+          "linha": 5,
+          "import": "from core.models import SAC"
+        },
+        {
+          "linha": 6,
+          "import": "from core.services.dashboard_sla import montar_auditoria_visual_sac, montar_dashboard_sla"
+        }
+      ],
+      "core/views_modular/views_diretoria.py": [
+        {
+          "linha": 9,
+          "import": "from core.models import SAC"
+        },
+        {
+          "linha": 10,
+          "import": "from core.services.sac_transicao_unificada import aplicar_transicao_sac"
+        },
+        {
+          "linha": 11,
+          "import": "from core.services.regras_sac import resolver_acao_por_codigo"
+        },
+        {
+          "linha": 12,
+          "import": "from core.services.sac_bridge import ("
+        },
+        {
+          "linha": 21,
+          "import": "from core.services.historico_padronizado import montar_historico_detalhado"
+        },
+        {
+          "linha": 22,
+          "import": "from core.services.sac_dados_oficiais import montar_dados_sac_oficiais"
+        },
+        {
+          "linha": 23,
+          "import": "from core.services.sac_visual import ("
+        }
+      ],
+      "core/views_modular/views_financeiro.py": [
+        {
+          "linha": 13,
+          "import": "from core.models import SAC, SACAnexo, StatusSAC, AcaoEmEspera, Setor"
+        },
+        {
+          "linha": 14,
+          "import": "from core.services.fila_setorial import queryset_fila_por_setor"
+        },
+        {
+          "linha": 15,
+          "import": "from core.services.historico_padronizado import compor_observacao_padronizada, montar_historico_detalhado"
+        },
+        {
+          "linha": 16,
+          "import": "from core.services.sac_dados_oficiais import montar_dados_sac_oficiais"
+        },
+        {
+          "linha": 17,
+          "import": "from core.services.sac_transicao_unificada import aplicar_transicao_sac"
+        },
+        {
+          "linha": 18,
+          "import": "from core.services.sac_visual import ("
+        }
+      ],
+      "core/views_modular/views_gestao.py": [
+        {
+          "linha": 7,
+          "import": "from core.forms import GestaoSACPedidoRetornoForm"
+        },
+        {
+          "linha": 8,
+          "import": "from core.models import SAC, SACAnexo, StatusSAC, AcaoEmEspera, Setor"
+        },
+        {
+          "linha": 9,
+          "import": "from core.services.fluxo_sac import validar_transicao_basica"
+        },
+        {
+          "linha": 10,
+          "import": "from core.services.sac_transicao_unificada import aplicar_transicao_sac"
+        },
+        {
+          "linha": 11,
+          "import": "from core.services.sac_dados_padrao import montar_dados_padrao_sac"
+        },
+        {
+          "linha": 12,
+          "import": "from core.services.sac_dados_oficiais import montar_dados_sac_oficiais"
+        },
+        {
+          "linha": 13,
+          "import": "from core.services.fila_setorial import queryset_fila_por_setor"
+        },
+        {
+          "linha": 14,
+          "import": "from core.services.sac_visual import obter_setor_por_codigo, montar_contexto_itens_sac, formatar_numero_sac, resumo_tempo_setor"
+        },
+        {
+          "linha": 15,
+          "import": "from core.services.historico_padronizado import compor_observacao_padronizada, montar_historico_detalhado"
+        }
+      ],
+      "core/views_modular/views_licitacao.py": [
+        {
+          "linha": 6,
+          "import": "from core.models import SAC, SacAnaliseComercial"
+        },
+        {
+          "linha": 7,
+          "import": "from core.services.fluxo_sac import diagnosticar_fluxo_inicial"
+        },
+        {
+          "linha": 8,
+          "import": "from core.services.historico_padronizado import montar_historico_detalhado"
+        },
+        {
+          "linha": 9,
+          "import": "from core.services.sac_dados_oficiais import montar_dados_sac_oficiais"
+        },
+        {
+          "linha": 10,
+          "import": "from core.services.sac_transicao_unificada import aplicar_transicao_sac"
+        },
+        {
+          "linha": 11,
+          "import": "from core.services.sac_bridge import ("
+        },
+        {
+          "linha": 18,
+          "import": "from core.services.sac_visual import ("
+        },
+        {
+          "linha": 233,
+          "import": "from core.views_modular.views_gestao import gestao_sac as gestao_sac"
+        },
+        {
+          "linha": 237,
+          "import": "from core.views_modular.views_logistica import gestao_logistica as gestao_logistica"
+        }
+      ],
+      "core/views_modular/views_logistica.py": [
+        {
+          "linha": 6,
+          "import": "from core.forms import GestaoLogisticaAcaoExecutadaForm"
+        },
+        {
+          "linha": 7,
+          "import": "from core.models import SAC, SacHistorico, StatusSAC, AcaoEmEspera, Setor"
+        },
+        {
+          "linha": 8,
+          "import": "from core.services.sac_dados_padrao import montar_dados_padrao_sac"
+        },
+        {
+          "linha": 9,
+          "import": "from core.services.sac_dados_oficiais import montar_dados_sac_oficiais"
+        },
+        {
+          "linha": 10,
+          "import": "from core.services.sac_transicao_unificada import ErroTransicaoSAC, aplicar_transicao_sac"
+        },
+        {
+          "linha": 11,
+          "import": "from core.services.fila_setorial import queryset_fila_por_setor"
+        },
+        {
+          "linha": 12,
+          "import": "from core.services.sac_visual import ("
+        }
+      ],
+      "core/management/commands/alertar_sac_parado.py": [
+        {
+          "linha": 3,
+          "import": "from core.services.monitoramento_sac import listar_sacs_parados"
+        }
+      ],
+      "core/management/commands/auditar_blindagem_sac.py": [
+        {
+          "linha": 169,
+          "import": "from core.models import AcaoEmEspera, FluxoAcaoSetor, Setor, StatusSAC"
+        }
+      ],
+      "core/management/commands/auditar_dados_sac.py": [
+        {
+          "linha": 4,
+          "import": "from core.models import SAC"
+        }
+      ],
+      "core/management/commands/auditar_fluxo_sac.py": [
+        {
+          "linha": 3,
+          "import": "from core.services.monitoramento_sac import auditar_fluxo_operacional"
+        }
+      ],
+      "core/management/commands/auditar_integridade_sac.py": [
+        {
+          "linha": 13,
+          "import": "from core.models import ("
+        }
+      ],
+      "core/management/commands/auditar_sac.py": [
+        {
+          "linha": 4,
+          "import": "from core.models import SAC, FluxoAcaoSetor, AcaoEmEspera"
+        },
+        {
+          "linha": 5,
+          "import": "from core.services.regras_sac import eh_status_concluido"
+        }
+      ],
+      "core/management/commands/blindar_fluxo.py": [
+        {
+          "linha": 3,
+          "import": "from core.models import AcaoEmEspera, Setor"
+        },
+        {
+          "linha": 6,
+          "import": "from core.models import FluxoAcaoSetor"
+        }
+      ],
+      "core/management/commands/cadastrar_empresas.py": [
+        {
+          "linha": 2,
+          "import": "from core.models import Empresa"
+        }
+      ],
+      "core/management/commands/cadastrar_fluxo_sac_base.py": [
+        {
+          "linha": 3,
+          "import": "from core.models import StatusSAC, TratativaProblema, TipoProblema"
+        }
+      ],
+      "core/management/commands/cadastrar_setores.py": [
+        {
+          "linha": 2,
+          "import": "from core.models import Setor"
+        }
+      ],
+      "core/management/commands/cadastrar_status_sac.py": [
+        {
+          "linha": 2,
+          "import": "from core.models import StatusSAC"
+        }
+      ],
+      "core/management/commands/cadastrar_tipos_ocorrencia.py": [
+        {
+          "linha": 2,
+          "import": "from core.models import TipoOcorrencia"
+        }
+      ],
+      "core/management/commands/corrigir_clientes_duplicados.py": [
+        {
+          "linha": 4,
+          "import": "from core.models import Cliente, ClienteContato, NotaFiscal, SAC"
+        }
+      ],
+      "core/management/commands/garantir_fluxo_assistencia_tecnica.py": [
+        {
+          "linha": 5,
+          "import": "from core.models import AcaoEmEspera, Setor, StatusSAC"
+        }
+      ],
+      "core/management/commands/limpar_observacoes_sac.py": [
+        {
+          "linha": 2,
+          "import": "from core.models import SACItem"
+        }
+      ],
+      "core/management/commands/popular_vendedores_existentes.py": [
+        {
+          "linha": 3,
+          "import": "from core.models import NotaFiscal, Vendedor"
+        },
+        {
+          "linha": 4,
+          "import": "from core.services.vendedor_service import atualizar_cadastro_vendedor"
+        }
+      ],
+      "core/management/commands/processar_alertas_sla.py": [
+        {
+          "linha": 5,
+          "import": "from core.services.alertas_sla import processar_alertas_sla"
+        }
+      ]
+    }
+  },
+  "achados": [
+    {
+      "nivel": "BAIXO",
+      "origem": "core/management/commands/auditar_integridade_sac.py:247",
+      "mensagem": "Render com template dinamico encontrado.",
+      "detalhe": "Conferir se ha fallback seguro."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:1569",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:1571",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:1573",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:1575",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:1577",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:1579",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:1581",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:3312",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:3370",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:3498",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:3553",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:3554",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:3561",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:3581",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:3775",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:3798",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:3803",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:3829",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:3847",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:4610",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:4611",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:1414",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:1416",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:1418",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:1420",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:1422",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:1424",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:1426",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:2702",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:2714",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:2773",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:2906",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:2961",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:2962",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:2969",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:2989",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:3183",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:3206",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:3211",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:3237",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:3255",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:4006",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:4007",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:1559",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:1561",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:1563",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:1565",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:1567",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:1569",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:1571",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:3302",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:3360",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:3488",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:3543",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:3544",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:3551",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:3571",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:3765",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:3788",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:3793",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:3819",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:3837",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:4600",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:4601",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:1414",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:1416",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:1418",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:1420",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:1422",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:1424",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:1426",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:2702",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:2714",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:2773",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:2906",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:2961",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:2962",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:2969",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:2989",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:3183",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:3206",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:3211",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:3237",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:3255",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:4006",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:4007",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "hotfix_motor_tecnico/aplicar_hotfix_motor_tecnico.py:94",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "hotfix_motor_tecnico/aplicar_hotfix_motor_tecnico.py:95",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:2003",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:2007",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:2062",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:2134",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:2192",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:2199",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "_QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:2216",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "_backup_patch_assistencia_tecnica_parte_1_2_20260426_0934/core/views_modular/views_assistencia_tecnica.py:158",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "_backup_patch_assistencia_tecnica_parte_1_2_20260426_0934/core/views_modular/views_assistencia_tecnica.py:162",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "_backup_patch_assistencia_tecnica_parte_1_2_20260426_0934/core/views_modular/views_assistencia_tecnica.py:166",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "_backup_patch_assistencia_tecnica_parte_1_2_20260426_0934/core/views_modular/views_assistencia_tecnica.py:177",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "_backup_patch_assistencia_tecnica_parte_1_2_20260426_0934/core/views_modular/views_assistencia_tecnica.py:179",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_assistencia_tecnica.py:385",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_assistencia_tecnica.py:388",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_assistencia_tecnica.py:391",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_assistencia_tecnica.py:395",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_assistencia_tecnica.py:398",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_assistencia_tecnica.py:401",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_assistencia_tecnica.py:418",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_assistencia_tecnica.py:439",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_assistencia_tecnica.py:442",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_assistencia_tecnica.py:450",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_assistencia_tecnica.py:454",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_assistencia_tecnica.py:458",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_assistencia_tecnica.py:461",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_assistencia_tecnica.py:464",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_assistencia_tecnica.py:468",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_assistencia_tecnica.py:486",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_assistencia_tecnica.py:488",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_comercial.py:139",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_comercial.py:204",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_diretoria.py:188",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_diretoria.py:211",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_diretoria.py:216",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_diretoria.py:242",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_diretoria.py:260",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_financeiro.py:205",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_financeiro.py:209",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_financeiro.py:213",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_financeiro.py:218",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_financeiro.py:244",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_financeiro.py:247",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_gestao.py:176",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_gestao.py:178",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_gestao.py:180",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_gestao.py:182",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_gestao.py:184",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_gestao.py:186",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_gestao.py:188",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_gestao.py:341",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_gestao.py:355",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_gestao.py:367",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_gestao.py:523",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_gestao.py:525",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_gestao.py:527",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_gestao.py:529",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_gestao.py:531",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_gestao.py:533",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_gestao.py:535",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_licitacao.py:207",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_licitacao.py:208",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_assistencia_tecnica.py:385",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_assistencia_tecnica.py:388",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_assistencia_tecnica.py:391",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_assistencia_tecnica.py:395",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_assistencia_tecnica.py:398",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_assistencia_tecnica.py:401",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_assistencia_tecnica.py:418",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_assistencia_tecnica.py:439",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_assistencia_tecnica.py:442",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_assistencia_tecnica.py:450",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_assistencia_tecnica.py:454",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_assistencia_tecnica.py:458",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_assistencia_tecnica.py:461",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_assistencia_tecnica.py:464",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_assistencia_tecnica.py:468",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_assistencia_tecnica.py:486",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_assistencia_tecnica.py:488",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_comercial.py:139",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_comercial.py:204",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_diretoria.py:188",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_diretoria.py:211",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_diretoria.py:216",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_diretoria.py:242",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_diretoria.py:260",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_financeiro.py:205",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_financeiro.py:209",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_financeiro.py:213",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_financeiro.py:218",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_financeiro.py:244",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_financeiro.py:247",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_gestao.py:176",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_gestao.py:178",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_gestao.py:180",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_gestao.py:182",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_gestao.py:184",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_gestao.py:186",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_gestao.py:188",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_gestao.py:341",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_gestao.py:355",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_gestao.py:367",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_gestao.py:523",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_gestao.py:525",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_gestao.py:527",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_gestao.py:529",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_gestao.py:531",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_gestao.py:533",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_gestao.py:535",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_licitacao.py:207",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_licitacao.py:208",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/management/commands/auditar_mapa_dependencias_sac.py:218",
+      "mensagem": "Redirect com URL hardcoded.",
+      "detalhe": "Futuro ideal: usar name/reverse para evitar quebra se rota mudar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/uuu.py:2006",
+      "mensagem": "Funcao muito longa: clean (272 linhas).",
+      "detalhe": "Risco de regressao; revisar antes de alterar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:494",
+      "mensagem": "Funcao muito longa: importar_notas_excel (251 linhas).",
+      "detalhe": "Risco de regressao; revisar antes de alterar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:1206",
+      "mensagem": "Funcao muito longa: abrir_sac (393 linhas).",
+      "detalhe": "Risco de regressao; revisar antes de alterar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py:1702",
+      "mensagem": "Funcao muito longa: analise_tecnica_sac (696 linhas).",
+      "detalhe": "Risco de regressao; revisar antes de alterar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:435",
+      "mensagem": "Funcao muito longa: importar_notas_excel (251 linhas).",
+      "detalhe": "Risco de regressao; revisar antes de alterar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_backup_antes_diretoria.py:1125",
+      "mensagem": "Funcao muito longa: abrir_sac (314 linhas).",
+      "detalhe": "Risco de regressao; revisar antes de alterar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/uuu.py:2006",
+      "mensagem": "Funcao muito longa: clean (272 linhas).",
+      "detalhe": "Risco de regressao; revisar antes de alterar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:484",
+      "mensagem": "Funcao muito longa: importar_notas_excel (251 linhas).",
+      "detalhe": "Risco de regressao; revisar antes de alterar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:1196",
+      "mensagem": "Funcao muito longa: abrir_sac (393 linhas).",
+      "detalhe": "Risco de regressao; revisar antes de alterar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views.py:1692",
+      "mensagem": "Funcao muito longa: analise_tecnica_sac (696 linhas).",
+      "detalhe": "Risco de regressao; revisar antes de alterar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:435",
+      "mensagem": "Funcao muito longa: importar_notas_excel (251 linhas).",
+      "detalhe": "Risco de regressao; revisar antes de alterar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_backup_antes_diretoria.py:1125",
+      "mensagem": "Funcao muito longa: abrir_sac (314 linhas).",
+      "detalhe": "Risco de regressao; revisar antes de alterar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core_/views_modular/views_gestao.py:274",
+      "mensagem": "Funcao muito longa: gestao_sac (302 linhas).",
+      "detalhe": "Risco de regressao; revisar antes de alterar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views_modular/views_gestao.py:274",
+      "mensagem": "Funcao muito longa: gestao_sac (302 linhas).",
+      "detalhe": "Risco de regressao; revisar antes de alterar."
+    },
+    {
+      "nivel": "MEDIO",
+      "origem": "core/views.py",
+      "mensagem": "Modularizacao parcial detectada: views.py ainda tem 4652 linhas e views_modular tem 10 arquivos.",
+      "detalhe": "Evitar duplicar regra entre os dois locais."
+    }
+  ]
+}

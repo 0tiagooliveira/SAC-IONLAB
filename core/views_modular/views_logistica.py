@@ -1,0 +1,602 @@
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+
+from core.forms import GestaoLogisticaAcaoExecutadaForm
+from core.models import SAC, SacHistorico, StatusSAC, AcaoEmEspera, Setor
+from core.services.sac_dados_padrao import montar_dados_padrao_sac
+from core.services.sac_dados_oficiais import montar_dados_sac_oficiais
+from core.services.sac_transicao_unificada import ErroTransicaoSAC, aplicar_transicao_sac
+from core.services.empresa_filtro import aplicar_filtro_empresa, resolver_filtro_empresa
+from core.services.fila_setorial import queryset_fila_por_setor
+from core.services.sac_visual import (
+    formatar_duracao_dd_hh_mm,
+    formatar_numero_sac,
+    montar_contexto_itens_sac,
+    obter_setor_por_codigo,
+    resumo_tempo_setor,
+)
+
+
+def _obter_tipo_ocorrencia_logistica(sac):
+    """
+    Obtém tipo de ocorrência com proteção contra None
+    """
+    if not sac:
+        return None
+
+    if not hasattr(sac, "itens_sac"):
+        return None
+
+    cache_prefetch = getattr(sac, '_prefetched_objects_cache', {})
+    itens = cache_prefetch.get('itens_sac')
+    if itens is None:
+        itens = sac.itens_sac.select_related('tipo_ocorrencia').all()
+
+    if not itens:
+        return None
+
+    for item in itens:
+        if item.tipo_ocorrencia:
+            return item.tipo_ocorrencia.nome
+
+    return None
+
+
+def _normalizar(texto):
+    return (texto or '').strip().lower()
+
+
+def _sem_acento(texto):
+    import unicodedata
+    texto = (texto or '').strip().lower()
+    return ''.join(ch for ch in unicodedata.normalize('NFD', texto) if unicodedata.category(ch) != 'Mn')
+
+
+def _eh_item_vencido(nome):
+    return 'item vencido' in _sem_acento(nome)
+
+
+def _acao_emissao_nota_fiscal_saida(nome):
+    texto = _sem_acento(nome)
+    return 'aguardando emissao da nota fiscal' in texto and 'saida' in texto
+
+
+def _resolver_status_confirmar_baixa_itens_vencidos():
+    candidatos = [
+        'Confirmar Baixa de Itens Vencidos',
+        'Confirmar baixa de itens vencidos',
+    ]
+    for nome in candidatos:
+        status = StatusSAC.objects.filter(ativo=True, nome__iexact=nome).first()
+        if status:
+            return status
+    return StatusSAC.objects.filter(ativo=True, nome__icontains='Baixa').filter(nome__icontains='Venc').first()
+
+
+def _resolver_acao_confirmar_descarte():
+    candidatos = [
+        'Confirmar Descarte/Eliminação/Doação',
+        'Confirmar Descarte/Eliminacao/Doacao',
+        'Confirmar Descarte',
+    ]
+    for nome in candidatos:
+        acao = AcaoEmEspera.objects.filter(ativo=True, nome__iexact=nome).first()
+        if acao:
+            return acao
+    return AcaoEmEspera.objects.filter(ativo=True, nome__icontains='Confirmar Descarte').first()
+
+
+def _resolver_setor_assessoria():
+    candidatos = ['Assessoria Cientifica', 'Assessoria Científica']
+    for nome in candidatos:
+        setor = Setor.objects.filter(ativo=True, nome__iexact=nome).first()
+        if setor:
+            return setor
+    return Setor.objects.filter(ativo=True, nome__icontains='Assessoria').first()
+
+
+def _observacao_item_vencido_saida(numero_nf, data_emissao, itens_bipados, quantidade_bipada, observacoes):
+    linhas = [
+        'Ações Executadas - Gestão Logística | Fluxo especial Item Vencido - Emissão da Nota fiscal (Saída)',
+        f'Número da nota fiscal Impressa: {numero_nf or "-"}',
+        f'Data da emissão: {data_emissao.strftime("%d/%m/%Y") if hasattr(data_emissao, "strftime") else (data_emissao or "-")}',
+        f'Itens Ja separados e Bipados: {itens_bipados or "-"}',
+        f'Quantidade Separada e Bipada: {quantidade_bipada or "-"}',
+        'Próximo status: Confirmar Baixa de Itens Vencidos',
+        'Ação em Espera próximo Setor: Confirmar Descarte/Eliminação/Doação',
+        'Próximo setor: Assessoria Cientifica',
+    ]
+    obs = (observacoes or '').strip()
+    if obs:
+        linhas.append(f'Observações: {obs}')
+    return '\n'.join(linhas)
+
+
+
+def _tipo_cliente_nao_confirmou(nome):
+    texto = _normalizar(nome)
+    return (
+        'clientes não confirmou a compra' in texto
+        or 'clientes nao confirmou a compra' in texto
+        or 'cliente não confirmou a compra' in texto
+        or 'cliente nao confirmou a compra' in texto
+    )
+
+
+def _sac_equipamento_por_grupo(sac):
+    if sac is None:
+        return False
+    try:
+        itens = sac.itens_sac.select_related('item_nota_fiscal').all()
+        for item in itens:
+            item_nf = getattr(item, 'item_nota_fiscal', None)
+            valores = [
+                getattr(item, 'grupo', ''),
+                getattr(item_nf, 'grupo', '') if item_nf else '',
+                getattr(item_nf, 'agrp', '') if item_nf else '',
+            ]
+            for valor in valores:
+                texto = _sem_acento(valor)
+                if 'equipamento' in texto or 'equipamentos' in texto:
+                    return True
+    except Exception:
+        return False
+    return False
+
+
+def _acao_aguardando_coleta_cliente(nome):
+    texto = _sem_acento(nome)
+    return (
+        'aguardando coleta no cliente' in texto
+        or 'aguardando cliente emitir nota fiscal e fazer envio' in texto
+    )
+
+
+def _acao_agendamento_ionlab(nome):
+    return 'aguardando cliente emitir nota fiscal e fazer envio' in _sem_acento(nome)
+
+
+def _acao_aguardando_coleta_ionlab(nome):
+    texto = _sem_acento(nome)
+    return 'aguardando coleta na ionlab' in texto or ('coleta' in texto and 'ionlab' in texto)
+
+
+def _acao_confirmar_entrega_cliente(nome):
+    texto = _sem_acento(nome)
+    return 'confirmar entrega realizada no cliente' in texto or ('confirmar entrega' in texto and 'cliente' in texto)
+
+
+def _acao_aguardando_recebimento_fisico_fiscal(nome):
+    texto = _sem_acento(nome)
+    return 'aguardando recebimento fisico fiscal' in texto or 'aguardando recebimento fisico/fiscal' in texto
+
+
+def _formatar_tempo(delta):
+    return formatar_duracao_dd_hh_mm(delta)
+
+
+def _classe_tempo(delta):
+    total_horas = max(delta.total_seconds(), 0) / 3600
+    if total_horas < 12:
+        return "tempo-verde"
+    if total_horas < 24:
+        return "tempo-amarelo"
+    return "tempo-vermelho"
+
+
+def _valor_formatado(valor, *, vazio='-'):
+    if valor in (None, '', []):
+        return vazio
+    return str(valor)
+
+
+def _data_formatada(valor):
+    if not valor:
+        return '-'
+    try:
+        return valor.strftime('%d/%m/%Y')
+    except Exception:
+        return str(valor)
+
+
+def _data_agendada_coleta_do_historico(sac):
+    cache_prefetch = getattr(sac, '_prefetched_objects_cache', {})
+    historicos = cache_prefetch.get('historicos')
+    if historicos is None:
+        historicos = (
+            SacHistorico.objects.filter(sac=sac)
+            .exclude(observacao__isnull=True)
+            .exclude(observacao__exact='')
+            .order_by('-data_evento', '-id')
+        )
+    rotulos_prioritarios = ['Data prevista para entrega', 'Data Prevista para Entrega', 'Data Prevista para Chegar no Cliente', 'Data Prevista para Chegar na Ionlab', 'Data agendada para coleta no Cliente', 'Data da Coleta', 'Data da efetiva coleta']
+    for hist in historicos:
+        texto = (hist.observacao or '').strip()
+        if not texto:
+            continue
+        for linha in texto.splitlines():
+            if ':' not in linha:
+                continue
+            label, valor = linha.split(':', 1)
+            label = (label or '').strip()
+            valor = (valor or '').strip()
+            if not valor or label not in rotulos_prioritarios:
+                continue
+            for fmt in ('%d/%m/%Y', '%Y-%m-%d'):
+                try:
+                    from datetime import datetime
+                    return datetime.strptime(valor, fmt).date()
+                except ValueError:
+                    continue
+    return None
+
+
+def _usuario_nome(user):
+    if not user:
+        return '-'
+    nome = ''
+    try:
+        nome = user.get_full_name()
+    except Exception:
+        nome = ''
+    return nome or getattr(user, 'username', None) or str(user)
+
+
+def _valor_linha_observacao(texto, rotulo):
+    if not texto:
+        return ''
+    for linha in str(texto).splitlines():
+        if ':' not in linha:
+            continue
+        chave, valor = linha.split(':', 1)
+        if (chave or '').strip().lower() == rotulo.strip().lower():
+            return (valor or '').strip()
+    return ''
+
+
+def _dados_historico_logistica(sac):
+    dados = {
+        'status_adicionado_pelo_setor': '-',
+        'nome_usuario_solicitante': '-',
+        'tipo_ocorrencia_historico': '-',
+        'acao_em_espera_historico': '-',
+    }
+    cache_prefetch = getattr(sac, '_prefetched_objects_cache', {})
+    historicos = cache_prefetch.get('historicos')
+    if historicos is None:
+        historicos = (
+            SacHistorico.objects.filter(sac=sac)
+            .select_related('setor_origem', 'setor_destino', 'usuario')
+            .order_by('-data_evento', '-id')
+        )
+    for hist in historicos:
+        destino_codigo = getattr(getattr(hist, 'setor_destino', None), 'codigo', '') or ''
+        destino_nome = getattr(getattr(hist, 'setor_destino', None), 'nome', '') or ''
+        if destino_codigo == 'LOGISTICA' or _normalizar(destino_nome) == 'logistica':
+            if getattr(hist, 'setor_origem', None):
+                dados['status_adicionado_pelo_setor'] = hist.setor_origem.nome
+            dados['nome_usuario_solicitante'] = _usuario_nome(getattr(hist, 'usuario', None))
+            tipo_hist = _valor_linha_observacao(getattr(hist, 'observacao', ''), 'Tipo de ocorrência')
+            if tipo_hist:
+                dados['tipo_ocorrencia_historico'] = tipo_hist
+            acao_hist = _valor_linha_observacao(getattr(hist, 'observacao', ''), 'Próxima ação em espera') or _valor_linha_observacao(getattr(hist, 'observacao', ''), 'Ação em espera')
+            if acao_hist:
+                dados['acao_em_espera_historico'] = acao_hist
+            break
+
+    if dados['tipo_ocorrencia_historico'] == '-':
+        tipo_atual = _obter_tipo_ocorrencia_logistica(sac)
+        if tipo_atual:
+            dados['tipo_ocorrencia_historico'] = tipo_atual
+
+    if dados['acao_em_espera_historico'] == '-':
+        dados['acao_em_espera_historico'] = getattr(getattr(sac, 'acao_em_espera', None), 'nome', None) or '-'
+
+    return dados
+
+
+def _montar_card_sac_logistica(s, agora):
+    tempo = resumo_tempo_setor(s, agora=agora)
+    tipo_ocorrencia = _obter_tipo_ocorrencia_logistica(s)
+    data_agendada = _data_agendada_coleta_do_historico(s)
+    return {
+        'id': s.id,
+        'numero': formatar_numero_sac(s),
+        'numero_sac': formatar_numero_sac(s),
+        'cliente_nome': getattr(getattr(s, 'cliente', None), 'razao_social', '') or getattr(getattr(s, 'cliente', None), 'nome', '') or '-',
+        'empresa_nome': getattr(getattr(s, 'empresa', None), 'nome_fantasia', '') or getattr(getattr(s, 'empresa', None), 'razao_social', '') or getattr(getattr(s, 'empresa', None), 'nome', '') or '-',
+        'nota_fiscal_numero': getattr(getattr(s, 'nota_fiscal', None), 'numero_nf', '') or getattr(getattr(s, 'nota_fiscal', None), 'numero', '') or '-',
+        'status_atual_nome': getattr(getattr(s, 'status_atual', None), 'nome', '-'),
+        'acao_em_espera_nome': getattr(getattr(s, 'acao_em_espera', None), 'nome', '-'),
+        'tempo_espera': tempo['tempo_espera'],
+        'tempo_cor': tempo['tempo_cor'],
+        'marco_tempo': tempo['marco_tempo'],
+        'tipo_ocorrencia_nome': tipo_ocorrencia or '-',
+        'data_agendada_coleta': data_agendada.strftime('%d/%m/%Y') if data_agendada else '-',
+        '_data_agendada_coleta_obj': data_agendada,
+    }
+
+
+def _montar_observacao_logistica(cleaned_data, contexto_acao):
+    campos = [
+        ('Ação em espera atual', contexto_acao or '-'),
+        ('Fiscalmente o item já entrou no estoque', cleaned_data.get('fiscalmente_entrou_estoque')),
+        ('Item/Equipamento alocado em Prateleira', cleaned_data.get('item_alocado_prateleira')),
+        ('Endereço alocado', cleaned_data.get('endereco_alocado')),
+        ('Nome de quem fez a Alocação em prateleira', cleaned_data.get('nome_alocacao_prateleira')),
+        ('Nome da Transportadora', cleaned_data.get('nome_transportadora')),
+        ('Telefone da Transportadora', cleaned_data.get('telefone_transportadora')),
+        ('Contato da Transportadora', cleaned_data.get('contato_transportadora')),
+        ('Email da Transportadora', cleaned_data.get('email_transportadora')),
+        ('Data agendada para coleta no Cliente', _data_formatada(cleaned_data.get('data_coleta'))),
+        ('Data da Coleta', _data_formatada(cleaned_data.get('data_coleta'))),
+        ('Número da Cotação do frete', cleaned_data.get('numero_cotacao_frete')),
+        ('Valor do frete Cotado', cleaned_data.get('valor_frete_cotado')),
+        ('Data da efetiva coleta', _data_formatada(cleaned_data.get('data_expedicao'))),
+        ('Tempo de entrega até o cliente', cleaned_data.get('dias_entrega_cliente')),
+        ('Data prevista para entrega', _data_formatada(cleaned_data.get('data_prevista_chegada_cliente'))),
+        ('Quantos dias para entregar na Ionlab', cleaned_data.get('dias_entrega_ionlab')),
+        ('Data Prevista para Chegar na Ionlab', _data_formatada(cleaned_data.get('data_prevista_chegada_ionlab'))),
+        ('Nossa Nota fiscal ou Nota fiscal do Cliente', cleaned_data.get('tipo_nota_fiscal')),
+        ('Data de emissão da Nota fiscal', _data_formatada(cleaned_data.get('data_emissao_nota_fiscal'))),
+        ('Numero da Nota Fiscal', cleaned_data.get('numero_nota_fiscal')),
+        ('Próxima ação em espera', getattr(cleaned_data.get('proxima_acao_em_espera'), 'nome', '-')),
+        ('Próximo setor', getattr(cleaned_data.get('proximo_setor'), 'nome', '-')),
+        ('Próximo status', getattr(cleaned_data.get('proximo_status'), 'nome', '-')),
+        ('Data da Expedição', _data_formatada(cleaned_data.get('data_expedicao'))),
+        ('Quantos dias para entregar no Cliente', cleaned_data.get('dias_entrega_cliente')),
+        ('Data Prevista para Chegar no Cliente', _data_formatada(cleaned_data.get('data_prevista_chegada_cliente'))),
+        ('Data efetiva da Entrega', _data_formatada(cleaned_data.get('data_efetiva_entrega'))),
+        ('Data do Recebimento', _data_formatada(cleaned_data.get('data_recebimento'))),
+        ('Nome do Recebedor', cleaned_data.get('nome_recebedor')),
+        ('Embalagem Intacta', cleaned_data.get('embalagem_intacta')),
+        ('Número do Ctrc', cleaned_data.get('numero_ctrc')),
+        ('Valor do Frete no Ctrc', cleaned_data.get('valor_frete_ctrc')),
+        ('Ctrc com divergência de valor', cleaned_data.get('ctrc_divergencia_valor')),
+        ('Equipamento com alguma avaria', cleaned_data.get('equipamento_com_avaria')),
+        ('Itens com alguma avaria', cleaned_data.get('itens_com_avaria')),
+        ('Detalhamento das avarias', cleaned_data.get('detalhamento_avarias')),
+        ('Total de Itens dentro da Embalagem incluindo o equipamento', cleaned_data.get('total_itens_embalagem')),
+        ('Lista de itens dentro da embalagem', cleaned_data.get('lista_itens_embalagem')),
+        ('Equipamento recebido com embalagem original', cleaned_data.get('equipamento_embalagem_original')),
+        ('Equipamento Recebido em caixa de Madeira', cleaned_data.get('equipamento_caixa_madeira')),
+        ('Quantidade de volumes recebido', cleaned_data.get('quantidade_volumes_recebido')),
+        ('Peso Total', cleaned_data.get('peso_total')),
+        ('Tipo de produto', cleaned_data.get('tipo_produto')),
+        ('Nome do Embalador', cleaned_data.get('nome_embalador')),
+        ('Embalagem de madeira', cleaned_data.get('embalagem_madeira')),
+        ('Embalagem Original', cleaned_data.get('embalagem_original')),
+        ('Ressalva no CT-e', cleaned_data.get('ressalva_cte')),
+        ('Nome do Separador', cleaned_data.get('nome_separador')),
+        ('Nome de quem fez o BIP', cleaned_data.get('nome_bip')),
+        ('Quantidade total Romaneio', cleaned_data.get('quantidade_total_romaneio')),
+        ('Quantidade total na conferência de embalagem', cleaned_data.get('quantidade_total_conferencia_embalagem')),
+        ('Peso Total dos itens', cleaned_data.get('peso_total_itens')),
+        ('Quantidade de volumes expedidos', cleaned_data.get('quantidade_volumes_expedidos')),
+        ('Quantidade de volumes na nota fiscal', cleaned_data.get('quantidade_volumes_nota_fiscal')),
+        ('Quantidade de volumes no CT-e', cleaned_data.get('quantidade_volumes_cte')),
+        ('Peso no CT-e', cleaned_data.get('peso_cte')),
+        ('Observações', cleaned_data.get('observacoes')),
+        ('Alerta de divergência Romaneio', cleaned_data.get('_alerta_divergencia_romaneio')),
+    ]
+    # remove campos nulos específicos sem gerar linha inútil
+    linhas = []
+    for rotulo, valor in campos:
+        if rotulo == 'Data agendada para coleta no Cliente' and valor in (None, '', []):
+            continue
+        linhas.append(f'{rotulo}: {_valor_formatado(valor)}')
+    return '\n'.join(linhas)
+
+
+@login_required
+def gestao_logistica(request, sac_id=None):
+    sac_param = sac_id or request.GET.get('sac')
+    empresa_filtro, contexto_empresa = resolver_filtro_empresa(request)
+
+    setor_logistica = obter_setor_por_codigo('LOGISTICA')
+    qs = queryset_fila_por_setor(setor_logistica) if setor_logistica else SAC.objects.none()
+    qs = aplicar_filtro_empresa(qs, empresa_filtro)
+
+    agora = timezone.now()
+    hoje = agora.date()
+    sacs_disponiveis = []
+    sacs_agendamentos = []
+    qs = qs.prefetch_related('historicos', 'itens_sac__tipo_ocorrencia')
+    for s in qs.order_by('data_abertura', 'id'):
+        card = _montar_card_sac_logistica(s, agora)
+        data_agendada = card.get('_data_agendada_coleta_obj')
+        tipo_cliente = _tipo_cliente_nao_confirmou(card.get('tipo_ocorrencia_nome'))
+        acao_agendada_ionlab = (
+            getattr(getattr(s, 'empresa', None), 'codigo', '') == 'IONLAB'
+            and _acao_agendamento_ionlab(getattr(getattr(s, 'acao_em_espera', None), 'nome', ''))
+        )
+        if acao_agendada_ionlab or (data_agendada and data_agendada >= hoje):
+            sacs_agendamentos.append(card)
+        else:
+            sacs_disponiveis.append(card)
+
+    sac = None
+    historicos = []
+    form = None
+    itens_contexto = None
+    contexto_status = '-'
+    contexto_acao = '-'
+    tipo_ocorrencia = None
+
+    if sac_param:
+        sac = get_object_or_404(
+            SAC.objects.select_related('empresa', 'cliente', 'nota_fiscal', 'status_atual', 'acao_em_espera', 'setor_atual')
+            .prefetch_related('itens_sac__item_nota_fiscal', 'itens_sac__tipo_ocorrencia__setor', 'historicos__setor_origem', 'historicos__setor_destino', 'historicos__usuario'),
+            id=sac_param,
+        )
+
+        historicos = (
+            SacHistorico.objects.filter(sac=sac)
+            .select_related('usuario', 'setor_origem', 'setor_destino', 'status_anterior', 'status_novo')
+            .order_by('-data_evento', '-id')
+        )
+
+        contexto_status = getattr(getattr(sac, 'status_atual', None), 'nome', None) or getattr(sac, 'status_inicial', None) or '-'
+        contexto_acao = getattr(getattr(sac, 'acao_em_espera', None), 'nome', None) or '-'
+        tipo_ocorrencia = _obter_tipo_ocorrencia_logistica(sac)
+        itens_contexto = montar_contexto_itens_sac(sac, setor_contexto=getattr(sac, 'setor_atual', None))
+
+        fluxo_especial_item_vencido_saida = _eh_item_vencido(tipo_ocorrencia) and _acao_emissao_nota_fiscal_saida(contexto_acao)
+
+        if request.method == 'POST':
+            form = GestaoLogisticaAcaoExecutadaForm(request.POST, request.FILES, sac=sac, acao_atual_nome=contexto_acao)
+            if _acao_confirmar_entrega_cliente(contexto_acao):
+                data_entrega_raw = (request.POST.get('data_efetiva_entrega') or '').strip()
+                observacoes_entrega = (request.POST.get('observacoes') or '').strip()
+                data_entrega = None
+                if data_entrega_raw:
+                    try:
+                        data_entrega = datetime.strptime(data_entrega_raw, '%Y-%m-%d').date()
+                    except ValueError:
+                        data_entrega = None
+
+                if not data_entrega:
+                    messages.error(request, 'Data da efetiva entrega no Cliente: campo obrigatório.')
+                else:
+                    status_concluido = (
+                        StatusSAC.objects.filter(ativo=True, nome__iexact='Concluído').first()
+                        or StatusSAC.objects.filter(ativo=True, nome__iexact='Concluido').first()
+                        or StatusSAC.objects.filter(ativo=True, nome__icontains='Conclu').first()
+                    )
+                    if not status_concluido:
+                        messages.error(request, 'Status Concluído não encontrado. Cadastre o status antes de finalizar o SAC.')
+                    else:
+                        observacao_historico = '\n'.join([
+                            'Ações Executadas - Gestão Logística | Confirmação de entrega realizada no cliente',
+                            f'Data da efetiva entrega no Cliente: {data_entrega.strftime("%d/%m/%Y")}',
+                            'Próximo status: Concluído',
+                            'Fluxo finalizado: Sim',
+                            f'Observações: {observacoes_entrega or "-"}',
+                        ])
+                        try:
+                            aplicar_transicao_sac(
+                                sac=sac,
+                                usuario=request.user,
+                                acao_em_espera=None,
+                                setor_destino=None,
+                                status_novo=status_concluido,
+                                observacao=observacao_historico,
+                                acao_executada_texto='Entrega confirmada no cliente',
+                            )
+                        except ErroTransicaoSAC as exc:
+                            messages.error(request, str(exc))
+                        else:
+                            messages.success(request, 'Entrega confirmada e SAC finalizado com sucesso.')
+                            return redirect('gestao_logistica', sac_id=sac.id)
+            elif fluxo_especial_item_vencido_saida:
+                numero_nf_saida = (request.POST.get('numero_nota_fiscal_impressa') or '').strip()
+                data_emissao_saida_raw = (request.POST.get('data_emissao_saida') or '').strip()
+                itens_bipados = (request.POST.get('itens_ja_separados_bipados') or '').strip().upper()
+                quantidade_bipada = (request.POST.get('quantidade_separada_bipada') or '').strip()
+                observacoes_especiais = (request.POST.get('observacoes') or '').strip()
+
+                data_emissao_saida = None
+                if data_emissao_saida_raw:
+                    try:
+                        data_emissao_saida = datetime.strptime(data_emissao_saida_raw, '%Y-%m-%d').date()
+                    except ValueError:
+                        data_emissao_saida = None
+
+                erro_especial = False
+                if not numero_nf_saida:
+                    messages.error(request, 'Número da nota fiscal Impressa: campo obrigatório.')
+                    erro_especial = True
+                if not data_emissao_saida:
+                    messages.error(request, 'Data da emissão: campo obrigatório.')
+                    erro_especial = True
+                if itens_bipados != 'SIM':
+                    messages.error(request, 'Volte nesse formulário quando a nota fiscal estiver emitida e os itens estiverem separados e bipados.')
+                    erro_especial = True
+                if itens_bipados == 'SIM' and not quantidade_bipada:
+                    messages.error(request, 'Quantidade Separada e Bipada: campo obrigatório.')
+                    erro_especial = True
+
+                if not erro_especial:
+                    status_destino = _resolver_status_confirmar_baixa_itens_vencidos()
+                    acao_destino = _resolver_acao_confirmar_descarte()
+                    setor_destino = _resolver_setor_assessoria()
+
+                    if not status_destino or not acao_destino or not setor_destino:
+                        messages.error(request, 'Não foi possível resolver o fluxo especial de Item Vencido para Assessoria Científica.')
+                    else:
+                        observacao_historico = _observacao_item_vencido_saida(
+                            numero_nf_saida,
+                            data_emissao_saida,
+                            'Sim',
+                            quantidade_bipada,
+                            observacoes_especiais,
+                        )
+                        try:
+                            aplicar_transicao_sac(
+                                sac=sac,
+                                usuario=request.user,
+                                acao_em_espera=acao_destino,
+                                setor_destino=setor_destino,
+                                status_novo=status_destino,
+                                observacao=observacao_historico,
+                                acao_executada_texto='Ação logística registrada',
+                            )
+                        except ErroTransicaoSAC as exc:
+                            messages.error(request, str(exc))
+                        else:
+                            messages.success(request, 'Ação registrada com sucesso.')
+                            return redirect('gestao_logistica', sac_id=sac.id)
+            else:
+                if form.is_valid():
+                    cleaned_data = form.cleaned_data
+                    observacao_historico = _montar_observacao_logistica(cleaned_data, contexto_acao)
+                    try:
+                        aplicar_transicao_sac(
+                            sac=sac,
+                            usuario=request.user,
+                            acao_em_espera=cleaned_data.get('proxima_acao_em_espera'),
+                            setor_destino=cleaned_data.get('proximo_setor'),
+                            status_novo=cleaned_data.get('proximo_status') or getattr(sac, 'status_atual', None),
+                            observacao=observacao_historico,
+                            acao_executada_texto='Ação logística registrada',
+                        )
+                    except ErroTransicaoSAC as exc:
+                        messages.error(request, str(exc))
+                    else:
+                        messages.success(request, 'Ação registrada com sucesso.')
+                        return redirect('gestao_logistica', sac_id=sac.id)
+                else:
+                    messages.error(request, 'Não foi possível salvar. Verifique os campos obrigatórios.')
+        else:
+            form = GestaoLogisticaAcaoExecutadaForm(sac=sac, acao_atual_nome=contexto_acao)
+
+        fluxo_especial_item_vencido_saida = _eh_item_vencido(tipo_ocorrencia) and _acao_emissao_nota_fiscal_saida(contexto_acao)
+
+    return render(request, 'core/gestao_logistica.html', {
+        'modo_lista': sac is None,
+        'sac': sac,
+        'form': form,
+        'tipo_ocorrencia_logistica': tipo_ocorrencia,
+        'acao_atual_logistica': contexto_acao,
+        'eh_equipamento_logistica': bool(sac and _sac_equipamento_por_grupo(sac)),
+        'acao_aguardando_coleta_cliente': bool(sac and _acao_aguardando_coleta_cliente(contexto_acao)),
+        'acao_aguardando_coleta_ionlab': bool(sac and _acao_aguardando_coleta_ionlab(contexto_acao)),
+        'acao_confirmar_entrega_cliente': bool(sac and _acao_confirmar_entrega_cliente(contexto_acao)),
+        'acao_aguardando_recebimento_fisico_fiscal': bool(sac and _acao_aguardando_recebimento_fisico_fiscal(contexto_acao)),
+        'historicos': historicos,
+        'historicos_detalhados': locals().get('historicos_detalhados', []),
+        'dados_sac_oficiais': montar_dados_sac_oficiais(sac),
+        'dados_sac': {**(montar_dados_padrao_sac(sac, setor_contexto=getattr(sac, 'setor_atual', None), acao_atual_texto=contexto_acao) or {}), **_dados_historico_logistica(sac)},
+        'itens_contexto': itens_contexto,
+        'sacs_disponiveis': sacs_disponiveis,
+        'sacs_agendamentos': sacs_agendamentos,
+        'cards_pendentes': sacs_disponiveis,
+        'total_sacs': len(sacs_disponiveis),
+        'contexto_status': contexto_status,
+        'contexto_acao': contexto_acao,
+        'fluxo_alertas': [],
+        'fluxo_especial_item_vencido_saida': bool(sac and _eh_item_vencido(tipo_ocorrencia) and _acao_emissao_nota_fiscal_saida(contexto_acao)),
+        **contexto_empresa,
+    })

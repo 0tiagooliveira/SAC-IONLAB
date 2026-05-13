@@ -1,0 +1,69 @@
+{% if sac %}
+<section class="card">
+    <h2>Itens incluídos no SAC</h2>
+    {% if itens_contexto.itens %}
+        {% for item in itens_contexto.itens %}
+            <div class="item-row-card">
+                <div class="item-top">
+                    <div>
+                        <div class="item-title">{{ item.descricao_item|default:'-' }}</div>
+                        <div class="muted">Referência: {{ item.codigo_produto|default:'-' }}</div>
+                    </div>
+                </div>
+                <div class="summary-line"><span>Ocorrência</span><strong>{{ item.tipo_ocorrencia_nome|default:'-' }}</strong></div>
+                <div class="summary-line"><span>Identificador</span><strong>{{ item.identificador|default:'-' }} / {{ item.numero_rastreio|default:'-' }}</strong></div>
+                <div class="summary-line"><span>Quantidade com problema</span><strong>{{ item.quantidade_com_problema|default:'-' }}</strong></div>
+                <div class="summary-line destaque-valores"><span>Valor unitário do item</span><strong>R$ {{ item.valor_unitario|default:'-' }}</strong></div>
+                <div class="summary-line destaque-valores"><span>Valor total com problema</span><strong>R$ {{ item.valor_total_problema|default:'-' }}</strong></div>
+                <div class="summary-line"><span>Setor do item</span><strong>{{ item.setor_item_nome|default:'-' }}</strong></div>
+                <div class="summary-line"><span>Observação do item</span><strong>{{ item.obj.observacao_item|default:'-' }}</strong></div>
+            </div>
+        {% endfor %}
+    {% elif itens_contexto.itens_visiveis %}
+        {% for item in itens_contexto.itens_visiveis %}
+            <div class="item-row-card">
+                <div class="item-top">
+                    <div>
+                        <div class="item-title">{{ item.descricao_item|default:'-' }}</div>
+                        <div class="muted">Referência: {{ item.codigo_produto|default:'-' }}</div>
+                    </div>
+                </div>
+                <div class="summary-line"><span>Ocorrência</span><strong>{{ item.tipo_ocorrencia_nome|default:'-' }}</strong></div>
+                <div class="summary-line"><span>Identificador</span><strong>{{ item.identificador|default:'-' }} / {{ item.numero_rastreio|default:'-' }}</strong></div>
+                <div class="summary-line"><span>Quantidade com problema</span><strong>{{ item.quantidade_com_problema|default:'-' }}</strong></div>
+                <div class="summary-line destaque-valores"><span>Valor unitário do item</span><strong>R$ {{ item.valor_unitario|default:'-' }}</strong></div>
+                <div class="summary-line destaque-valores"><span>Valor total com problema</span><strong>R$ {{ item.valor_total_problema|default:'-' }}</strong></div>
+                <div class="summary-line"><span>Setor do item</span><strong>{{ item.setor_nome|default:item.setor_item_nome|default:'-' }}</strong></div>
+                <div class="summary-line"><span>Observação do item</span><strong>{{ item.observacao_item|default:'-' }}</strong></div>
+            </div>
+        {% endfor %}
+    {% elif sac.itens_sac.all %}
+        {% for item in sac.itens_sac.all %}
+            <div class="item-row-card">
+                <div class="item-top">
+                    <div>
+                        <div class="item-title">{{ item.item_nota_fiscal.descricao_item|default:item.item_nota_fiscal.item|default:'-' }}</div>
+                        <div class="muted">Referência: {{ item.item_nota_fiscal.codigo_produto|default:'-' }}</div>
+                    </div>
+                </div>
+                <div class="summary-line"><span>Ocorrência</span><strong>{{ item.tipo_ocorrencia.nome|default:'-' }}</strong></div>
+                <div class="summary-line"><span>Identificador</span><strong>{{ item.tipo_rastreio|default:'-' }} / {{ item.numero_rastreio|default:'-' }}</strong></div>
+                <div class="summary-line"><span>Quantidade com problema</span><strong>{{ item.quantidade_com_problema|default:'-' }}</strong></div>
+                <div class="summary-line destaque-valores"><span>Valor unitário do item</span><strong>R$ {{ item.item_nota_fiscal.valor_total_item|default:'-' }}</strong></div>
+                <div class="summary-line destaque-valores"><span>Valor total com problema</span><strong>R$ {{ item.item_nota_fiscal.valor_total_item|default:'-' }}</strong></div>
+                <div class="summary-line"><span>Grupo</span><strong>{{ item.grupo|default:'-' }}</strong></div>
+                <div class="summary-line"><span>Observação do item</span><strong>{{ item.observacao_item|default:'-' }}</strong></div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty">Nenhum item informado neste SAC.</div>
+    {% endif %}
+    {% if itens_contexto.avisos_outros_setores %}
+    <div class="messages">
+        {% for aviso in itens_contexto.avisos_outros_setores %}
+            <div class="msg warning">{{ aviso }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</section>
+{% endif %}

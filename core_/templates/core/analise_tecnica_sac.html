@@ -1,0 +1,1292 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise Técnica do SAC</title>
+    <style>
+        :root {
+            --ionlab-blue: #0b3a67;
+            --ionlab-blue-2: #114f8e;
+            --ionlab-cyan: #00b4c7;
+            --ionlab-card: #ffffff;
+            --ionlab-text: #17324d;
+            --ionlab-border: #d6e2ef;
+            --ionlab-shadow: 0 10px 30px rgba(10, 48, 88, 0.10);
+            --block-red: #b3261e;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background:
+                radial-gradient(circle at top right, rgba(0,180,199,0.12), transparent 28%),
+                linear-gradient(180deg, #f7fbff 0%, #eef5fb 100%);
+            color: var(--ionlab-text);
+        }
+        .page {
+            max-width: 1600px;
+            margin: 20px auto;
+            padding: 0 18px 24px;
+        }
+        .hero {
+            background: linear-gradient(135deg, var(--ionlab-blue) 0%, var(--ionlab-blue-2) 55%, #146aa8 100%);
+            color: white;
+            border-radius: 24px;
+            padding: 22px 28px;
+            box-shadow: var(--ionlab-shadow);
+            display: grid;
+            grid-template-columns: 220px 1fr 260px;
+            gap: 20px;
+            align-items: center;
+        }
+        .logo-box {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 90px;
+        }
+        .logo-box img {
+            max-height: 72px;
+            max-width: 180px;
+            object-fit: contain;
+            background: rgba(255,255,255,0.10);
+            border: 1px solid rgba(255,255,255,0.20);
+            border-radius: 18px;
+            padding: 10px 14px;
+        }
+        .hero-title-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .hero h1 {
+            margin: 0;
+            font-size: 38px;
+            line-height: 1.1;
+            letter-spacing: 0.6px;
+            text-align: center;
+            width: 100%;
+        }
+        .sac-number { text-align: right; }
+        .sac-number .label {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.85;
+        }
+        .sac-number .number {
+            font-size: 34px;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+        .sac-number .datetime-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            opacity: 0.80;
+            margin-top: 12px;
+        }
+        .sac-number .datetime-value {
+            font-size: 13px;
+            margin-top: 4px;
+            opacity: 0.95;
+        }
+        .messages { margin-top: 18px; }
+        .msg {
+            padding: 14px 16px;
+            border-radius: 14px;
+            margin-bottom: 10px;
+            white-space: pre-wrap;
+            font-weight: 700;
+        }
+        .msg.success {
+            background: #e8f7ef;
+            border: 1px solid #c9ebd8;
+            color: #185f37;
+        }
+        .msg.error {
+            background: var(--block-red);
+            border: 1px solid #8f1a14;
+            color: #ffffff;
+        }
+        .layout {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        .layout > div {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .card {
+            background: var(--ionlab-card);
+            border: 1px solid var(--ionlab-border);
+            border-radius: 22px;
+            box-shadow: var(--ionlab-shadow);
+            padding: 22px;
+        }
+        .card h2 {
+            margin: 0 0 18px;
+            font-size: 22px;
+            color: var(--ionlab-blue);
+        }
+        .subgrid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .field { margin-bottom: 14px; }
+        .field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #355675;
+        }
+        input, select, textarea {
+            width: 100%;
+            border: 1px solid #cddcea;
+            border-radius: 14px;
+            padding: 12px 14px;
+            font-size: 14px;
+            outline: none;
+            background: #fff;
+        }
+        input[readonly], select[disabled] {
+            background: #f4f7fb;
+            color: #45627d;
+        }
+        textarea { min-height: 120px; resize: vertical; }
+        .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+        .btn {
+            border: none;
+            border-radius: 14px;
+            padding: 12px 18px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary { background: linear-gradient(135deg, var(--ionlab-cyan), #1499bd); color: white; }
+        .btn-dark { background: linear-gradient(135deg, var(--ionlab-blue), #174e7e); color: white; }
+        .muted { color: #59738e; font-size: 12px; }
+        .item-row-card {
+            border: 1px solid #e1ecf5;
+            background: #fff;
+            border-radius: 18px;
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+        .item-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        .item-title { font-weight: 700; color: var(--ionlab-blue); font-size: 15px; }
+        .summary-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 10px 0;
+            border-bottom: 1px solid #edf2f7;
+            font-size: 14px;
+        }
+        .summary-line:last-child { border-bottom: none; }
+        .history-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 14px;
+            margin-top: 10px;
+        }
+        .history-meta .line {
+            background: #f7fbff;
+            border: 1px solid #e3eef8;
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 13px;
+        }
+        .history-obs {
+            margin-top: 10px;
+            background: #f9fbfd;
+            border: 1px solid #e6eef6;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 13px;
+            white-space: pre-wrap;
+        }
+        .field-error {
+            margin-top: 6px;
+            background: var(--block-red);
+            color: #fff;
+            padding: 8px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        .mini-note { font-size: 12px; color: #5b7490; margin-top: 4px; }
+        .section-divider { margin-top: 18px; padding-top: 18px; border-top: 1px solid #e8eff6; }
+        .peca-row {
+            border: 1px solid #dde9f4;
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 12px;
+            background: #fbfdff;
+        }
+        .totais-box {
+            background: #f6fbff;
+            border: 1px solid #dbe8f4;
+            border-radius: 16px;
+            padding: 14px;
+            margin-top: 12px;
+        }
+        .totais-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 6px 0;
+            font-size: 14px;
+        }
+
+        @media (max-width: 1100px) {
+            .layout { grid-template-columns: 1fr; }
+            .hero { grid-template-columns: 1fr; text-align: center; }
+            .sac-number { text-align: center; }
+            .hero h1 { font-size: 32px; }
+            .logo-box { justify-content: center; }
+            .history-meta { grid-template-columns: 1fr; }
+        }
+
+        .tempo-status-card {
+            background: var(--ionlab-card);
+            border: 1px solid var(--ionlab-border);
+            border-radius: 22px;
+            box-shadow: var(--ionlab-shadow);
+            padding: 18px;
+            margin: 18px 0;
+        }
+        .tempo-status-header {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:14px;
+            flex-wrap:wrap;
+        }
+        .tempo-status-title {
+            margin: 0 0 6px 0;
+            font-size: 20px;
+            color: var(--ionlab-blue);
+        }
+        .tempo-status-subtitle {
+            margin: 0;
+            color: #5a728a;
+            font-size: 13px;
+            max-width: 760px;
+        }
+        .tempo-toggle {
+            border:none;
+            border-radius: 14px;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, var(--ionlab-blue), #174e7e);
+            color:#fff;
+            font-weight:700;
+            cursor:pointer;
+            white-space:nowrap;
+        }
+        .tempo-toggle .toggle-close { display:none; }
+        .tempo-status-card.expanded .tempo-toggle .toggle-open { display:none; }
+        .tempo-status-card.expanded .tempo-toggle .toggle-close { display:inline; }
+        .tempo-resumo {
+            margin-top: 14px;
+            display:grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 10px;
+        }
+        .tempo-resumo-box {
+            background:#f7fbff;
+            border:1px solid #dbe8f4;
+            border-radius:14px;
+            padding:12px 14px;
+        }
+        .tempo-resumo-box strong {
+            display:block;
+            color:var(--ionlab-blue);
+            font-size:18px;
+            margin-top:4px;
+        }
+        .tempo-flow-wrap {
+            display:none;
+            margin-top: 16px;
+            border-top:1px solid #e7eff7;
+            padding-top:16px;
+        }
+        .tempo-status-card.expanded .tempo-flow-wrap { display:block; }
+        .tempo-flow {
+            display:grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 14px;
+        }
+        .tempo-node {
+            background: linear-gradient(180deg, #ffffff 0%, #f4f9fd 100%);
+            border: 1px solid #d7e5f1;
+            border-radius: 18px;
+            padding: 14px;
+            position: relative;
+            min-height: 170px;
+        }
+        .tempo-node::before {
+            content: '';
+            display: block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--ionlab-cyan);
+            margin-bottom: 10px;
+            box-shadow: 0 0 0 6px rgba(0, 180, 199, 0.12);
+        }
+        .tempo-node-status {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--ionlab-blue);
+            line-height: 1.3;
+        }
+        .tempo-node-setor {
+            margin-top: 6px;
+            font-size: 13px;
+            color: #4a657d;
+            font-weight: 700;
+        }
+        .tempo-node-data {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #6e8296;
+        }
+        .tempo-duracao-chip {
+            margin-top: 14px;
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            padding:10px 12px;
+            border-radius: 999px;
+            background:#eff8fc;
+            color:var(--ionlab-blue);
+            font-weight:700;
+            font-size:13px;
+            flex-wrap:wrap;
+        }
+        .tempo-duracao-chip.atual {
+            background:#fff4e5;
+            color:#8b4f00;
+        }
+        .tempo-duracao-label {
+            display:block;
+            margin-top:8px;
+            font-size:12px;
+            color:#5f7690;
+            line-height:1.35;
+        }
+        @media (max-width: 1100px) {
+            .tempo-status-header { align-items:flex-start; }
+        }
+        
+.hist-user{margin-top:8px;font-size:13px;color:#17324d}
+.hist-details{margin-top:8px;padding:12px 14px;border-radius:14px;background:#f7fbff;border:1px solid #d6e3ef}
+.hist-details pre{margin:8px 0 0;white-space:pre-wrap;word-break:break-word;font-family:Arial,sans-serif;font-size:13px;line-height:1.5;color:#17324d}
+
+</style>
+</head>
+<body>
+<div class="page">
+    <div class="hero">
+        <div class="logo-box">
+            <img src="{% static 'core/img/logo-ionlab.png' %}" alt="Ionlab">
+        </div>
+        <div class="hero-title-wrap">
+            <h1>Análise Técnica do SAC</h1>
+        </div>
+        <div class="sac-number">
+            <div class="label">SAC Número</div>
+            <div class="number">{{ sac.numero }}</div>
+            <div class="datetime-label">Data e hora atual</div>
+            <div class="datetime-value">{% now "d/m/Y H:i" %}</div>
+        </div>
+    </div>
+
+    <div class="messages">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="msg {% if 'error' in message.tags %}error{% else %}success{% endif %}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    {% if fluxo_alertas %}
+    <div class="messages">
+        {% for alerta in fluxo_alertas %}
+            <div class="msg error" style="background:#fff7e7;border-color:#f2d494;color:#7d5a00;white-space:pre-wrap;"><strong>{{ alerta.titulo }}</strong><br>{{ alerta.mensagem }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="layout">
+        <div>
+            <div class="card">
+                <h2>Dados do SAC</h2>
+                <div class="subgrid-2">
+                    <div class="field"><label>Número do SAC</label><input type="text" readonly value="{{ dados_sac.numero_sac|default:'-' }}"></div>
+                    <div class="field"><label>Status atual</label><input type="text" readonly value="{{ dados_sac.status_atual|default:'-' }}"></div>
+                </div>
+                <div class="subgrid-2">
+                    <div class="field"><label>Empresa</label><input type="text" readonly value="{{ dados_sac.empresa|default:'-' }}"></div>
+                    <div class="field"><label>Setor atual</label><input type="text" readonly value="{{ dados_sac.setor_atual|default:'-' }}"></div>
+                </div>
+                <div class="field"><label>Cliente</label><input type="text" readonly value="{{ dados_sac.cliente|default:'-' }}"></div>
+                <div class="field"><label>Nota fiscal</label><input type="text" readonly value="{{ dados_sac.nota_fiscal|default:'-' }}"></div>
+                <div class="field"><label>Título</label><input type="text" readonly value="{{ dados_sac.titulo|default:'-' }}"></div>
+                <div class="field"><label>Ação em espera atual</label><input type="text" readonly value="{{ dados_sac.acao_em_espera_atual|default:'-' }}"></div>
+                <div class="subgrid-2">
+                    <div class="field"><label>Data/Hora que veio para esse Setor</label><input type="text" readonly value="{{ dados_sac.data_hora_setor|default:'-' }}"></div>
+                    <div class="field"><label>Tempo nesse setor</label><input type="text" readonly value="{{ dados_sac.tempo_setor|default:'-' }}"></div>
+                </div>
+                <div class="field"><label>Tipo de ocorrência</label><input type="text" readonly value="{{ dados_sac.tipo_ocorrencia|default:'-' }}"></div>
+            </div>
+
+            <div class="card">
+                <h2>Registrar análise técnica</h2>
+                <form method="post" id="formAnaliseTecnica">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="field-error">{{ form.non_field_errors|join:', ' }}</div>
+                    {% endif %}
+
+                    {% if eh_tecnico_equipamento_nao_funciona %}
+                    <div class="subcard">
+                        <h3>Técnico - Equipamento não funciona</h3>
+
+                        <div class="field">
+                            <label>Resolvido em atendimento remoto</label>
+                            <select name="tecnico_resolvido_remoto" id="id_tecnico_resolvido_remoto" required>
+                                <option value="">Selecione</option>
+                                <option value="sim" {% if tecnico_resolvido_remoto == 'sim' %}selected{% endif %}>Sim</option>
+                                <option value="nao" {% if tecnico_resolvido_remoto == 'nao' %}selected{% endif %}>Não</option>
+                            </select>
+                        </div>
+
+                        <div id="blocoTecnicoNaoResolvido" style="display:{% if tecnico_resolvido_remoto == 'nao' %}block{% else %}none{% endif %};">
+                            <div class="field">
+                                <label>Agendado Visita Técnica</label>
+                                <select name="tecnico_agendado_visita" id="id_tecnico_agendado_visita">
+                                    <option value="">Selecione</option>
+                                    <option value="sim" {% if tecnico_agendado_visita == 'sim' %}selected{% endif %}>Sim</option>
+                                    <option value="nao" {% if tecnico_agendado_visita == 'nao' %}selected{% endif %}>Não</option>
+                                </select>
+                            </div>
+
+                            <div id="blocoTecnicoVisitaSim" style="display:{% if tecnico_agendado_visita == 'sim' %}block{% else %}none{% endif %};">
+                                <div class="subgrid-2">
+                                    <div class="field">
+                                        <label>Nome do Técnico</label>
+                                        <input type="text" name="tecnico_nome" value="{{ tecnico_nome|default:'' }}">
+                                    </div>
+                                    <div class="field">
+                                        <label>Telefone do Técnico</label>
+                                        <input type="text" name="tecnico_telefone" value="{{ tecnico_telefone|default:'' }}">
+                                    </div>
+                                </div>
+                                <div class="subgrid-2">
+                                    <div class="field">
+                                        <label>Email do técnico</label>
+                                        <input type="email" name="tecnico_email" value="{{ tecnico_email|default:'' }}">
+                                    </div>
+                                    <div class="field">
+                                        <label>Cidade</label>
+                                        <input type="text" name="tecnico_cidade" value="{{ tecnico_cidade|default:'' }}">
+                                    </div>
+                                </div>
+                                <div class="subgrid-2">
+                                    <div class="field">
+                                        <label>Estado</label>
+                                        <select name="tecnico_estado">
+                                            <option value="">Selecione</option>
+                                            <option value="AC" {% if tecnico_estado == 'AC' %}selected{% endif %}>AC</option>
+                                            <option value="AL" {% if tecnico_estado == 'AL' %}selected{% endif %}>AL</option>
+                                            <option value="AP" {% if tecnico_estado == 'AP' %}selected{% endif %}>AP</option>
+                                            <option value="AM" {% if tecnico_estado == 'AM' %}selected{% endif %}>AM</option>
+                                            <option value="BA" {% if tecnico_estado == 'BA' %}selected{% endif %}>BA</option>
+                                            <option value="CE" {% if tecnico_estado == 'CE' %}selected{% endif %}>CE</option>
+                                            <option value="DF" {% if tecnico_estado == 'DF' %}selected{% endif %}>DF</option>
+                                            <option value="ES" {% if tecnico_estado == 'ES' %}selected{% endif %}>ES</option>
+                                            <option value="GO" {% if tecnico_estado == 'GO' %}selected{% endif %}>GO</option>
+                                            <option value="MA" {% if tecnico_estado == 'MA' %}selected{% endif %}>MA</option>
+                                            <option value="MT" {% if tecnico_estado == 'MT' %}selected{% endif %}>MT</option>
+                                            <option value="MS" {% if tecnico_estado == 'MS' %}selected{% endif %}>MS</option>
+                                            <option value="MG" {% if tecnico_estado == 'MG' %}selected{% endif %}>MG</option>
+                                            <option value="PA" {% if tecnico_estado == 'PA' %}selected{% endif %}>PA</option>
+                                            <option value="PB" {% if tecnico_estado == 'PB' %}selected{% endif %}>PB</option>
+                                            <option value="PR" {% if tecnico_estado == 'PR' %}selected{% endif %}>PR</option>
+                                            <option value="PE" {% if tecnico_estado == 'PE' %}selected{% endif %}>PE</option>
+                                            <option value="PI" {% if tecnico_estado == 'PI' %}selected{% endif %}>PI</option>
+                                            <option value="RJ" {% if tecnico_estado == 'RJ' %}selected{% endif %}>RJ</option>
+                                            <option value="RN" {% if tecnico_estado == 'RN' %}selected{% endif %}>RN</option>
+                                            <option value="RS" {% if tecnico_estado == 'RS' %}selected{% endif %}>RS</option>
+                                            <option value="RO" {% if tecnico_estado == 'RO' %}selected{% endif %}>RO</option>
+                                            <option value="RR" {% if tecnico_estado == 'RR' %}selected{% endif %}>RR</option>
+                                            <option value="SC" {% if tecnico_estado == 'SC' %}selected{% endif %}>SC</option>
+                                            <option value="SP" {% if tecnico_estado == 'SP' %}selected{% endif %}>SP</option>
+                                            <option value="SE" {% if tecnico_estado == 'SE' %}selected{% endif %}>SE</option>
+                                            <option value="TO" {% if tecnico_estado == 'TO' %}selected{% endif %}>TO</option>
+                                        </select>
+                                    </div>
+                                    <div class="field">
+                                        <label>Data agendada para visita</label>
+                                        <input type="date" name="tecnico_data_visita" value="{{ tecnico_data_visita|default:'' }}">
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label>Hora agendada para Visita</label>
+                                    <input type="time" name="tecnico_hora_visita" value="{{ tecnico_hora_visita|default:'' }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subcard fluxo-padronizado-box">
+                        <style>
+                            .fluxo-padronizado-box{border:1px solid #dbe8f3;border-radius:18px;padding:16px;background:#f8fbfe;margin-bottom:16px}
+                            .fluxo-padronizado-box .fluxo-padronizado-titulo{margin:0 0 14px;color:#0d3b66;font-size:18px;font-weight:800}
+                            .fluxo-padronizado-box .fluxo-padronizado-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+                            @media (max-width: 900px){.fluxo-padronizado-box .fluxo-padronizado-grid{grid-template-columns:1fr}}
+                        </style>
+                        <h3 class="fluxo-padronizado-titulo">Fluxo que será aplicado</h3>
+                        <div class="fluxo-padronizado-grid">
+                            <div class="field">
+                                <label>Próximo status</label>
+                                <input type="text" readonly id="tecnico_fluxo_status" value="-">
+                            </div>
+                            <div class="field">
+                                <label>Ação em Espera próximo Setor</label>
+                                <input type="text" readonly id="tecnico_fluxo_acao" value="-">
+                            </div>
+                            <div class="field">
+                                <label>Próximo setor</label>
+                                <input type="text" readonly id="tecnico_fluxo_setor" value="-">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>{{ form.observacao_tecnica.label }}</label>
+                        {{ form.observacao_tecnica }}
+                        {% if form.observacao_tecnica.errors %}<div class="field-error">{{ form.observacao_tecnica.errors|join:', ' }}</div>{% endif %}
+                    </div>
+
+                    <div class="actions">
+                        <button type="submit" class="btn btn-primary">Salvar análise técnica</button>
+                        <a href="/admin/core/sac/{{ sac.id }}/change/" class="btn btn-dark">Abrir SAC no admin</a>
+                    </div>
+
+                    {% elif acao_confirmar_descarte %}
+                    <div class="subcard">
+                        <h3>Confirmação de Descarte / Eliminação / Doação</h3>
+                        {% for item in itens_descarte_contexto %}
+                        <div class="peca-row js-descarte-item" data-unitario="{{ item.valor_unitario }}">
+                            <div class="field">
+                                <label>Item {{ item.indice }}</label>
+                                <input type="text" readonly value="{{ item.descricao }}{% if item.referencia and item.referencia != '-' %} - Ref. {{ item.referencia }}{% endif %}">
+                            </div>
+                            <div class="grid-2">
+                                <div class="field">
+                                    <label>Quantidade de itens vencidos</label>
+                                    <input type="number" step="1" min="1" name="quantidade_descarte_{{ item.item_id }}" class="js-quantidade-descarte" value="{{ item.quantidade_digitada|default:'' }}" required>
+                                </div>
+                                <div class="field">
+                                    <label>Destino</label>
+                                    <select name="destino_descarte_{{ item.item_id }}" required>
+                                        <option value="">Selecione</option>
+                                        <option value="Doação" {% if item.destino == 'Doação' %}selected{% endif %}>Doação</option>
+                                        <option value="Destruição" {% if item.destino == 'Destruição' %}selected{% endif %}>Destruição</option>
+                                        <option value="Outros" {% if item.destino == 'Outros' %}selected{% endif %}>Outros</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="grid-2">
+                                <div class="field">
+                                    <label>Valor Unitário do Item</label>
+                                    <input type="text" readonly value="{{ item.valor_unitario_fmt }}">
+                                </div>
+                                <div class="field">
+                                    <label>Valor total</label>
+                                    <input type="text" readonly class="js-valor-total-item" value="{{ item.valor_total_fmt }}" style="font-weight:800;background:#eef7ff;color:#0b3a67;">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label>Justificativas</label>
+                                <textarea name="justificativa_descarte_{{ item.item_id }}" rows="4">{{ item.justificativa|default:'' }}</textarea>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                        <div class="totais-box" style="border:2px solid #0b3a67;">
+                            <div class="totais-line" style="font-size:18px;font-weight:800;">
+                                <span>Valor total geral</span>
+                                <span id="txtValorTotalDescarteGeral">{{ valor_total_descarte_geral_fmt }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="subcard fluxo-padronizado-box">
+                        <style>
+                            .fluxo-padronizado-box{border:1px solid #dbe8f3;border-radius:18px;padding:16px;background:#f8fbfe;margin-bottom:16px}
+                            .fluxo-padronizado-box .fluxo-padronizado-titulo{margin:0 0 14px;color:#0d3b66;font-size:18px;font-weight:800}
+                            .fluxo-padronizado-box .fluxo-padronizado-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+                            @media (max-width: 900px){.fluxo-padronizado-box .fluxo-padronizado-grid{grid-template-columns:1fr}}
+                        </style>
+                        <h3 class="fluxo-padronizado-titulo">Fluxo que será aplicado</h3>
+                        <div class="fluxo-padronizado-grid">
+                            <div class="field">
+                                <label>Próximo status</label>
+                                <input type="text" readonly value="Concluído">
+                            </div>
+                            <div class="field">
+                                <label>Ação em Espera próximo Setor</label>
+                                <input type="text" readonly value="-">
+                            </div>
+                            <div class="field">
+                                <label>Próximo setor</label>
+                                <input type="text" readonly value="-">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>{{ form.observacao_tecnica.label }}</label>
+                        {{ form.observacao_tecnica }}
+                        {% if form.observacao_tecnica.errors %}<div class="field-error">{{ form.observacao_tecnica.errors|join:', ' }}</div>{% endif %}
+                    </div>
+
+                    <div class="actions">
+                        <button type="submit" class="btn btn-primary">Salvar análise técnica</button>
+                        <a href="/admin/core/sac/{{ sac.id }}/change/" class="btn btn-dark">Abrir SAC no admin</a>
+                    </div>
+
+                    {% else %}
+                    <div class="field">
+                        <label>{{ form.tratativa_problema.label }}</label>
+                        {{ form.tratativa_problema }}
+                        {% if form.tratativa_problema.errors %}<div class="field-error">{{ form.tratativa_problema.errors|join:', ' }}</div>{% endif %}
+                    </div>
+
+                    <div class="field">
+                        <label>{{ form.tipo_problema.label }}</label>
+                        {{ form.tipo_problema }}
+                        <div class="muted">Obrigatório quando o problema não for resolvido remotamente.</div>
+                        {% if form.tipo_problema.errors %}<div class="field-error">{{ form.tipo_problema.errors|join:', ' }}</div>{% endif %}
+                    </div>
+
+                    {% if eh_item_vencido %}
+                    <div class="field">
+                        <label>Confirmados itens vencidos</label>
+                        <select name="confirmados_itens_vencidos" id="id_confirmados_itens_vencidos">
+                            <option value="">Selecione</option>
+                            <option value="sim" {% if confirmados_itens_vencidos == 'sim' %}selected{% endif %}>Sim</option>
+                            <option value="nao" {% if confirmados_itens_vencidos == 'nao' %}selected{% endif %}>Não</option>
+                        </select>
+                    </div>
+
+                    <div id="blocoItemVencidoSim" style="display:{% if confirmados_itens_vencidos == 'sim' %}block{% else %}none{% endif %};">
+                        <div class="field">
+                            <label>Quantidade</label>
+                            <input type="number" step="1" min="1" name="quantidade_item_vencido" id="id_quantidade_item_vencido" value="{{ quantidade_item_vencido|default:'' }}">
+                        </div>
+                        <div class="field">
+                            <label>Destino</label>
+                            <select name="destino_item_vencido" id="id_destino_item_vencido">
+                                <option value="">Selecione</option>
+                                <option value="Doação" {% if destino_item_vencido == 'Doação' %}selected{% endif %}>Doação</option>
+                                <option value="Destruição" {% if destino_item_vencido == 'Destruição' %}selected{% endif %}>Destruição</option>
+                            </select>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if not eh_item_vencido %}
+                    <div class="field">
+                        <label>{{ form.proximo_status.label }}</label>
+                        {{ form.proximo_status }}
+                        <div class="muted">Quando a tratativa for problema resolvido em atendimento remoto, o sistema força o status Concluído.</div>
+                        {% if form.proximo_status.errors %}<div class="field-error">{{ form.proximo_status.errors|join:', ' }}</div>{% endif %}
+                    </div>
+                    {% endif %}
+
+                    <div class="subcard fluxo-padronizado-box">
+                        <style>
+                            .fluxo-padronizado-box{border:1px solid #dbe8f3;border-radius:18px;padding:16px;background:#f8fbfe;margin-bottom:16px}
+                            .fluxo-padronizado-box .fluxo-padronizado-titulo{margin:0 0 14px;color:#0d3b66;font-size:18px;font-weight:800}
+                            .fluxo-padronizado-box .fluxo-padronizado-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+                            @media (max-width: 900px){.fluxo-padronizado-box .fluxo-padronizado-grid{grid-template-columns:1fr}}
+                        </style>
+                        <h3 class="fluxo-padronizado-titulo">Fluxo que será aplicado</h3>
+                        <div class="fluxo-padronizado-grid">
+                            <div class="field">
+                                <label>Próximo status</label>
+                                <input type="text" readonly id="fluxo_status_preview" value="{% if eh_item_vencido %}{{ fluxo_item_vencido_status|default:'Aguardando seleção' }}{% else %}{{ form.proximo_status.value|default:'-' }}{% endif %}">
+                            </div>
+                            <div class="field">
+                                <label>Ação em Espera próximo Setor</label>
+                                <input type="text" readonly id="fluxo_acao_preview" value="{% if eh_item_vencido %}{{ fluxo_item_vencido_acao|default:'-' }}{% else %}{{ dados_sac.acao_em_espera_atual|default:'-' }}{% endif %}">
+                            </div>
+                            <div class="field">
+                                <label>Próximo setor</label>
+                                <input type="text" readonly id="fluxo_setor_preview" value="{% if eh_item_vencido %}{{ fluxo_item_vencido_setor|default:'-' }}{% else %}{{ dados_sac.setor_atual|default:'-' }}{% endif %}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>{{ form.observacao_tecnica.label }}</label>
+                        {{ form.observacao_tecnica }}
+                        {% if form.observacao_tecnica.errors %}<div class="field-error">{{ form.observacao_tecnica.errors|join:', ' }}</div>{% endif %}
+                    </div>
+
+                    <div class="actions">
+                        <button type="submit" class="btn btn-primary">Salvar análise técnica</button>
+                        <a href="/admin/core/sac/{{ sac.id }}/change/" class="btn btn-dark">Abrir SAC no admin</a>
+                    </div>
+                    {% endif %}
+                </form>
+            </div>
+
+            {% if mostrar_orcamento_externo %}
+            <div class="card">
+                <h2>Orçamento Técnico Externo</h2>
+                <form method="post" id="formOrcamentoExterno">
+                    {% csrf_token %}
+                    <input type="hidden" name="acao_formulario" value="orcamento_externo">
+                    {{ pecas_formset.management_form }}
+
+                    <div class="subgrid-2">
+                        <div class="field">
+                            <label>{{ orcamento_form.tecnico_externo.label }}</label>
+                            <select name="{{ orcamento_form.tecnico_externo.html_name }}" id="id_tecnico_externo">
+                                <option value="">Selecione o técnico externo</option>
+                                {% for tecnico in orcamento_form.fields.tecnico_externo.queryset %}
+                                    <option value="{{ tecnico.id }}" data-telefone="{{ tecnico.telefone|default:'' }}" data-whatsapp="{{ tecnico.whatsapp|default:'' }}" data-email="{{ tecnico.email|default:'' }}" data-cidade="{{ tecnico.cidade|default:'' }}" data-estado="{{ tecnico.estado|default:'' }}" {% if orcamento_form.tecnico_externo.value|stringformat:'s' == tecnico.id|stringformat:'s' %}selected{% endif %}>{{ tecnico.nome }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if orcamento_form.tecnico_externo.errors %}<div class="field-error">{{ orcamento_form.tecnico_externo.errors|join:', ' }}</div>{% endif %}
+                        </div>
+                        <div class="field">
+                            <label>{{ orcamento_form.telefone.label }}</label>
+                            {{ orcamento_form.telefone }}
+                        </div>
+                    </div>
+
+                    <div class="subgrid-2">
+                        <div class="field">
+                            <label>{{ orcamento_form.whatsapp.label }}</label>
+                            {{ orcamento_form.whatsapp }}
+                        </div>
+                        <div class="field">
+                            <label>{{ orcamento_form.email.label }}</label>
+                            {{ orcamento_form.email }}
+                        </div>
+                    </div>
+
+                    <div class="subgrid-2">
+                        <div class="field">
+                            <label>{{ orcamento_form.cidade.label }}</label>
+                            {{ orcamento_form.cidade }}
+                        </div>
+                        <div class="field">
+                            <label>{{ orcamento_form.estado.label }}</label>
+                            {{ orcamento_form.estado }}
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>{{ orcamento_form.precisa_peca_reposicao.label }}</label>
+                        {{ orcamento_form.precisa_peca_reposicao }}
+                        <div class="mini-note">Se selecionar Sim, o sistema abre os campos para incluir as peças de reposição necessárias.</div>
+                    </div>
+
+                    <div id="blocoPecas" class="section-divider" style="display:none;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px;">
+                            <h3 style="margin:0; color:var(--ionlab-blue);">Peças de reposição necessárias</h3>
+                            <button type="button" class="btn btn-dark" id="btnAdicionarPeca">Incluir mais itens</button>
+                        </div>
+                        <div class="mini-note" style="margin-bottom:12px;">As peças são buscadas na Tabela de Preços de Peças. A referência e o valor unitário são preenchidos automaticamente.</div>
+                        <div id="pecasContainer">
+                            {% for peca_form in pecas_formset %}
+                                <div class="peca-row" data-row-index="{{ forloop.counter0 }}">
+                                    <div style="display:none;">{{ peca_form.DELETE }}</div>
+                                    <div class="subgrid-2">
+                                        <div class="field">
+                                            <label>Descrição</label>
+                                            <select name="{{ peca_form.peca.html_name }}" id="{{ peca_form.peca.id_for_label }}">
+                                                <option value="">Selecione a peça</option>
+                                                {% for peca in pecas_catalogo %}
+                                                    <option value="{{ peca.id }}" data-referencia="{{ peca.referencia }}" data-valor="{{ peca.valor_unitario }}" {% if peca_form.peca.value|stringformat:'s' == peca.id|stringformat:'s' %}selected{% endif %}>{{ peca.descricao }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            {% if peca_form.peca.errors %}<div class="field-error">{{ peca_form.peca.errors|join:', ' }}</div>{% endif %}
+                                        </div>
+                                        <div class="field">
+                                            <label>Referência</label>
+                                            <input type="text" class="peca-referencia" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="subgrid-2">
+                                        <div class="field">
+                                            <label>Quantidade</label>
+                                            {{ peca_form.quantidade }}
+                                            {% if peca_form.quantidade.errors %}<div class="field-error">{{ peca_form.quantidade.errors|join:', ' }}</div>{% endif %}
+                                        </div>
+                                        <div class="field">
+                                            <label>Valor unitário</label>
+                                            <input type="text" class="peca-valor-unitario" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="subgrid-2">
+                                        <div class="field">
+                                            <label>Valor total</label>
+                                            <input type="text" class="peca-valor-total" readonly>
+                                        </div>
+                                        <div class="field" style="display:flex; align-items:flex-end;">
+                                            <button type="button" class="btn btn-dark btnRemoverPeca">Remover item</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="section-divider">
+                        <h3 style="margin:0 0 12px; color:var(--ionlab-blue);">Horas do serviço</h3>
+                        <div class="subgrid-2">
+                            <div class="field">
+                                <label>{{ orcamento_form.quantidade_horas.label }}</label>
+                                {{ orcamento_form.quantidade_horas }}
+                            </div>
+                            <div class="field">
+                                <label>{{ orcamento_form.valor_unitario_hora.label }}</label>
+                                {{ orcamento_form.valor_unitario_hora }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="totais-box">
+                        <div class="totais-line"><strong>Valor Total das peças de reposição</strong><strong id="txtTotalPecas">R$ 0,00</strong></div>
+                        <div class="totais-line"><strong>Valor Total das horas</strong><strong id="txtTotalHoras">R$ 0,00</strong></div>
+                        <div class="totais-line"><strong>Total geral do orçamento</strong><strong id="txtTotalGeral">R$ 0,00</strong></div>
+                    </div>
+
+                    <div class="actions">
+                        <button type="submit" class="btn btn-primary">Salvar orçamento técnico externo</button>
+                        <a href="{% url 'importar_tabela_pecas' %}" class="btn btn-dark">Importar tabela de preços de peças</a>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <div>
+            <div class="card">
+                <h2>Itens incluídos no SAC</h2>
+
+                {% for item in sac.itens_sac.all %}
+                    <div class="item-row-card">
+                        <div class="item-top">
+                            <div>
+                                <div class="item-title">{{ item.item_nota_fiscal.codigo_produto|default:'-' }} - {{ item.item_nota_fiscal.descricao_item|default:item.item_nota_fiscal.item|default:'-' }}</div>
+                                <div class="muted">Tipo ocorrência: {{ item.tipo_ocorrencia.nome|default:'-' }}</div>
+                            </div>
+                        </div>
+                        <div class="muted">Identificador: {{ item.tipo_rastreio|default:'-' }} | Número: {{ item.numero_rastreio|default:'' }}</div>
+                        <div class="muted">Quantidade total NF: {{ item.item_nota_fiscal.quantidade|default:'-' }} | Quantidade com problema: {{ item.quantidade_com_problema|default:'-' }}</div>
+                        <div class="muted">Valor unitário: R$ {{ item.item_nota_fiscal.valor_total_item|default:'0,00' }}</div>
+                        <div style="margin-top: 10px; font-size: 13px;">{{ item.observacao_item|default:'' }}</div>
+                    </div>
+                {% empty %}
+                    <div class="muted">Ainda não há itens registrados para este SAC.</div>
+                {% endfor %}
+
+                <div class="summary-line">
+                    <strong>Total de itens no SAC</strong>
+                    <strong>{{ sac.itens_sac.count }}</strong>
+                </div>
+            </div>
+
+            {% if sac %}
+            <div class="tempo-status-card" style="margin-top: 18px;" id="blocoTempoEtapas">
+                <div class="tempo-status-header">
+                    <div>
+                        <h2 class="tempo-status-title">Tempo entre etapas do SAC</h2>
+                        <p class="tempo-status-subtitle">O gráfico fica compacto para não atrapalhar o preenchimento. Clique para expandir e visualizar a linha do tempo completa em várias linhas.</p>
+                    </div>
+                    <button type="button" class="tempo-toggle" id="btnExpandirTempoEtapas">
+                        <span class="toggle-open">Ver linha do tempo completa</span>
+                        <span class="toggle-close">Recolher linha do tempo</span>
+                    </button>
+                </div>
+
+                {% if grafico_tempo_status %}
+                <div class="tempo-resumo">
+                    <div class="tempo-resumo-box">Total de etapas<strong>{{ grafico_tempo_status|length }}</strong></div>
+                    <div class="tempo-resumo-box">Status atual<strong>{% with ultimo=grafico_tempo_status|last %}{{ ultimo.status }}{% endwith %}</strong></div>
+                    <div class="tempo-resumo-box">Tempo atual<strong>{% with ultimo=grafico_tempo_status|last %}{{ ultimo.tempo_ate_proxima }}{% endwith %}</strong></div>
+                </div>
+
+                <div class="tempo-flow-wrap">
+                    <div class="tempo-flow">
+                        {% for etapa in grafico_tempo_status %}
+                            <div class="tempo-node">
+                                <div class="tempo-node-status">{{ etapa.status }}</div>
+                                <div class="tempo-node-setor">{{ etapa.setor }}</div>
+                                <div class="tempo-node-data">{{ etapa.data_evento_formatada }}</div>
+                                <div class="tempo-duracao-chip {% if forloop.last %}atual{% endif %}">
+                                    {{ etapa.tempo_ate_proxima }}
+                                </div>
+                                <span class="tempo-duracao-label">{{ etapa.tempo_label }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="tempo-flow-wrap" style="display:block;">
+                    <div class="muted">Selecione um SAC para visualizar a linha do tempo entre os status.</div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <div class="card">
+                {% include "core/partials/historico_recente_padrao.html" with historicos_visual=historicos_detalhados %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const tecnicoResolvido = document.getElementById('id_tecnico_resolvido_remoto');
+    const tecnicoAgendado = document.getElementById('id_tecnico_agendado_visita');
+    const blocoTecnicoNaoResolvido = document.getElementById('blocoTecnicoNaoResolvido');
+    const blocoTecnicoVisitaSim = document.getElementById('blocoTecnicoVisitaSim');
+    const tecnicoStatus = document.getElementById('tecnico_fluxo_status');
+    const tecnicoAcao = document.getElementById('tecnico_fluxo_acao');
+    const tecnicoSetor = document.getElementById('tecnico_fluxo_setor');
+
+    function atualizarFluxoTecnico() {
+        const resolvido = tecnicoResolvido ? tecnicoResolvido.value : '';
+        const agendado = tecnicoAgendado ? tecnicoAgendado.value : '';
+
+        if (blocoTecnicoNaoResolvido) {
+            blocoTecnicoNaoResolvido.style.display = resolvido === 'nao' ? 'block' : 'none';
+        }
+        if (blocoTecnicoVisitaSim) {
+            blocoTecnicoVisitaSim.style.display = (resolvido === 'nao' && agendado === 'sim') ? 'block' : 'none';
+        }
+
+        if (tecnicoStatus && tecnicoAcao && tecnicoSetor) {
+            if (resolvido === 'sim') {
+                tecnicoStatus.value = 'Concluído';
+                tecnicoAcao.value = '-';
+                tecnicoSetor.value = '-';
+            } else if (resolvido === 'nao' && agendado === 'sim') {
+                tecnicoStatus.value = 'Aguardando Visita Tecnica Externa';
+                tecnicoAcao.value = 'Aguardando Visita Tecnica Externa';
+                tecnicoSetor.value = 'Assessoria Cientifica';
+            } else if (resolvido === 'nao' && agendado === 'nao') {
+                tecnicoStatus.value = 'Em Análise';
+                tecnicoAcao.value = 'Aguardando Contato com Cliente - SAC';
+                tecnicoSetor.value = 'SAC';
+            } else {
+                tecnicoStatus.value = '-';
+                tecnicoAcao.value = '-';
+                tecnicoSetor.value = '-';
+            }
+        }
+    }
+
+    if (tecnicoResolvido) tecnicoResolvido.addEventListener('change', atualizarFluxoTecnico);
+    if (tecnicoAgendado) tecnicoAgendado.addEventListener('change', atualizarFluxoTecnico);
+    atualizarFluxoTecnico();
+
+
+    const tratativa = document.getElementById('id_tratativa_problema');
+    const tipoProblema = document.getElementById('id_tipo_problema');
+    const proximoStatus = document.getElementById('id_proximo_status');
+
+    function ehResolvidoRemoto(texto) {
+        const t = (texto || '').toLowerCase();
+        return t.includes('resolvido') && t.includes('remoto') && !t.includes('não') && !t.includes('nao');
+    }
+
+    if (tratativa && proximoStatus) {
+        const opcoesOriginais = Array.from(proximoStatus.options).map(opt => ({
+            value: opt.value,
+            text: opt.text,
+            selected: opt.selected
+        }));
+
+        function aplicarRegraTratativa() {
+            const selecionada = tratativa.options[tratativa.selectedIndex];
+            const texto = selecionada ? selecionada.text : '';
+            const resolvidoRemoto = ehResolvidoRemoto(texto);
+
+            proximoStatus.innerHTML = '';
+
+            if (resolvidoRemoto) {
+                const concluido = opcoesOriginais.find(op => op.text.toLowerCase() === 'concluído' || op.text.toLowerCase() === 'concluido');
+                if (concluido) {
+                    const opt = document.createElement('option');
+                    opt.value = concluido.value;
+                    opt.text = concluido.text;
+                    opt.selected = true;
+                    proximoStatus.appendChild(opt);
+                }
+                proximoStatus.setAttribute('data-bloqueado', '1');
+                if (tipoProblema) {
+                    tipoProblema.value = '';
+                }
+            } else {
+                opcoesOriginais.forEach(opcao => {
+                    if (opcao.text.toLowerCase() === 'concluído' || opcao.text.toLowerCase() === 'concluido') {
+                        return;
+                    }
+                    const opt = document.createElement('option');
+                    opt.value = opcao.value;
+                    opt.text = opcao.text;
+                    opt.selected = opcao.selected;
+                    proximoStatus.appendChild(opt);
+                });
+                proximoStatus.removeAttribute('data-bloqueado');
+            }
+        }
+
+        tratativa.addEventListener('change', aplicarRegraTratativa);
+        aplicarRegraTratativa();
+    }
+
+    const tecnico = document.getElementById('id_tecnico_externo');
+    const telefone = document.getElementById('id_telefone');
+    const whatsapp = document.getElementById('id_whatsapp');
+    const email = document.getElementById('id_email');
+    const cidade = document.getElementById('id_cidade');
+    const estado = document.getElementById('id_estado');
+    const precisaPeca = document.getElementById('id_precisa_peca_reposicao');
+    const blocoPecas = document.getElementById('blocoPecas');
+    const btnAdicionarPeca = document.getElementById('btnAdicionarPeca');
+    const pecasContainer = document.getElementById('pecasContainer');
+    const totalFormsInput = document.getElementById('id_pecas-TOTAL_FORMS');
+    const quantidadeHoras = document.getElementById('id_quantidade_horas');
+    const valorUnitarioHora = document.getElementById('id_valor_unitario_hora');
+
+    function parseNumero(valor) {
+        if (!valor) return 0;
+        const txt = String(valor).replace(/\./g, '').replace(',', '.').replace(/[^0-9.-]/g, '');
+        const n = parseFloat(txt);
+        return isNaN(n) ? 0 : n;
+    }
+
+    function formatarMoeda(valor) {
+        return 'R$ ' + Number(valor || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
+    function atualizarDadosTecnico() {
+        if (!tecnico) return;
+        const opt = tecnico.options[tecnico.selectedIndex];
+        if (!opt) return;
+        if (telefone && !telefone.value) telefone.value = opt.dataset.telefone || '';
+        if (whatsapp && !whatsapp.value) whatsapp.value = opt.dataset.whatsapp || '';
+        if (email && !email.value) email.value = opt.dataset.email || '';
+        if (cidade && !cidade.value) cidade.value = opt.dataset.cidade || '';
+        if (estado && !estado.value) estado.value = opt.dataset.estado || '';
+    }
+
+    function atualizarLinhaPeca(row) {
+        const select = row.querySelector('select');
+        const qtdInput = row.querySelector('input[name$="-quantidade"]');
+        const ref = row.querySelector('.peca-referencia');
+        const unit = row.querySelector('.peca-valor-unitario');
+        const total = row.querySelector('.peca-valor-total');
+        const opt = select ? select.options[select.selectedIndex] : null;
+        const referencia = opt ? (opt.dataset.referencia || '') : '';
+        const valorUnit = opt ? parseNumero(opt.dataset.valor || '0') : 0;
+        const qtd = qtdInput ? parseNumero(qtdInput.value) : 0;
+        const valorTotal = valorUnit * qtd;
+        if (ref) ref.value = referencia;
+        if (unit) unit.value = formatarMoeda(valorUnit);
+        if (total) total.value = formatarMoeda(valorTotal);
+        return valorTotal;
+    }
+
+    function atualizarTotais() {
+        const txtTotalPecas = document.getElementById('txtTotalPecas');
+        const txtTotalHoras = document.getElementById('txtTotalHoras');
+        const txtTotalGeral = document.getElementById('txtTotalGeral');
+        if (!txtTotalPecas || !txtTotalHoras || !txtTotalGeral) return;
+
+        let totalPecas = 0;
+        document.querySelectorAll('.peca-row').forEach(row => {
+            if (row.style.display === 'none') return;
+            totalPecas += atualizarLinhaPeca(row);
+        });
+        const totalHoras = parseNumero(quantidadeHoras ? quantidadeHoras.value : 0) * parseNumero(valorUnitarioHora ? valorUnitarioHora.value : 0);
+        txtTotalPecas.textContent = formatarMoeda(totalPecas);
+        txtTotalHoras.textContent = formatarMoeda(totalHoras);
+        txtTotalGeral.textContent = formatarMoeda(totalPecas + totalHoras);
+    }
+
+    function atualizarVisibilidadePecas() {
+        if (!precisaPeca || !blocoPecas) return;
+        blocoPecas.style.display = precisaPeca.value === 'sim' ? 'block' : 'none';
+        atualizarTotais();
+    }
+
+    function configurarLinha(row) {
+        const select = row.querySelector('select');
+        const qtd = row.querySelector('input[name$="-quantidade"]');
+        const btnRemove = row.querySelector('.btnRemoverPeca');
+        if (select) select.addEventListener('change', atualizarTotais);
+        if (qtd) qtd.addEventListener('input', atualizarTotais);
+        if (btnRemove) {
+            btnRemove.addEventListener('click', function () {
+                const delField = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+                if (delField) delField.checked = true;
+                row.style.display = 'none';
+                atualizarTotais();
+            });
+        }
+        atualizarLinhaPeca(row);
+    }
+
+    if (tecnico) {
+        tecnico.addEventListener('change', function () {
+            if (telefone) telefone.value = '';
+            if (whatsapp) whatsapp.value = '';
+            if (email) email.value = '';
+            if (cidade) cidade.value = '';
+            if (estado) estado.value = '';
+            atualizarDadosTecnico();
+        });
+        atualizarDadosTecnico();
+    }
+
+    document.querySelectorAll('.peca-row').forEach(configurarLinha);
+
+    if (btnAdicionarPeca && pecasContainer && totalFormsInput) {
+        btnAdicionarPeca.addEventListener('click', function () {
+            const indice = parseInt(totalFormsInput.value, 10);
+            const base = pecasContainer.querySelector('.peca-row');
+            if (!base) return;
+            const clone = base.cloneNode(true);
+            clone.style.display = 'block';
+            clone.querySelectorAll('input, select, textarea').forEach(el => {
+                if (el.name) el.name = el.name.replace(/pecas-(\d+)-/g, 'pecas-' + indice + '-');
+                if (el.id) el.id = el.id.replace(/id_pecas-(\d+)-/g, 'id_pecas-' + indice + '-');
+                if (el.tagName === 'SELECT') {
+                    el.selectedIndex = 0;
+                } else if (el.type === 'checkbox') {
+                    el.checked = false;
+                } else {
+                    el.value = '';
+                }
+            });
+            clone.querySelectorAll('.peca-referencia, .peca-valor-unitario, .peca-valor-total').forEach(el => el.value = '');
+            pecasContainer.appendChild(clone);
+            totalFormsInput.value = indice + 1;
+            configurarLinha(clone);
+            atualizarTotais();
+        });
+    }
+
+    if (precisaPeca) {
+        precisaPeca.addEventListener('change', atualizarVisibilidadePecas);
+        atualizarVisibilidadePecas();
+    }
+    if (quantidadeHoras) quantidadeHoras.addEventListener('input', atualizarTotais);
+    if (valorUnitarioHora) valorUnitarioHora.addEventListener('input', atualizarTotais);
+    atualizarTotais();
+
+
+    function formatarMoedaDescarte(valor) {
+        return 'R$ ' + Number(valor || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
+    function atualizarTotaisDescarte() {
+        const totalGeral = document.getElementById('txtValorTotalDescarteGeral');
+        if (!totalGeral) return;
+        let soma = 0;
+        document.querySelectorAll('.js-descarte-item').forEach(row => {
+            const unitario = parseFloat(row.dataset.unitario || '0');
+            const qtdInput = row.querySelector('.js-quantidade-descarte');
+            const totalItem = row.querySelector('.js-valor-total-item');
+            const qtd = parseFloat((qtdInput && qtdInput.value ? qtdInput.value : '0').replace(',', '.')) || 0;
+            const valor = unitario * qtd;
+            soma += valor;
+            if (totalItem) {
+                totalItem.value = formatarMoedaDescarte(valor);
+            }
+        });
+        totalGeral.textContent = formatarMoedaDescarte(soma);
+    }
+
+    document.querySelectorAll('.js-quantidade-descarte').forEach(input => {
+        input.addEventListener('input', atualizarTotaisDescarte);
+    });
+    atualizarTotaisDescarte();
+
+    const confirmadosItensVencidos = document.getElementById('id_confirmados_itens_vencidos');
+    const blocoItemVencidoSim = document.getElementById('blocoItemVencidoSim');
+    const fluxoStatusPreview = document.getElementById('fluxo_status_preview');
+    const fluxoAcaoPreview = document.getElementById('fluxo_acao_preview');
+    const fluxoSetorPreview = document.getElementById('fluxo_setor_preview');
+
+    function atualizarRegraItemVencido() {
+        if (!confirmadosItensVencidos) return;
+        const valor = confirmadosItensVencidos.value;
+        if (blocoItemVencidoSim) {
+            blocoItemVencidoSim.style.display = valor === 'sim' ? 'block' : 'none';
+        }
+        if (fluxoStatusPreview && fluxoAcaoPreview && fluxoSetorPreview) {
+            if (valor === 'sim') {
+                fluxoStatusPreview.value = 'Emissão de Pedido de Saída';
+                fluxoAcaoPreview.value = 'Aguardando Emissão do Pedido (Saída)';
+                fluxoSetorPreview.value = 'SAC';
+            } else if (valor === 'nao') {
+                fluxoStatusPreview.value = 'Concluído';
+                fluxoAcaoPreview.value = '-';
+                fluxoSetorPreview.value = '-';
+            } else {
+                fluxoStatusPreview.value = 'Aguardando seleção';
+                fluxoAcaoPreview.value = '-';
+                fluxoSetorPreview.value = '-';
+            }
+        }
+    }
+
+    if (confirmadosItensVencidos) {
+        confirmadosItensVencidos.addEventListener('change', atualizarRegraItemVencido);
+        atualizarRegraItemVencido();
+    }
+
+    const btnExpandirTempo = document.getElementById('btnExpandirTempoEtapas');
+    const blocoTempoEtapas = document.getElementById('blocoTempoEtapas');
+    if (btnExpandirTempo && blocoTempoEtapas) {
+        btnExpandirTempo.addEventListener('click', function () {
+            blocoTempoEtapas.classList.toggle('expanded');
+        });
+    }
+});
+</script>
+
+</body>
+</html>

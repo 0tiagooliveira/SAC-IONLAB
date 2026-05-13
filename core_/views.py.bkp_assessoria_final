@@ -1,0 +1,3959 @@
+import io
+import json
+import re
+import unicodedata
+import zipfile
+from decimal import Decimal, InvalidOperation
+from datetime import timedelta
+
+import pandas as pd
+
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.management import call_command, CommandError
+from django.db import transaction
+from django.db.models import Q
+from django.http import JsonResponse
+from django.shortcuts import redirect, render, get_object_or_404
+from django.utils import timezone
+
+from .forms import (
+    ImportarNotasExcelForm,
+    ImportarRastreiosExcelForm,
+    AberturaSACForm,
+    AnaliseTecnicaSACForm,
+    AnaliseComercialSACForm,
+    OrcamentoTecnicoExternoForm,
+    OrcamentoPecaFormSet,
+    ImportarTabelaPecasExcelForm,
+    GestaoSACPedidoRetornoForm,
+    GestaoLogisticaAcaoExecutadaForm,
+)
+from .models import (
+    Cliente,
+    ClienteContato,
+    NotaFiscal,
+    ItemNotaFiscal,
+    RastreioNotaItem,
+    SAC,
+    SACItem,
+    SACAnexo,
+    TipoOcorrencia,
+    StatusSAC,
+    AcaoEmEspera,
+    Setor,
+    SacHistorico,
+    SacAnaliseTecnica,
+    TratativaProblema,
+    TipoProblema,
+    TecnicoExterno,
+    PecaTabelaPreco,
+    OrcamentoTecnicoExterno,
+    OrcamentoTecnicoExternoPeca,
+    SacAnaliseComercial,
+    NaturezaOperacao,
+    Vendedor,
+)
+
+
+from .services.fluxo_sac import validar_transicao_basica, diagnosticar_fluxo_inicial
+from .services.historico_sac import registrar_historico_sac as registrar_historico_sac_service
+from .services.sac_transicao_unificada import aplicar_transicao_sac
+from .services.fila_setorial import base_sacs_em_aberto, resumo_filas_por_setor, top_sacs_criticos, queryset_fila_por_setor
+from .services.sac_visual import obter_setor_licitacao_padrao, resolver_setor_contexto_licitacao
+from .services.monitoramento_sac import listar_sacs_parados, auditar_fluxo_operacional
+from .services.regras_sac import resolver_acao_por_codigo, resolver_setor_por_codigo, resolver_status_por_codigo
+
+
+def _texto_sim_nao(valor):
+    if valor is None:
+        return '-'
+    return 'Sim' if bool(valor) else 'Não'
+
+
+def _valor_texto(valor):
+    if valor in (None, ''):
+        return '-'
+    return str(valor)
+
+
+def _formatar_observacao_abertura_sac(sac, itens_sac):
+    linhas = [
+        'SAC aberto pelo sistema.',
+        '',
+        'DADOS DO CONTATO',
+        f"Nome do contato: {_valor_texto(sac.contato_nome)}",
+        f"WhatsApp do contato: {_valor_texto(getattr(sac.cliente, 'whatsapp', None) or getattr(sac, 'whatsapp', None))}",
+        f"Telefone do contato: {_valor_texto(sac.telefone_1)}",
+        f"E-mail 1 do contato: {_valor_texto(sac.email_1)}",
+        f"E-mail 2 do contato: {_valor_texto(sac.email_2)}",
+        '',
+        'CONTATOS DO USUÁRIO',
+        f"Nome do usuário do equipamento: {_valor_texto(sac.nome_usuario_contato)}",
+        f"Empresa do usuário: {_valor_texto(sac.empresa_usuario_contato)}",
+        f"Telefone do usuário: {_valor_texto(sac.telefone_usuario_contato)}",
+        f"WhatsApp do usuário: {_valor_texto(sac.whatsapp_usuario_contato)}",
+        f"E-mail do usuário: {_valor_texto(sac.email_usuario_contato)}",
+        f"Endereço do usuário: {_valor_texto(sac.endereco_usuario_contato)}",
+        f"Cidade do usuário: {_valor_texto(sac.cidade_usuario_contato)}",
+        f"Estado do usuário: {_valor_texto(sac.estado_usuario_contato)}",
+        '',
+        'ITENS INCLUÍDOS NO SAC',
+    ]
+
+    if not itens_sac:
+        linhas.append('Nenhum item informado.')
+    else:
+        for indice, item in enumerate(itens_sac, start=1):
+            item_nf = getattr(item, 'item_nota_fiscal', None)
+            tipo_ocorrencia = getattr(item, 'tipo_ocorrencia', None)
+            linhas.extend([
+                f'Item {indice}',
+                f"- Referência: {_valor_texto(getattr(item_nf, 'codigo_produto', None))}",
+                f"- Descrição do item: {_valor_texto(getattr(item_nf, 'descricao_item', None) or getattr(item_nf, 'item', None))}",
+                f"- Tipo de ocorrência: {_valor_texto(getattr(tipo_ocorrencia, 'nome', None))}",
+                f"- Quantidade com problema: {_valor_texto(getattr(item, 'quantidade_com_problema', None))}",
+                f"- Tipo de rastreio: {_valor_texto(getattr(item, 'tipo_rastreio', None))}",
+                f"- Número de rastreio: {_valor_texto(getattr(item, 'numero_rastreio', None))}",
+                f"- Grupo: {_valor_texto(getattr(item, 'grupo', None))}",
+                f"- Item quebrado/inservível: {_texto_sim_nao(getattr(item, 'item_quebrado_inservivel', None))}",
+                f"- Observação do item: {_valor_texto(getattr(item, 'observacao_item', None))}",
+                '',
+            ])
+
+    return '\n'.join(linhas).strip()
+
+
+def normalizar_texto(valor):
+    if pd.isna(valor):
+        return None
+    valor = str(valor).strip()
+    return valor if valor else None
+
+
+def normalizar_codigo_excel(valor):
+    texto = normalizar_texto(valor)
+    if not texto:
+        return None
+
+    try:
+        numero = float(texto.replace(',', '.'))
+        if numero.is_integer():
+            return str(int(numero))
+    except (TypeError, ValueError):
+        pass
+
+    if texto.endswith('.0'):
+        return texto[:-2]
+
+    return texto
+
+
+
+def atualizar_cadastro_vendedor(codigo, nome):
+    codigo = normalizar_codigo_excel(codigo)
+    nome = normalizar_texto(nome)
+
+    if not codigo and not nome:
+        return None
+
+    nome_final = nome or codigo or ''
+    codigo_final = codigo or nome_final
+
+    vendedor = None
+    if codigo_final:
+        vendedor = Vendedor.objects.filter(codigo=codigo_final).first()
+
+    if vendedor:
+        alterou = False
+        if nome_final and vendedor.nome != nome_final:
+            vendedor.nome = nome_final
+            alterou = True
+        if getattr(vendedor, 'email', None) is None:
+            vendedor.email = ''
+            alterou = True
+        if not getattr(vendedor, 'ativo', True):
+            vendedor.ativo = True
+            alterou = True
+        if alterou:
+            vendedor.save()
+        return vendedor
+
+    vendedor = Vendedor.objects.filter(nome=nome_final).first() if nome_final else None
+    if vendedor:
+        alterou = False
+        if codigo_final and vendedor.codigo != codigo_final:
+            vendedor.codigo = codigo_final
+            alterou = True
+        if getattr(vendedor, 'email', None) is None:
+            vendedor.email = ''
+            alterou = True
+        if not getattr(vendedor, 'ativo', True):
+            vendedor.ativo = True
+            alterou = True
+        if alterou:
+            vendedor.save()
+        return vendedor
+
+    vendedor = Vendedor(
+        codigo=codigo_final,
+        nome=nome_final,
+        ativo=True,
+    )
+    if hasattr(vendedor, 'email'):
+        vendedor.email = ''
+    vendedor.save()
+    return vendedor
+
+
+def normalizar_numero_nf(valor):
+    if pd.isna(valor):
+        return None
+    try:
+        texto = str(valor).strip()
+        if not texto:
+            return None
+        return str(int(float(texto)))
+    except (TypeError, ValueError):
+        texto = str(valor).strip()
+        return texto or None
+
+
+def normalizar_data_excel(valor):
+    if pd.isna(valor):
+        return None
+    try:
+        data = pd.to_datetime(valor, errors='coerce')
+        if pd.isna(data):
+            return None
+        return data.date()
+    except (TypeError, ValueError):
+        return None
+
+
+def normalizar_decimal(valor, default='0'):
+    if valor is None or pd.isna(valor):
+        return Decimal(default)
+
+    if isinstance(valor, Decimal):
+        return valor
+
+    if isinstance(valor, (int, float)):
+        try:
+            return Decimal(str(valor))
+        except (InvalidOperation, TypeError, ValueError):
+            return Decimal(default)
+
+    texto = str(valor).strip()
+    if not texto:
+        return Decimal(default)
+
+    texto = texto.replace('R$', '').replace(' ', '')
+
+    if ',' in texto and '.' in texto:
+        if texto.rfind(',') > texto.rfind('.'):
+            texto = texto.replace('.', '')
+            texto = texto.replace(',', '.')
+        else:
+            texto = texto.replace(',', '')
+    elif ',' in texto:
+        texto = texto.replace('.', '')
+        texto = texto.replace(',', '.')
+
+    try:
+        return Decimal(texto)
+    except (InvalidOperation, ValueError):
+        return Decimal(default)
+
+
+def dividir_saidas(texto):
+    if not texto:
+        return []
+    bruto = str(texto).strip()
+    if not bruto:
+        return []
+    partes = re.split(r'[,\;/\|\n\r]+', bruto)
+    return [p.strip() for p in partes if p and p.strip()]
+
+
+def _texto_nf(nota_fiscal):
+    if not nota_fiscal:
+        return ''
+    numero = nota_fiscal.numero_nf or nota_fiscal.numero or ''
+    data = nota_fiscal.data_emissao.strftime('%d/%m/%Y') if getattr(nota_fiscal, 'data_emissao', None) else ''
+    return f'NF {numero} - {data}'.strip(' -')
+
+
+def _serial_lote_payload(item_nf, rastreio):
+    nota = item_nf.nota_fiscal if item_nf else None
+    cliente = nota.cliente if nota else None
+    quantidade = _quantidade_item_nf(item_nf)
+    valor_unitario = _valor_unitario_item_nf(item_nf)
+
+    return {
+        'empresa_id': nota.empresa_id if nota else None,
+        'cliente_id': cliente.id if cliente else None,
+        'cliente_texto': f"{cliente.codigo_interno} - {cliente.razao_social or cliente.nome}" if cliente else '',
+        'nota_fiscal_id': nota.id if nota else None,
+        'nota_fiscal_texto': _texto_nf(nota),
+        'item_id': item_nf.id if item_nf else None,
+        'item_texto': item_nf.descricao_item or item_nf.item or '' if item_nf else '',
+        'referencia': item_nf.codigo_produto or '' if item_nf else '',
+        'grupo': (
+            '' if not item_nf else (
+                '' if getattr(item_nf, 'agrp', None) in (None, '', '-1', '-1.0', -1, -1.0)
+                else str(getattr(item_nf, 'agrp', '')).strip()
+            )
+        ),
+        'serial_lote_encontrado': rastreio.serial_lote or '',
+        'tipo_rastreio': (rastreio.tipo or '').strip().upper(),
+        'quantidade_total_nf': _formatar_decimal_sem_zeros(quantidade),
+        'valor_unitario': float(valor_unitario or 0),
+        'numero_nf': nota.numero_nf or nota.numero or '' if nota else '',
+    }
+
+
+def _normalizar_grupo_sac(valor, item_nf=None):
+    bruto = '' if valor is None else str(valor).strip()
+    invalidos = {'', '-1', '-1.0', 'NONE', 'NULL', 'NAN'}
+    if bruto.upper() in invalidos:
+        bruto = ''
+    if not bruto and item_nf is not None:
+        fallback = getattr(item_nf, 'agrp', None)
+        bruto = '' if fallback is None else str(fallback).strip()
+        if bruto.upper() in invalidos:
+            bruto = ''
+    return bruto or 'SEM GRUPO'
+
+
+def _normalizar_item_quebrado_inservivel(valor):
+    bruto = '' if valor is None else str(valor).strip().upper()
+    if bruto in {'SIM', 'S', 'TRUE', '1'}:
+        return 'SIM'
+    return 'NAO'
+
+
+def _normalizar_sim_nao(valor):
+    bruto = '' if valor is None else str(valor).strip().upper()
+    if bruto in {'SIM', 'S', 'TRUE', '1'}:
+        return 'SIM'
+    return 'NAO'
+
+
+def _formatar_decimal_sem_zeros(valor):
+    if valor in (None, ''):
+        return ''
+    try:
+        decimal_valor = Decimal(str(valor))
+    except (InvalidOperation, TypeError, ValueError):
+        return str(valor)
+    texto = format(decimal_valor.normalize(), 'f')
+    if '.' in texto:
+        texto = texto.rstrip('0').rstrip('.')
+    return texto
+
+
+def _quantidade_item_nf(item_nf):
+    if not item_nf:
+        return Decimal('0')
+    for attr in ('quantidade', 'pr_qtd', 'qtde', 'qtd'):
+        valor = getattr(item_nf, attr, None)
+        if valor not in (None, ''):
+            try:
+                return Decimal(str(valor))
+            except (InvalidOperation, TypeError, ValueError):
+                continue
+    return Decimal('0')
+
+
+def _valor_total_item_nf(item_nf):
+    if not item_nf:
+        return Decimal('0')
+    for attr in ('valor_total_item', 'pr_sbt', 'valor_total', 'total_item'):
+        valor = getattr(item_nf, attr, None)
+        if valor not in (None, ''):
+            try:
+                return Decimal(str(valor))
+            except (InvalidOperation, TypeError, ValueError):
+                continue
+    return Decimal('0')
+
+
+def _valor_unitario_item_nf(item_nf):
+    if not item_nf:
+        return Decimal('0')
+    for attr in ('valor_unitario', 'preco_unitario', 'vlr_unitario', 'valor'):
+        valor = getattr(item_nf, attr, None)
+        if valor not in (None, ''):
+            try:
+                return Decimal(str(valor))
+            except (InvalidOperation, TypeError, ValueError):
+                continue
+    quantidade = _quantidade_item_nf(item_nf)
+    total = _valor_total_item_nf(item_nf)
+    if quantidade and quantidade > 0:
+        return total / quantidade
+    return Decimal('0')
+
+
+def _grupo_tabela_preco_por_referencia(referencia, fallback=''):
+    referencia = (referencia or '').strip()
+    if not referencia:
+        return fallback or ''
+    peca = PecaTabelaPreco.objects.filter(referencia__iexact=referencia, ativo=True).only('grupo').first()
+    grupo = (peca.grupo or '').strip() if peca else ''
+    return grupo or (fallback or '')
+
+
+def proximo_numero_sac():
+    from django.utils import timezone
+    ano_atual = timezone.now().year
+    ultimo = SAC.objects.filter(ano=ano_atual).order_by('-sequencia_ano').first()
+    proximo = 1 if not ultimo else ultimo.sequencia_ano + 1
+    return f'{proximo:03d}/{ano_atual}'
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def executar_correcao_banco(request):
+    if request.method != 'POST':
+        return redirect('importar')
+
+    buffer = io.StringIO()
+
+    try:
+        call_command('corrigir_banco', stdout=buffer)
+        messages.success(request, 'Correção automática do banco executada com sucesso.')
+    except CommandError as e:
+        messages.error(request, f'Erro ao corrigir o banco: {e}')
+
+    saida = buffer.getvalue().strip()
+    if saida:
+        messages.info(request, saida)
+
+    return redirect('importar')
+
+
+@login_required
+@transaction.atomic
+def importar_notas_excel(request):
+    resumo = None
+
+    if request.method == 'POST':
+        form = ImportarNotasExcelForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            empresa = form.cleaned_data['empresa']
+            arquivo = form.cleaned_data['arquivo']
+
+            try:
+                df = pd.read_excel(arquivo, engine='openpyxl')
+            except (ValueError, OSError, ImportError, zipfile.BadZipFile) as e:
+                messages.error(request, f'Erro ao ler o arquivo Excel: {e}')
+                return render(request, 'core/importar.html', {'form': form, 'resumo': resumo})
+
+            df.columns = [str(col).strip().upper() for col in df.columns]
+
+            numeros_planilha = set()
+            for _, row in df.iterrows():
+                numero_planilha = normalizar_numero_nf(row.get('NF_NUM'))
+                if numero_planilha:
+                    numeros_planilha.add(numero_planilha)
+
+            notas_existentes = set(
+                NotaFiscal.objects.filter(
+                    empresa=empresa,
+                    numero_nf__in=numeros_planilha,
+                ).values_list('numero_nf', flat=True)
+            )
+
+            notas_importadas = 0
+            notas_ignoradas = 0
+            clientes_criados = 0
+            itens_criados = 0
+            itens_atualizados = 0
+            notas_sem_numero = 0
+            linhas_ignoradas_erro = 0
+
+            notas_cache = {}
+            notas_ignoradas_cache = set()
+
+            for _, row in df.iterrows():
+                try:
+                    codigo_cliente = normalizar_codigo_excel(row.get('ID_CL'))
+                    nome_cliente = normalizar_texto(row.get('CL_NOM'))
+                    uf_cliente = normalizar_texto(row.get('CL_UF'))
+                    cl_cfin = normalizar_texto(row.get('CL_CFIN'))
+                    cl_ult_ent_mpm = normalizar_texto(row.get('CL_ULT_ENT_MPM'))
+
+                    numero_nf = normalizar_numero_nf(row.get('NF_NUM'))
+                    serie_nf = normalizar_texto(row.get('NF_SER'))
+                    data_emissao = normalizar_data_excel(row.get('NF_EMI'))
+                    id_nf = normalizar_texto(row.get('ID_NF'))
+
+                    vendedor_codigo = normalizar_codigo_excel(row.get('ID_VN'))
+                    vendedor_nome = normalizar_texto(row.get('VN_NOM'))
+                    atualizar_cadastro_vendedor(vendedor_codigo, vendedor_nome)
+
+                    transportadora_codigo = normalizar_codigo_excel(row.get('ID_TR'))
+                    transportadora_nome = normalizar_texto(row.get('TR_NOM'))
+
+                    cfop = normalizar_texto(row.get('CFOP'))
+                    cfop_descricao = normalizar_texto(row.get('CFOP_DES'))
+
+                    id_prnf = normalizar_texto(row.get('ID_PRNF'))
+
+                    pr_cod = normalizar_texto(row.get('PR_COD'))
+                    pr_des = normalizar_texto(row.get('PR_DES'))
+                    pr_qtd = normalizar_decimal(row.get('PR_QTD'))
+                    pr_sbt = normalizar_decimal(row.get('PR_SBT'))
+
+                    pr_cusn = normalizar_decimal(row.get('PR_CUSN'))
+                    v_icms = normalizar_decimal(row.get('V_ICMS'))
+                    v_pis = normalizar_decimal(row.get('V_PIS'))
+                    v_cofins = normalizar_decimal(row.get('V_COFINS'))
+                    v_irpj = normalizar_decimal(row.get('V_IRPJ'))
+                    v_csll = normalizar_decimal(row.get('V_CSLL'))
+                    v_est_ircs_ou_simples = normalizar_decimal(row.get('V_EST_IRCS__OU__SIMPLES'))
+                    v_comissao = normalizar_decimal(row.get('V_COMISSAO'))
+                    v_frete_ctr = normalizar_decimal(row.get('V_FRETE_CTR'))
+                    v_frete_nf = normalizar_decimal(row.get('V_FRETE_NF'))
+                    v_seguro = normalizar_decimal(row.get('V_SEGURO'))
+                    v_outras = normalizar_decimal(row.get('V_OUTRAS'))
+                    v_desconto = normalizar_decimal(row.get('V_DESCONTO'))
+                    difal = normalizar_decimal(row.get('DIFAL'))
+                    fcp = normalizar_decimal(row.get('FCP'))
+                    iss = normalizar_decimal(row.get('ISS'))
+                    lucro_reais = normalizar_decimal(row.get('LUCRO_REAIS'))
+                    lucro_percentual = normalizar_decimal(row.get('LUCRO_PERCENTUAL'))
+                    v_ipi = normalizar_decimal(row.get('V_IPI'))
+                    v_icmsst = normalizar_decimal(row.get('V_ICMSST'))
+                    v_pisst = normalizar_decimal(row.get('V_PISST'))
+                    v_cofinsst = normalizar_decimal(row.get('V_COFINSST'))
+                    fcp_st = normalizar_decimal(row.get('FCP_ST'))
+                    agrp = normalizar_texto(row.get('AGRP'))
+                    faixa_desconto = normalizar_texto(row.get('FAIXA_DESCONTO'))
+                    al_cred_simp = normalizar_decimal(row.get('AL_CRED_SIMP'))
+                    al_csll = normalizar_decimal(row.get('AL_CSLL'))
+                    al_irpj = normalizar_decimal(row.get('AL_IRPJ'))
+
+                    if not codigo_cliente:
+                        continue
+
+                    if not numero_nf:
+                        notas_sem_numero += 1
+                        continue
+
+                    if numero_nf in notas_existentes:
+                        if numero_nf not in notas_ignoradas_cache:
+                            notas_ignoradas += 1
+                            notas_ignoradas_cache.add(numero_nf)
+                        continue
+
+                    if not nome_cliente:
+                        nome_cliente = 'CLIENTE NÃO INFORMADO'
+
+                    cliente, cliente_criado = Cliente.objects.get_or_create(
+                        empresa=empresa,
+                        codigo_interno=codigo_cliente,
+                        defaults={
+                            'nome': nome_cliente,
+                            'razao_social': nome_cliente,
+                            'uf': uf_cliente,
+                            'classificacao_financeira': cl_cfin,
+                            'ultima_entrega_mpm': cl_ult_ent_mpm,
+                            'ativo': True,
+                        }
+                    )
+
+                    if cliente_criado:
+                        clientes_criados += 1
+                    else:
+                        alterou_cliente = False
+
+                        if nome_cliente and cliente.razao_social != nome_cliente:
+                            cliente.razao_social = nome_cliente
+                            alterou_cliente = True
+                        if nome_cliente and cliente.nome != nome_cliente:
+                            cliente.nome = nome_cliente
+                            alterou_cliente = True
+                        if uf_cliente and cliente.uf != uf_cliente:
+                            cliente.uf = uf_cliente
+                            alterou_cliente = True
+                        if cl_cfin and cliente.classificacao_financeira != cl_cfin:
+                            cliente.classificacao_financeira = cl_cfin
+                            alterou_cliente = True
+                        if cl_ult_ent_mpm and cliente.ultima_entrega_mpm != cl_ult_ent_mpm:
+                            cliente.ultima_entrega_mpm = cl_ult_ent_mpm
+                            alterou_cliente = True
+
+                        if alterou_cliente:
+                            cliente.save()
+
+                    chave_nf = (empresa.id, numero_nf)
+
+                    if chave_nf in notas_cache:
+                        nf = notas_cache[chave_nf]
+                    else:
+                        nf = NotaFiscal.objects.create(
+                            empresa=empresa,
+                            cliente=cliente,
+                            id_nf_sistema=id_nf,
+                            serie_nf=serie_nf,
+                            numero=numero_nf,
+                            numero_nf=numero_nf,
+                            data_emissao=data_emissao,
+                            vendedor_codigo=vendedor_codigo,
+                            vendedor_nome=vendedor_nome,
+                            transportadora_codigo=transportadora_codigo,
+                            transportadora_nome=transportadora_nome,
+                            cfop=cfop,
+                            cfop_descricao=cfop_descricao,
+                            frete_ctr=v_frete_ctr,
+                            frete_nf=v_frete_nf,
+                            desconto=v_desconto,
+                            seguro=v_seguro,
+                            outras_despesas=v_outras,
+                            difal=difal,
+                            fcp=fcp,
+                            iss=iss,
+                            lucro_reais=lucro_reais,
+                            lucro_percentual=lucro_percentual,
+                        )
+                        notas_importadas += 1
+                        notas_cache[chave_nf] = nf
+
+                    if not pr_cod and not pr_des:
+                        continue
+
+                    descricao_final = pr_des or pr_cod or 'ITEM SEM DESCRIÇÃO'
+
+                    item, criado = ItemNotaFiscal.objects.update_or_create(
+                        nota_fiscal=nf,
+                        codigo_produto=pr_cod,
+                        descricao_item=descricao_final,
+                        defaults={
+                            'item': descricao_final,
+                            'id_prnf': id_prnf,
+                            'quantidade': pr_qtd,
+                            'valor_total_item': pr_sbt,
+                            'custo_n': pr_cusn,
+                            'v_icms': v_icms,
+                            'v_pis': v_pis,
+                            'v_cofins': v_cofins,
+                            'v_irpj': v_irpj,
+                            'v_csll': v_csll,
+                            'v_est_ircs_ou_simples': v_est_ircs_ou_simples,
+                            'v_comissao': v_comissao,
+                            'v_ipi': v_ipi,
+                            'v_icmsst': v_icmsst,
+                            'v_pisst': v_pisst,
+                            'v_cofinsst': v_cofinsst,
+                            'fcp_st': fcp_st,
+                            'agrp': agrp,
+                            'faixa_desconto': faixa_desconto,
+                            'al_cred_simp': al_cred_simp,
+                            'al_csll': al_csll,
+                            'al_irpj': al_irpj,
+                        }
+                    )
+
+                    if criado:
+                        itens_criados += 1
+                    else:
+                        itens_atualizados += 1
+
+                except (TypeError, ValueError, KeyError, AttributeError, InvalidOperation):
+                    linhas_ignoradas_erro += 1
+                    continue
+
+            resumo = {
+                'empresa': empresa.razao_social,
+                'notas_importadas': notas_importadas,
+                'notas_ignoradas': notas_ignoradas,
+                'clientes_criados': clientes_criados,
+                'itens_criados': itens_criados,
+                'itens_atualizados': itens_atualizados,
+                'notas_sem_numero': notas_sem_numero,
+                'linhas_ignoradas_erro': linhas_ignoradas_erro,
+            }
+
+            messages.success(request, 'Importação concluída com sucesso.')
+            if linhas_ignoradas_erro:
+                messages.warning(request, f'{linhas_ignoradas_erro} linha(s) foram ignoradas por erro de dados.')
+            form = ImportarNotasExcelForm()
+
+    else:
+        form = ImportarNotasExcelForm()
+
+    return render(request, 'core/importar.html', {'form': form, 'resumo': resumo})
+
+
+@login_required
+@transaction.atomic
+def importar_rastreios_excel(request):
+    resumo = None
+
+    if request.method == 'POST':
+        form = ImportarRastreiosExcelForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            empresa = form.cleaned_data['empresa']
+            arquivo = form.cleaned_data['arquivo']
+
+            try:
+                df = pd.read_excel(arquivo, engine='openpyxl')
+            except (ValueError, OSError, ImportError, zipfile.BadZipFile) as e:
+                messages.error(request, f'Erro ao ler o arquivo Excel: {e}')
+                return render(request, 'core/importar_rastreios.html', {'form': form, 'resumo': resumo})
+
+            df.columns = [str(col).strip().upper() for col in df.columns]
+
+            numeros_planilha = set()
+            for _, row in df.iterrows():
+                num = normalizar_numero_nf(row.get('NUM'))
+                if num:
+                    numeros_planilha.add(num)
+
+            notas_existentes = set(
+                RastreioNotaItem.objects.filter(
+                    empresa=empresa,
+                    numero_nf__in=numeros_planilha
+                ).values_list('numero_nf', flat=True)
+            )
+
+            notas_importadas = set()
+            notas_ignoradas = set()
+            registros_criados = 0
+            linhas_sem_numero = 0
+
+            for _, row in df.iterrows():
+                numero_nf = normalizar_numero_nf(row.get('NUM'))
+
+                if not numero_nf:
+                    linhas_sem_numero += 1
+                    continue
+
+                if numero_nf in notas_existentes:
+                    notas_ignoradas.add(numero_nf)
+                    continue
+
+                codigo_produto = normalizar_texto(row.get('CPR'))
+                descricao_produto = normalizar_texto(row.get('DPR'))
+                quantidade = normalizar_decimal(row.get('QUA'))
+                tipo = normalizar_texto(row.get('TIP'))
+                data_doc = normalizar_data_excel(row.get('DAT'))
+                saidas_raw = normalizar_texto(row.get('SAIDAS'))
+
+                saidas = dividir_saidas(saidas_raw)
+
+                if not saidas:
+                    RastreioNotaItem.objects.get_or_create(
+                        empresa=empresa,
+                        numero_nf=numero_nf,
+                        codigo_produto=codigo_produto,
+                        serial_lote='',
+                        defaults={
+                            'descricao_produto': descricao_produto,
+                            'quantidade': quantidade,
+                            'saidas_raw': saidas_raw,
+                            'tipo': tipo,
+                            'data_doc': data_doc,
+                        }
+                    )
+                    registros_criados += 1
+                else:
+                    for serial_lote in saidas:
+                        RastreioNotaItem.objects.get_or_create(
+                            empresa=empresa,
+                            numero_nf=numero_nf,
+                            codigo_produto=codigo_produto,
+                            serial_lote=serial_lote,
+                            defaults={
+                                'descricao_produto': descricao_produto,
+                                'quantidade': quantidade,
+                                'saidas_raw': saidas_raw,
+                                'tipo': tipo,
+                                'data_doc': data_doc,
+                            }
+                        )
+                        registros_criados += 1
+
+                notas_importadas.add(numero_nf)
+
+            resumo = {
+                'empresa': empresa.razao_social,
+                'notas_importadas': len(notas_importadas),
+                'notas_ignoradas': len(notas_ignoradas),
+                'registros_criados': registros_criados,
+                'linhas_sem_numero': linhas_sem_numero,
+            }
+
+            messages.success(request, 'Importação de serial/lote concluída com sucesso.')
+            form = ImportarRastreiosExcelForm()
+    else:
+        form = ImportarRastreiosExcelForm()
+
+    return render(request, 'core/importar_rastreios.html', {'form': form, 'resumo': resumo})
+
+
+@login_required
+@transaction.atomic
+def importar_tabela_pecas_excel(request):
+    resumo = None
+
+    if request.method == 'POST':
+        form = ImportarTabelaPecasExcelForm(request.POST, request.FILES)
+        if form.is_valid():
+            arquivo = form.cleaned_data['arquivo']
+            try:
+                df = pd.read_excel(arquivo, engine='openpyxl')
+            except (ValueError, OSError, ImportError, zipfile.BadZipFile) as e:
+                messages.error(request, f'Erro ao ler o arquivo Excel: {e}')
+                return render(request, 'core/importar_tabela_pecas.html', {'form': form, 'resumo': resumo})
+
+            df.columns = [str(col).strip().upper() for col in df.columns]
+
+            criadas = 0
+            atualizadas = 0
+            ignoradas = 0
+
+            for _, row in df.iterrows():
+                referencia = normalizar_texto(row.get('PR_COD'))
+                descricao = normalizar_texto(row.get('PR_DES'))
+                valor_unitario = normalizar_decimal(row.get('VAL_VEND'))
+
+                if not referencia or not descricao:
+                    ignoradas += 1
+                    continue
+
+                obj, created = PecaTabelaPreco.objects.update_or_create(
+                    referencia=referencia,
+                    defaults={
+                        'descricao': descricao,
+                        'valor_unitario': valor_unitario,
+                        'ativo': True,
+                    }
+                )
+                if created:
+                    criadas += 1
+                else:
+                    atualizadas += 1
+
+            resumo = {
+                'criadas': criadas,
+                'atualizadas': atualizadas,
+                'ignoradas': ignoradas,
+            }
+            messages.success(request, 'Importação da tabela de preços de peças concluída com sucesso.')
+            form = ImportarTabelaPecasExcelForm()
+    else:
+        form = ImportarTabelaPecasExcelForm()
+
+    return render(request, 'core/importar_tabela_pecas.html', {'form': form, 'resumo': resumo})
+
+
+def salvar_contato_cliente(cliente, nome_contato, whatsapp, telefone, email_1, email_2):
+    if not any([nome_contato, whatsapp, telefone, email_1, email_2]):
+        return
+
+    existente = ClienteContato.objects.filter(
+        cliente=cliente,
+        nome_contato=nome_contato or None,
+        whatsapp=whatsapp or None,
+        telefone=telefone or None,
+        email_1=email_1 or None,
+        email_2=email_2 or None,
+    ).first()
+
+    if not existente:
+        ClienteContato.objects.create(
+            cliente=cliente,
+            nome_contato=nome_contato or None,
+            whatsapp=whatsapp or None,
+            telefone=telefone or None,
+            email_1=email_1 or None,
+            email_2=email_2 or None,
+            ativo=True
+        )
+
+
+def obter_status_por_nome(nome):
+    return StatusSAC.objects.filter(nome__iexact=nome, ativo=True).first()
+
+
+
+def _status_nome(sac):
+    if getattr(sac, 'status_atual', None):
+        return (sac.status_atual.nome or '').strip()
+    return (sac.status_inicial or '').strip()
+
+
+def buscar_sac_em_andamento_por_item_serial(item_nf, numero_rastreio, sac_excluir_id=None):
+    numero = (numero_rastreio or '').strip()
+    if not item_nf or not numero:
+        return None
+
+    query = SACItem.objects.filter(
+        item_nota_fiscal__codigo_produto=item_nf.codigo_produto,
+        tipo_rastreio='SERIAL',
+        numero_rastreio=numero,
+    ).select_related('sac__usuario_abertura', 'sac__status_atual')
+
+    if sac_excluir_id:
+        query = query.exclude(sac_id=sac_excluir_id)
+
+    for sac_item in query.order_by('-sac__data_abertura'):
+        status_nome = _status_nome(sac_item.sac).lower()
+        if status_nome not in ['concluído', 'concluido', 'encerrado']:
+            return sac_item.sac
+
+    return None
+
+
+def montar_info_reincidencia(item_nf, tipo_rastreio, numero_rastreio, sac_excluir_id=None):
+    numero = (numero_rastreio or '').strip()
+    if not item_nf or not tipo_rastreio or not numero:
+        return []
+
+    historicos = SACItem.objects.filter(
+        item_nota_fiscal__codigo_produto=item_nf.codigo_produto,
+        tipo_rastreio=tipo_rastreio,
+        numero_rastreio=numero,
+    ).select_related('sac', 'tipo_ocorrencia').order_by('-sac__data_abertura')
+
+    if sac_excluir_id:
+        historicos = historicos.exclude(sac_id=sac_excluir_id)
+
+    resultados = []
+    for h in historicos:
+        resultados.append({
+            'sac_numero': h.sac.numero,
+            'data': h.sac.data_abertura.strftime('%d/%m/%Y %H:%M'),
+            'problema_anterior': h.tipo_ocorrencia.nome if h.tipo_ocorrencia else (h.observacao_item or ''),
+        })
+    return resultados
+
+
+def obter_setor_por_nome(nome):
+    return Setor.objects.filter(nome__iexact=nome).first()
+
+
+def obter_setor_comercial_padrao():
+    for nome in ('Gestão Comercial', 'Gestao Comercial', 'Comercial'):
+        setor = obter_setor_por_nome(nome)
+        if setor:
+            return setor
+    return None
+
+
+def resolver_setor_contexto_comercial(sac):
+    if sac is None:
+        return obter_setor_comercial_padrao()
+
+    if getattr(sac, 'setor_atual', None):
+        return sac.setor_atual
+
+    acao_atual = getattr(sac, 'acao_em_espera', None)
+    setor_destino_acao = getattr(acao_atual, 'setor_destino', None) if acao_atual else None
+    if setor_destino_acao and _texto_normalizado(getattr(setor_destino_acao, 'nome', '')) in {
+        'comercial', 'gestao comercial', 'gestão comercial'
+    }:
+        return setor_destino_acao
+
+    return obter_setor_comercial_padrao()
+
+
+def determinar_setor_por_status(status):
+    if not status:
+        return None
+
+    mapa = {
+        'aberto': None,
+        'análise técnica': 'Assessoria Cientifica',
+        'analise técnica': 'Assessoria Cientifica',
+        'aguardando cliente': 'SAC',
+        'importação de peça de reposição': 'Diretoria',
+        'importacao de peça de reposicao': 'Diretoria',
+        'coleta no cliente': 'Logistica',
+        'manutenção - técnico externo': 'Assessoria Cientifica',
+        'manutencao - tecnico externo': 'Assessoria Cientifica',
+        'manutenção - técnico interno': 'Assistencia Tecnica',
+        'manutencao - tecnico interno': 'Assistencia Tecnica',
+        'cancelado': 'Financeiro',
+        'concluído': 'SAC',
+        'concluido': 'SAC',
+        'trânsito para ionlab': 'Logistica',
+        'transito para ionlab': 'Logistica',
+        'trânsito para o cliente': 'Logistica',
+        'transito para o cliente': 'Logistica',
+        'gestão do sac': 'SAC',
+        'gestao do sac': 'SAC',
+        'orçamento técnico externo': 'Assessoria Cientifica',
+        'orcamento tecnico externo': 'Assessoria Cientifica',
+        'aprovação de orçamento - diretoria': 'Diretoria',
+        'aprovacao de orcamento - diretoria': 'Diretoria',
+        'faturamento / expedição': 'Logistica',
+        'faturamento / expedicao': 'Logistica',
+        'manutenção pelo cliente': 'SAC',
+        'manutencao pelo cliente': 'SAC',
+        'trâmite documental': 'Logistica',
+        'tramite documental': 'Logistica',
+        'emissão de pedido': 'SAC',
+        'emissao de pedido': 'SAC',
+    }
+
+    nome_setor = mapa.get((status.nome or '').strip().lower())
+    if not nome_setor:
+        return None
+    return obter_setor_por_nome(nome_setor)
+
+
+def registrar_historico_sac(sac, usuario, acao_executada, status_anterior=None, status_novo=None, setor_origem=None, setor_destino=None, observacao=''):
+    if not usuario or not sac:
+        return
+
+    return registrar_historico_sac_service(
+        sac=sac,
+        usuario=usuario,
+        acao_executada=acao_executada,
+        status_anterior=status_anterior,
+        status_novo=status_novo,
+        setor_origem=setor_origem,
+        setor_destino=setor_destino,
+        observacao=observacao or '',
+    )
+
+
+def montar_observacao_analise(tratativa=None, tipo_problema=None, proximo_status=None, observacao_tecnica=''):
+    linhas = [
+        f"Tratativa do Problema: {tratativa.nome if tratativa else '-'}",
+        f"Tipo de Problema: {tipo_problema.nome if tipo_problema else '-'}",
+        f"Próximo Status: {proximo_status.nome if proximo_status else '-'}",
+        f"Observações Técnicas: {(observacao_tecnica or '').strip() or '-'}",
+    ]
+    return "\n".join(linhas)
+
+
+def extrair_campos_observacao_analise(texto):
+    campos = {
+        'tratativa': '',
+        'tipo_problema': '',
+        'proximo_status': '',
+        'observacoes_tecnicas': '',
+    }
+    if not texto:
+        return campos
+
+    mapeamento = {
+        'tratativa do problema:': 'tratativa',
+        'tipo de problema:': 'tipo_problema',
+        'próximo status:': 'proximo_status',
+        'proximo status:': 'proximo_status',
+        'observações técnicas:': 'observacoes_tecnicas',
+        'observacoes tecnicas:': 'observacoes_tecnicas',
+    }
+
+    for linha in str(texto).splitlines():
+        linha_limpa = linha.strip()
+        if not linha_limpa:
+            continue
+        chave_encontrada = None
+        for prefixo, destino in mapeamento.items():
+            if linha_limpa.lower().startswith(prefixo):
+                chave_encontrada = (prefixo, destino)
+                break
+        if chave_encontrada:
+            prefixo, destino = chave_encontrada
+            campos[destino] = linha_limpa[len(prefixo):].strip(" :")
+    return campos
+
+
+def montar_observacao_orcamento_externo(orcamento):
+    linhas = [
+        f"Técnico Externo: {orcamento.tecnico_externo.nome if orcamento.tecnico_externo else '-'}",
+        f"Telefone: {orcamento.telefone or '-'}",
+        f"WhatsApp: {orcamento.whatsapp or '-'}",
+        f"E-mail: {orcamento.email or '-'}",
+        f"Cidade: {orcamento.cidade or '-'}",
+        f"Estado: {orcamento.estado or '-'}",
+        f"Precisa de peça de reposição: {'Sim' if orcamento.precisa_peca_reposicao else 'Não'}",
+        f"Quantidade de Horas: {orcamento.quantidade_horas}",
+        f"Valor Unitário das Horas: {orcamento.valor_unitario_hora}",
+        f"Valor Total das Horas: {orcamento.valor_total_horas}",
+        f"Valor Total das Peças: {orcamento.valor_total_pecas}",
+        f"Valor Total Geral: {orcamento.valor_total_geral}",
+    ]
+    for idx, item in enumerate(orcamento.pecas.all().order_by('id'), start=1):
+        linhas.append(
+            f"Peça {idx}: {item.referencia} | {item.descricao} | Qtd {item.quantidade} | Vlr Unit {item.valor_unitario} | Vlr Total {item.valor_total}"
+        )
+    return "\n".join(linhas)
+
+
+def montar_orcamento_inicial(sac):
+    existente = getattr(sac, 'orcamento_tecnico_externo', None)
+    if existente:
+        dados = {
+            'tecnico_externo': existente.tecnico_externo_id,
+            'telefone': existente.telefone,
+            'whatsapp': existente.whatsapp,
+            'email': existente.email,
+            'cidade': existente.cidade,
+            'estado': existente.estado,
+            'precisa_peca_reposicao': 'sim' if existente.precisa_peca_reposicao else 'nao',
+            'quantidade_horas': existente.quantidade_horas,
+            'valor_unitario_hora': existente.valor_unitario_hora,
+        }
+        pecas_iniciais = [
+            {'peca': p.peca_id, 'quantidade': p.quantidade} for p in existente.pecas.all().order_by('id')
+        ]
+        if not pecas_iniciais:
+            pecas_iniciais = [{}]
+        return dados, pecas_iniciais
+    return {'precisa_peca_reposicao': 'nao'}, [{}]
+
+
+def montar_opcoes_pecas():
+    return list(PecaTabelaPreco.objects.filter(ativo=True).order_by('descricao', 'referencia'))
+
+
+def status_eh_orcamento_externo(status):
+    nome = (status.nome if status else '').strip().lower()
+    return nome in ['orçamento técnico externo', 'orcamento tecnico externo']
+
+
+
+@login_required
+@transaction.atomic
+def abrir_sac(request):
+    if request.method == 'POST':
+        form = AberturaSACForm(request.POST, request.FILES, usuario=request.user)
+
+        empresa_id = request.POST.get('empresa')
+        cliente_id = request.POST.get('cliente_id')
+
+        if empresa_id and cliente_id:
+            form.fields['nota_fiscal'].queryset = NotaFiscal.objects.filter(
+                empresa_id=empresa_id,
+                cliente_id=cliente_id
+            ).order_by('-data_emissao', '-id')
+
+        if form.is_valid():
+            empresa = form.cleaned_data.get('empresa')
+            nota_fiscal = form.cleaned_data.get('nota_fiscal')
+            cliente = None
+
+            cliente_id = form.cleaned_data.get('cliente_id')
+            if cliente_id:
+                cliente = Cliente.objects.filter(id=cliente_id, empresa=empresa).first()
+
+            itens_json = form.cleaned_data.get('itens_json') or '[]'
+
+            try:
+                itens = json.loads(itens_json)
+            except (TypeError, ValueError, json.JSONDecodeError):
+                itens = []
+
+            if not cliente:
+                messages.error(request, 'Selecione um cliente.')
+                return render(
+                    request,
+                    'core/abrir_sac.html',
+                    {
+                        'form': form,
+                        'tipos_ocorrencia': TipoOcorrencia.objects.filter(ativo=True).order_by('nome'),
+                        'numero_sac_preview': proximo_numero_sac(),
+                                }
+                )
+
+            if not nota_fiscal:
+                messages.error(request, 'Selecione uma nota fiscal.')
+                return render(
+                    request,
+                    'core/abrir_sac.html',
+                    {
+                        'form': form,
+                        'tipos_ocorrencia': TipoOcorrencia.objects.filter(ativo=True).order_by('nome'),
+                        'numero_sac_preview': proximo_numero_sac(),
+                                }
+                )
+
+            if not itens:
+                messages.error(request, 'Inclua pelo menos um item no SAC.')
+                return render(
+                    request,
+                    'core/abrir_sac.html',
+                    {
+                        'form': form,
+                        'tipos_ocorrencia': TipoOcorrencia.objects.filter(ativo=True).order_by('nome'),
+                        'numero_sac_preview': proximo_numero_sac(),
+                                }
+                )
+
+
+            mensagens_bloqueio = []
+            vistos = set()
+            for item in itens:
+                item_id = item.get('item_id')
+                tipo_rastreio = (item.get('tipo_rastreio') or '').strip()
+                numero_rastreio = (item.get('numero_rastreio') or '').strip()
+                item_nf = ItemNotaFiscal.objects.filter(id=item_id).first()
+
+                if not item_nf or tipo_rastreio != 'SERIAL' or not numero_rastreio:
+                    continue
+
+                chave = (item_nf.codigo_produto, numero_rastreio.upper())
+                if chave in vistos:
+                    continue
+                vistos.add(chave)
+
+                sac_existente = buscar_sac_em_andamento_por_item_serial(item_nf, numero_rastreio)
+                if sac_existente:
+                    usuario_nome = sac_existente.usuario_abertura.get_full_name() or sac_existente.usuario_abertura.get_username() if sac_existente.usuario_abertura else ''
+                    mensagens_bloqueio.append(
+                        f"Já existe SAC em andamento para a referência {item_nf.codigo_produto} e serial {numero_rastreio}: "
+                        f"{sac_existente.numero} | {sac_existente.data_abertura.strftime('%d/%m/%Y %H:%M')} | "
+                        f"usuário {usuario_nome}."
+                    )
+
+            if mensagens_bloqueio:
+                for msg in mensagens_bloqueio:
+                    messages.error(request, msg)
+                return render(
+                    request,
+                    'core/abrir_sac.html',
+                    {
+                        'form': form,
+                        'tipos_ocorrencia': TipoOcorrencia.objects.filter(ativo=True).order_by('nome'),
+                        'numero_sac_preview': proximo_numero_sac(),
+                                }
+                )
+
+            contato_nome = form.cleaned_data.get('contato_nome')
+            whatsapp = form.cleaned_data.get('whatsapp')
+            telefone = form.cleaned_data.get('telefone')
+            email_1 = form.cleaned_data.get('email_1')
+            email_2 = form.cleaned_data.get('email_2')
+
+            if contato_nome:
+                cliente.contato_nome = contato_nome
+            if whatsapp:
+                cliente.whatsapp = whatsapp
+            if telefone:
+                cliente.telefone = telefone
+            if email_1:
+                cliente.email_1 = email_1
+            if email_2:
+                cliente.email_2 = email_2
+            cliente.save()
+
+            salvar_contato_cliente(cliente, contato_nome, whatsapp, telefone, email_1, email_2)
+
+            numero_sac = proximo_numero_sac()
+            ano = int(numero_sac.split('/')[1])
+            sequencia_ano = int(numero_sac.split('/')[0])
+
+            numero_nf = nota_fiscal.numero_nf or nota_fiscal.numero or ''
+            titulo_auto = f'SAC_{numero_sac} / {cliente.razao_social or cliente.nome} / NF {numero_nf}'
+
+            status_aberto = obter_status_por_nome('Aberto')
+            setor_abertura = form.cleaned_data.get('setor_responsavel')
+            acao_em_espera_final = form.cleaned_data.get('acao_em_espera')
+            setor_destino_final = form.cleaned_data.get('setor_destino') or setor_abertura
+
+            # Amarra de segurança: o setor/ação final da abertura não pode depender só
+            # dos campos hidden do formulário. Revalida com base nos itens incluídos no SAC.
+            for item in itens:
+                tipo_nome = (item.get('tipo_ocorrencia_nome') or '').strip().lower()
+                quebrado = _normalizar_item_quebrado_inservivel(item.get('item_quebrado_inservivel'))
+                pequeno = _normalizar_sim_nao(item.get('item_pequeno_valor'))
+                forcar_descarte = (
+                    ('itens/equipamentos avariados' == tipo_nome and quebrado == 'SIM')
+                    or (tipo_nome in {
+                        'itens/equipamentos em desacordo com edital/empenho',
+                        'pedido enviado em duplicidade (licitação)',
+                        'pedido enviado em duplicidade (licitacao)',
+                    } and pequeno == 'SIM')
+                )
+                if forcar_descarte:
+                    acao_em_espera_final = AcaoEmEspera.objects.filter(nome__iexact='Aguardando Autorização – Descarte').first() or AcaoEmEspera.objects.filter(nome__iexact='Aguardando Autorização - Descarte').first()
+                    setor_destino_final = obter_setor_por_nome('Diretoria') or setor_destino_final
+                    break
+
+                acao_item_id = item.get('acao_em_espera_id')
+                setor_item_id = item.get('setor_destino_id')
+                tipo_ocorrencia_id = item.get('tipo_ocorrencia_id')
+
+                if acao_item_id:
+                    acao_item = AcaoEmEspera.objects.filter(id=acao_item_id, ativo=True).first()
+                    if acao_item:
+                        acao_em_espera_final = acao_item
+
+                if setor_item_id:
+                    setor_item = Setor.objects.filter(id=setor_item_id, ativo=True).first()
+                    if setor_item:
+                        setor_destino_final = setor_item
+
+                if tipo_ocorrencia_id:
+                    tipo_ocorrencia_fluxo = TipoOcorrencia.objects.filter(id=tipo_ocorrencia_id, ativo=True).select_related('setor', 'acao_em_espera').first()
+                    if tipo_ocorrencia_fluxo:
+                        if not acao_item_id and getattr(tipo_ocorrencia_fluxo, 'acao_em_espera', None):
+                            acao_em_espera_final = tipo_ocorrencia_fluxo.acao_em_espera
+                        if not setor_item_id and getattr(tipo_ocorrencia_fluxo, 'setor', None):
+                            setor_destino_final = tipo_ocorrencia_fluxo.setor
+
+            if not setor_destino_final:
+                messages.error(request, 'Não foi possível determinar o setor de destino do SAC. Verifique o tipo de ocorrência cadastrado.')
+                return render(
+                    request,
+                    'core/abrir_sac.html',
+                    {
+                        'form': form,
+                        'tipos_ocorrencia': TipoOcorrencia.objects.filter(ativo=True).order_by('nome'),
+                        'numero_sac_preview': proximo_numero_sac(),
+                    }
+                )
+
+            sac = SAC.objects.create(
+                numero=numero_sac,
+                ano=ano,
+                sequencia_ano=sequencia_ano,
+                empresa=empresa,
+                cliente=cliente,
+                nota_fiscal=nota_fiscal,
+                status_inicial='Aberto',
+                status_atual=status_aberto,
+                acao_em_espera=acao_em_espera_final,
+                setor_responsavel=setor_abertura,
+                setor_atual=setor_destino_final,
+                usuario_abertura=request.user,
+                contato_nome=contato_nome,
+                telefone_1=telefone,
+                email_1=email_1,
+                email_2=email_2,
+                nome_usuario_contato=form.cleaned_data.get('nome_usuario_contato'),
+                empresa_usuario_contato=form.cleaned_data.get('empresa_usuario_contato'),
+                telefone_usuario_contato=form.cleaned_data.get('telefone_usuario_contato'),
+                whatsapp_usuario_contato=form.cleaned_data.get('whatsapp_usuario_contato'),
+                email_usuario_contato=form.cleaned_data.get('email_usuario_contato'),
+                endereco_usuario_contato=form.cleaned_data.get('endereco_usuario_contato'),
+                cidade_usuario_contato=form.cleaned_data.get('cidade_usuario_contato'),
+                estado_usuario_contato=form.cleaned_data.get('estado_usuario_contato'),
+                titulo=titulo_auto,
+                descricao='',
+            )
+
+            for item in itens:
+                item_id = item.get('item_id')
+                tipo_rastreio = (item.get('tipo_rastreio') or '').strip().upper()
+                numero_rastreio = (item.get('numero_rastreio') or '').strip()
+                observacao_item = item.get('observacao_item')
+                quantidade_com_problema = item.get('quantidade_com_problema') or 1
+                tipo_ocorrencia_id = item.get('tipo_ocorrencia_id')
+                item_quebrado_inservivel = _normalizar_item_quebrado_inservivel(item.get('item_quebrado_inservivel'))
+                item_pequeno_valor = _normalizar_sim_nao(item.get('item_pequeno_valor'))
+
+                item_nf = ItemNotaFiscal.objects.filter(id=item_id).first()
+                tipo_ocorrencia = TipoOcorrencia.objects.filter(id=tipo_ocorrencia_id).first() if tipo_ocorrencia_id else None
+                grupo = _normalizar_grupo_sac(item.get('grupo'), item_nf=item_nf)
+                grupo = _grupo_tabela_preco_por_referencia(item_nf.codigo_produto if item_nf else '', fallback=grupo)
+
+                if not item_nf or not tipo_rastreio:
+                    continue
+
+                if tipo_rastreio == 'SERIAL' and not numero_rastreio:
+                    continue
+
+                sac_item, created = SACItem.objects.get_or_create(
+                    sac=sac,
+                    item_nota_fiscal=item_nf,
+                    tipo_rastreio=tipo_rastreio,
+                    numero_rastreio=numero_rastreio or '',
+                    defaults={
+                        'tipo_ocorrencia': tipo_ocorrencia,
+                        'quantidade_com_problema': int(quantidade_com_problema),
+                        'observacao_item': observacao_item,
+                        'grupo': grupo,
+                        'item_quebrado_inservivel': item_quebrado_inservivel,
+                        'item_pequeno_valor': item_pequeno_valor,
+                    }
+                )
+
+                if not created:
+                    sac_item.tipo_ocorrencia = tipo_ocorrencia
+                    sac_item.quantidade_com_problema = int(quantidade_com_problema)
+                    sac_item.observacao_item = observacao_item
+                    sac_item.grupo = grupo
+                    sac_item.item_quebrado_inservivel = item_quebrado_inservivel
+                    sac_item.item_pequeno_valor = item_pequeno_valor
+                    sac_item.save(update_fields=['tipo_ocorrencia', 'quantidade_com_problema', 'observacao_item', 'grupo', 'item_quebrado_inservivel', 'item_pequeno_valor'])
+
+            for foto in request.FILES.getlist('fotos'):
+                SACAnexo.objects.create(sac=sac, arquivo=foto)
+
+            for video in request.FILES.getlist('videos'):
+                SACAnexo.objects.create(sac=sac, arquivo=video)
+
+            itens_historico = list(
+                sac.itens_sac.select_related('item_nota_fiscal', 'tipo_ocorrencia').all()
+            )
+            observacao_abertura = _formatar_observacao_abertura_sac(sac, itens_historico)
+
+            aplicar_transicao_sac(
+                sac=sac,
+                usuario=request.user,
+                acao_em_espera=sac.acao_em_espera,
+                setor_destino=setor_destino_final,
+                status_novo=status_aberto,
+                observacao=observacao_abertura,
+                acao_executada_texto='Abertura do SAC',
+                salvar_sac=False,
+            )
+
+            messages.success(request, f'SAC criado com sucesso: {sac.numero}')
+            nome_setor_destino = ((getattr(setor_destino_final, 'nome', '') or '').strip().lower())
+
+            if 'comercial' in nome_setor_destino:
+                return redirect(f'/sac/analise-comercial/?sac={sac.id}')
+            elif 'logistica' in nome_setor_destino:
+                return redirect(f'/sac/gestao-logistica/?sac={sac.id}')
+            elif 'cientifica' in nome_setor_destino or 'assessoria' in nome_setor_destino:
+                return redirect(f'/sac/assessoria-cientifica/?sac={sac.id}')
+            elif 'sac' in nome_setor_destino:
+                return redirect(f'/sac/gestao/?sac={sac.id}')
+            elif 'diretoria' in nome_setor_destino:
+                return redirect(f'/sac/diretoria/?sac={sac.id}')
+            elif 'licitacao' in nome_setor_destino:
+                return redirect(f'/sac/gestao-licitacao/?sac={sac.id}')
+
+            return redirect(f'/sac/gestao/?sac={sac.id}')
+    else:
+        form = AberturaSACForm(usuario=request.user)
+
+    return render(
+        request,
+        'core/abrir_sac.html',
+        {
+            'form': form,
+            'tipos_ocorrencia': TipoOcorrencia.objects.filter(ativo=True).order_by('nome'),
+            'numero_sac_preview': proximo_numero_sac(),
+        }
+    )
+
+
+
+@login_required
+@transaction.atomic
+def analise_tecnica_sac(request, sac_id):
+    sac = get_object_or_404(
+        SAC.objects.select_related('empresa', 'cliente', 'nota_fiscal', 'status_atual', 'setor_atual'),
+        id=sac_id
+    )
+
+    analise_existente = getattr(sac, 'analise_tecnica', None)
+    status_orcamento_externo = status_eh_orcamento_externo(sac.status_atual)
+    dados_orcamento_iniciais, pecas_iniciais = montar_orcamento_inicial(sac)
+
+    if request.method == 'POST':
+        acao_formulario = request.POST.get('acao_formulario', 'analise')
+
+        if acao_formulario == 'orcamento_externo':
+            if not status_orcamento_externo and not getattr(sac, 'orcamento_tecnico_externo', None):
+                messages.error(request, 'Bloqueado: o orçamento técnico externo só pode ser preenchido quando o SAC estiver com status Orçamento Técnico Externo.')
+                return redirect('analise_tecnica_sac', sac_id=sac.id)
+
+            orcamento_form = OrcamentoTecnicoExternoForm(request.POST)
+            pecas_formset = OrcamentoPecaFormSet(request.POST, prefix='pecas')
+            form = AnaliseTecnicaSACForm()
+
+            if orcamento_form.is_valid() and pecas_formset.is_valid():
+                tecnico = orcamento_form.cleaned_data['tecnico_externo']
+                precisa_peca = orcamento_form.cleaned_data['precisa_peca_reposicao'] == 'sim'
+                quantidade_horas = orcamento_form.cleaned_data.get('quantidade_horas') or Decimal('0')
+                valor_unitario_hora = orcamento_form.cleaned_data.get('valor_unitario_hora') or Decimal('0')
+                valor_total_horas = quantidade_horas * valor_unitario_hora
+
+                itens_validos = []
+                valor_total_pecas = Decimal('0')
+                for f in pecas_formset:
+                    if not hasattr(f, 'cleaned_data'):
+                        continue
+                    if f.cleaned_data.get('DELETE'):
+                        continue
+                    peca = f.cleaned_data.get('peca')
+                    quantidade = f.cleaned_data.get('quantidade') or Decimal('0')
+                    if peca and quantidade:
+                        valor_total = quantidade * (peca.valor_unitario or Decimal('0'))
+                        valor_total_pecas += valor_total
+                        itens_validos.append((peca, quantidade, valor_total))
+
+                if precisa_peca and not itens_validos:
+                    messages.error(request, 'Bloqueado: informe ao menos uma peça de reposição quando selecionar Sim.')
+                else:
+                    valor_total_geral = valor_total_pecas + valor_total_horas
+                    orcamento, _ = OrcamentoTecnicoExterno.objects.update_or_create(
+                        sac=sac,
+                        defaults={
+                            'tecnico_externo': tecnico,
+                            'telefone': orcamento_form.cleaned_data.get('telefone') or '',
+                            'whatsapp': orcamento_form.cleaned_data.get('whatsapp') or '',
+                            'email': orcamento_form.cleaned_data.get('email') or '',
+                            'cidade': orcamento_form.cleaned_data.get('cidade') or '',
+                            'estado': orcamento_form.cleaned_data.get('estado') or '',
+                            'precisa_peca_reposicao': precisa_peca,
+                            'quantidade_horas': quantidade_horas,
+                            'valor_unitario_hora': valor_unitario_hora,
+                            'valor_total_horas': valor_total_horas,
+                            'valor_total_pecas': valor_total_pecas,
+                            'valor_total_geral': valor_total_geral,
+                        }
+                    )
+                    orcamento.pecas.all().delete()
+                    for peca, quantidade, valor_total in itens_validos:
+                        OrcamentoTecnicoExternoPeca.objects.create(
+                            orcamento=orcamento,
+                            peca=peca,
+                            referencia=peca.referencia,
+                            descricao=peca.descricao,
+                            quantidade=quantidade,
+                            valor_unitario=peca.valor_unitario,
+                            valor_total=valor_total,
+                        )
+
+                    status_diretoria = obter_status_por_nome('Aguardando Aprovação de Orçamento – Diretoria') or obter_status_por_nome('Aguardando Aprovação de Orçamento - Diretoria')
+                    setor_diretoria = obter_setor_por_nome('Diretoria')
+
+                    aplicar_transicao_sac(
+                        sac=sac,
+                        usuario=request.user,
+                        setor_destino=setor_diretoria,
+                        status_novo=status_diretoria,
+                        observacao=montar_observacao_orcamento_externo(orcamento),
+                        acao_executada_texto='Orçamento técnico externo registrado',
+                    )
+
+                    messages.success(request, f'Orçamento técnico externo do SAC {sac.numero} registrado com sucesso.')
+                    return redirect('analise_tecnica_sac', sac_id=sac.id)
+        else:
+            form = AnaliseTecnicaSACForm(request.POST)
+            orcamento_form = OrcamentoTecnicoExternoForm(initial=dados_orcamento_iniciais)
+            pecas_formset = OrcamentoPecaFormSet(initial=pecas_iniciais, prefix='pecas')
+
+            if form.is_valid():
+                tratativa = form.cleaned_data['tratativa_problema']
+                tipo_problema = form.cleaned_data.get('tipo_problema')
+                proximo_status = form.cleaned_data['proximo_status']
+                observacao = (form.cleaned_data.get('observacao_tecnica') or '').strip()
+
+                nome_tratativa = (tratativa.nome or '').strip().lower() if tratativa else ''
+                resolvido_remotamente = (
+                    'resolvido' in nome_tratativa and
+                    'remoto' in nome_tratativa and
+                    'não' not in nome_tratativa and
+                    'nao' not in nome_tratativa
+                )
+                if resolvido_remotamente:
+                    proximo_status = obter_status_por_nome('Concluído') or obter_status_por_nome('Concluido') or proximo_status
+                else:
+                    if (proximo_status.nome or '').strip().lower() in ['concluído', 'concluido']:
+                        messages.error(request, 'Bloqueado: quando o problema não for resolvido remotamente, o próximo status nunca pode ser Concluído.')
+                        return redirect('analise_tecnica_sac', sac_id=sac.id)
+
+                observacao_historico = montar_observacao_analise(
+                    tratativa=tratativa,
+                    tipo_problema=tipo_problema,
+                    proximo_status=proximo_status,
+                    observacao_tecnica=observacao,
+                )
+
+                repetido = SacHistorico.objects.filter(
+                    sac=sac,
+                    acao_executada='Análise técnica registrada',
+                    observacao=observacao_historico,
+                ).exists()
+
+                if repetido:
+                    messages.error(request, 'Bloqueado: essas mesmas informações já foram registradas anteriormente para este SAC.')
+                    return redirect('analise_tecnica_sac', sac_id=sac.id)
+
+                SacAnaliseTecnica.objects.update_or_create(
+                    sac=sac,
+                    defaults={
+                        'tratativa_problema': tratativa,
+                        'tipo_problema': tipo_problema,
+                        'observacao_tecnica': observacao,
+                        'proximo_status_sugerido': proximo_status,
+                        'usuario_responsavel': request.user,
+                        'data_analise': timezone.now(),
+                    }
+                )
+
+                proxima_acao, proximo_setor = buscar_fluxo_dinamico(
+                    sac.acao_em_espera,
+                    sac.setor_atual,
+                )
+
+                acao_final = proxima_acao or sac.acao_em_espera
+                setor_destino = proximo_setor or sac.setor_atual
+
+                validar_transicao_basica(
+                    sac,
+                    status_novo=proximo_status,
+                    acao_nova=acao_final,
+                    setor_destino=setor_destino,
+                )
+
+                aplicar_transicao_sac(
+                    sac=sac,
+                    usuario=request.user,
+                    acao_em_espera=acao_final,
+                    setor_destino=setor_destino,
+                    status_novo=proximo_status,
+                    observacao=observacao_historico,
+                    acao_executada_texto='Análise técnica registrada',
+                )
+
+                messages.success(request, f'Análise técnica do SAC {sac.numero} registrada com sucesso.')
+                return redirect('analise_tecnica_sac', sac_id=sac.id)
+    else:
+        form = AnaliseTecnicaSACForm()
+        orcamento_form = OrcamentoTecnicoExternoForm(initial=dados_orcamento_iniciais)
+        pecas_formset = OrcamentoPecaFormSet(initial=pecas_iniciais, prefix='pecas')
+
+    historicos_queryset = sac.historicos.select_related('usuario', 'status_anterior', 'status_novo', 'setor_destino')[:15]
+
+    historicos = []
+    for h in historicos_queryset:
+        eh_analise_tecnica = ((h.acao_executada or '').strip().lower() == 'análise técnica registrada')
+        campos = extrair_campos_observacao_analise(h.observacao) if eh_analise_tecnica else {}
+
+        historicos.append({
+            'id': h.id,
+            'data_evento': h.data_evento,
+            'acao_executada': h.acao_executada,
+            'usuario': (h.usuario.get_full_name() or h.usuario.get_username()) if getattr(h, 'usuario', None) else '-',
+            'status_anterior': h.status_anterior,
+            'status_novo': h.status_novo,
+            'setor_destino': h.setor_destino,
+            'observacao': h.observacao,
+            'eh_analise_tecnica': eh_analise_tecnica,
+            'tratativa': campos.get('tratativa', '') if eh_analise_tecnica else '',
+            'tipo_problema': campos.get('tipo_problema', '') if eh_analise_tecnica else '',
+            'proximo_status_texto': campos.get('proximo_status', '') if eh_analise_tecnica else '',
+            'observacoes_tecnicas': campos.get('observacoes_tecnicas', '') if eh_analise_tecnica else '',
+        })
+
+    itens_sac_qs = sac.itens_sac.select_related('tipo_ocorrencia').all()
+    primeiro_item = itens_sac_qs.first()
+    tipo_ocorrencia_nome = (
+        getattr(getattr(primeiro_item, 'tipo_ocorrencia', None), 'nome', None) or '-'
+    )
+
+    ultimo_historico = sac.historicos.order_by('-data_evento', '-id').first()
+    marco_setor = ultimo_historico.data_evento if ultimo_historico else sac.data_abertura
+    if marco_setor:
+        data_hora_setor = timezone.localtime(marco_setor).strftime('%d/%m/%Y %H:%M')
+        tempo_setor = _formatar_tempo_espera(timezone.now() - marco_setor)
+    else:
+        data_hora_setor = '-'
+        tempo_setor = '-'
+
+    cliente_obj = getattr(sac, 'cliente', None)
+    cliente_nome = (
+        getattr(cliente_obj, 'razao_social', None)
+        or getattr(cliente_obj, 'nome', None)
+        or '-'
+    )
+
+    empresa_obj = getattr(sac, 'empresa', None)
+    empresa_nome = (
+        getattr(empresa_obj, 'razao_social', None)
+        or getattr(empresa_obj, 'nome_fantasia', None)
+        or getattr(empresa_obj, 'nome', None)
+        or '-'
+    )
+
+    nota_obj = getattr(sac, 'nota_fiscal', None)
+    nota_numero = (
+        getattr(nota_obj, 'numero_nf', None)
+        or getattr(nota_obj, 'numero', None)
+        or '-'
+    )
+
+    dados_sac = {
+        'Número do SAC': sac.numero or f'SAC {sac.id}',
+        'Status atual': getattr(getattr(sac, 'status_atual', None), 'nome', None) or '-',
+        'Empresa': empresa_nome,
+        'Setor atual': getattr(getattr(sac, 'setor_atual', None), 'nome', None) or '-',
+        'Cliente': cliente_nome,
+        'Nota fiscal': nota_numero,
+        'Título': getattr(sac, 'titulo', None) or '-',
+        'Ação em espera atual': getattr(getattr(sac, 'acao_em_espera', None), 'nome', None) or '-',
+        'Data/Hora que veio para esse Setor': data_hora_setor,
+        'Tempo nesse setor': tempo_setor,
+        'Tipo de ocorrência': tipo_ocorrencia_nome,
+    }
+
+    pecas_catalogo = montar_opcoes_pecas()
+    fluxo_alertas = diagnosticar_fluxo_inicial(sac, setor_contexto=getattr(sac, 'setor_atual', None), nome_tela='Análise Técnica')
+
+    return render(
+        request,
+        'core/analise_tecnica_sac.html',
+        {
+            'sac': sac,
+            'dados_sac': dados_sac,
+            'form': form,
+            'analise_existente': analise_existente,
+            'historicos': historicos,
+            'orcamento_form': orcamento_form,
+            'pecas_formset': pecas_formset,
+            'mostrar_orcamento_externo': status_orcamento_externo or getattr(sac, 'orcamento_tecnico_externo', None),
+            'pecas_catalogo': pecas_catalogo,
+            'fluxo_alertas': fluxo_alertas,
+        }
+    )
+
+
+@login_required
+def buscar_serial_lote_sac(request):
+    termo = (request.GET.get('serial_lote') or request.GET.get('q') or '').strip()
+    empresa_id = (request.GET.get('empresa_id') or '').strip()
+
+    if not termo:
+        return JsonResponse({'ok': False, 'mensagem': 'Informe o Serial/Lote para busca.'}, status=400)
+
+    rastreios = RastreioNotaItem.objects.filter(serial_lote__iexact=termo)
+    if empresa_id:
+        rastreios = rastreios.filter(empresa_id=empresa_id)
+
+    rastreios = list(rastreios.order_by('id')[:10])
+
+    if not rastreios:
+        return JsonResponse({'ok': False, 'mensagem': 'Serial/Lote não encontrado na base.'}, status=404)
+
+    candidatos = []
+    vistos = set()
+    for rastreio in rastreios:
+        numero_nf = (rastreio.numero_nf or '').strip()
+        codigo_produto = (rastreio.codigo_produto or '').strip()
+        if not numero_nf or not codigo_produto:
+            continue
+
+        notas_qs = NotaFiscal.objects.filter(empresa_id=rastreio.empresa_id).filter(
+            Q(numero_nf=numero_nf) | Q(numero=numero_nf)
+        ).select_related('cliente', 'empresa').order_by('-data_emissao', '-id')
+
+        for nota in notas_qs[:5]:
+            item_nf = ItemNotaFiscal.objects.filter(
+                nota_fiscal=nota,
+                codigo_produto=codigo_produto,
+            ).order_by('id').first()
+            if not item_nf:
+                continue
+            chave = (nota.id, item_nf.id, (rastreio.serial_lote or '').strip().upper())
+            if chave in vistos:
+                continue
+            vistos.add(chave)
+            candidatos.append(_serial_lote_payload(item_nf, rastreio))
+
+    if not candidatos:
+        return JsonResponse({'ok': False, 'mensagem': 'Serial/Lote encontrado no rastreio, mas sem vínculo consistente com NF/item.'}, status=404)
+
+    if len(candidatos) > 1:
+        return JsonResponse({
+            'ok': False,
+            'multiplo': True,
+            'mensagem': 'Foi encontrado mais de um resultado para este Serial/Lote. Refine a busca selecionando a empresa ou revise a base.',
+            'resultados': candidatos,
+        }, status=409)
+
+    return JsonResponse({'ok': True, 'resultado': candidatos[0]})
+
+
+@login_required
+def buscar_serial_api(request):
+    return buscar_serial_lote_sac(request)
+
+
+@login_required
+def buscar_clientes(request):
+    empresa_id = request.GET.get('empresa_id')
+    termo = request.GET.get('q', '')
+    resultados = []
+
+    if empresa_id and termo:
+        clientes = Cliente.objects.filter(
+            empresa_id=empresa_id
+        ).filter(
+            Q(codigo_interno__icontains=termo) |
+            Q(razao_social__icontains=termo) |
+            Q(nome__icontains=termo)
+        ).order_by('razao_social', 'nome')[:20]
+
+        resultados = [
+            {
+                'id': c.id,
+                'texto': f'{c.codigo_interno} - {c.razao_social or c.nome}',
+                'contato_nome': c.contato_nome or '',
+                'whatsapp': c.whatsapp or '',
+                'telefone': c.telefone or '',
+                'email_1': c.email_1 or '',
+                'email_2': c.email_2 or '',
+            }
+            for c in clientes
+        ]
+
+    return JsonResponse({'resultados': resultados})
+
+
+@login_required
+def listar_contatos_cliente(request):
+    cliente_id = request.GET.get('cliente_id')
+    resultados = []
+
+    if cliente_id:
+        contatos = ClienteContato.objects.filter(cliente_id=cliente_id, ativo=True).order_by('nome_contato', 'id')
+        resultados = [
+            {
+                'id': c.id,
+                'texto': c.nome_contato or f'Contato {c.id}',
+                'nome_contato': c.nome_contato or '',
+                'whatsapp': c.whatsapp or '',
+                'telefone': c.telefone or '',
+                'email_1': c.email_1 or '',
+                'email_2': c.email_2 or '',
+            }
+            for c in contatos
+        ]
+
+    return JsonResponse({'resultados': resultados})
+
+
+
+@login_required
+def buscar_vendedor_por_nota(request):
+    nota_id = request.GET.get('nota_id')
+    numero_nf = request.GET.get('numero_nf')
+    empresa_id = request.GET.get('empresa_id')
+
+    nota = None
+
+    if nota_id:
+        nota = NotaFiscal.objects.filter(id=nota_id).only('id', 'vendedor_nome', 'vendedor_codigo', 'numero_nf', 'numero').first()
+    elif numero_nf:
+        filtros = Q(numero_nf=numero_nf) | Q(numero=numero_nf)
+        queryset = NotaFiscal.objects.filter(filtros)
+        if empresa_id:
+            queryset = queryset.filter(empresa_id=empresa_id)
+        nota = queryset.order_by('-data_emissao', '-id').only('id', 'vendedor_nome', 'vendedor_codigo', 'numero_nf', 'numero').first()
+
+    if not nota:
+        return JsonResponse({'resultado': None})
+
+    return JsonResponse({
+        'resultado': {
+            'id': nota.id,
+            'numero_nf': nota.numero_nf or nota.numero or '',
+            'vendedor_nome': nota.vendedor_nome or '',
+            'vendedor_codigo': nota.vendedor_codigo or '',
+        }
+    })
+
+
+@login_required
+def listar_notas_cliente(request):
+    empresa_id = request.GET.get('empresa_id')
+    cliente_id = request.GET.get('cliente_id')
+    resultados = []
+
+    if empresa_id and cliente_id:
+        notas = NotaFiscal.objects.filter(
+            empresa_id=empresa_id,
+            cliente_id=cliente_id
+        ).order_by('-data_emissao', '-id')
+
+        resultados = [
+            {
+                'id': n.id,
+                'texto': f'NF {n.numero_nf or n.numero or ""} - {n.data_emissao.strftime("%d/%m/%Y") if n.data_emissao else ""}'
+            }
+            for n in notas
+        ]
+
+    return JsonResponse({'resultados': resultados})
+
+
+@login_required
+def listar_itens_nota(request):
+    nota_fiscal_id = request.GET.get('nota_fiscal_id')
+    resultados = []
+
+    if nota_fiscal_id:
+        itens = ItemNotaFiscal.objects.filter(
+            nota_fiscal_id=nota_fiscal_id
+        ).order_by('descricao_item', 'item')
+
+        for i in itens:
+            qtd = _quantidade_item_nf(i)
+            total = _valor_total_item_nf(i)
+            valor_unitario = _valor_unitario_item_nf(i)
+
+            grupo_item = _grupo_tabela_preco_por_referencia(
+                i.codigo_produto,
+                fallback='' if getattr(i, 'agrp', None) in (None, '', '-1', '-1.0', -1, -1.0) else str(getattr(i, 'agrp', '')).strip(),
+            )
+
+            resultados.append(
+                {
+                    'id': i.id,
+                    'texto': i.descricao_item or i.item or '',
+                    'codigo_produto': i.codigo_produto or '',
+                    'pr_cod': i.codigo_produto or '',
+                    'pr_des': i.descricao_item or i.item or '',
+                    'pr_qtd': _formatar_decimal_sem_zeros(qtd),
+                    'pr_sbt': float(total or 0),
+                    'valor_unitario': float(valor_unitario or 0),
+                    'quantidade_total_nf': _formatar_decimal_sem_zeros(qtd),
+                    'grupo': grupo_item,
+                    'descricao_item': i.descricao_item or i.item or '',
+                    'item': i.item or i.descricao_item or '',
+                }
+            )
+
+    return JsonResponse({'resultados': resultados})
+
+
+@login_required
+def listar_rastreios_item(request):
+    empresa_id = request.GET.get('empresa_id')
+    nota_fiscal_id = request.GET.get('nota_fiscal_id')
+    item_id = request.GET.get('item_id')
+
+    resultados = []
+
+    if empresa_id and nota_fiscal_id and item_id:
+        nota = NotaFiscal.objects.filter(id=nota_fiscal_id, empresa_id=empresa_id).first()
+        item = ItemNotaFiscal.objects.filter(id=item_id, nota_fiscal_id=nota_fiscal_id).first()
+
+        if nota and item:
+            numero_nf = nota.numero_nf or nota.numero
+            codigo_produto = item.codigo_produto
+
+            rastreios = RastreioNotaItem.objects.filter(
+                empresa_id=empresa_id,
+                numero_nf=numero_nf,
+                codigo_produto=codigo_produto
+            ).order_by('serial_lote')
+
+            resultados = []
+            for r in rastreios:
+                bloqueado = False
+                sac_em_andamento = None
+                if (r.tipo or '').strip().upper() == 'SERIAL' and (r.serial_lote or '').strip():
+                    sac_em_andamento = buscar_sac_em_andamento_por_item_serial(item, r.serial_lote)
+                    bloqueado = sac_em_andamento is not None
+
+                usuario_nome = ''
+                sac_numero = ''
+                data_abertura = ''
+                if sac_em_andamento:
+                    sac_numero = sac_em_andamento.numero or ''
+                    data_abertura = sac_em_andamento.data_abertura.strftime('%d/%m/%Y %H:%M')
+                    if sac_em_andamento.usuario_abertura:
+                        usuario_nome = sac_em_andamento.usuario_abertura.get_full_name() or sac_em_andamento.usuario_abertura.get_username()
+
+                resultados.append(
+                    {
+                        'id': r.id,
+                        'serial_lote': r.serial_lote or '',
+                        'tipo': r.tipo or '',
+                        'bloqueado': bloqueado,
+                        'sac_numero': sac_numero,
+                        'data_abertura': data_abertura,
+                        'usuario_abertura': usuario_nome,
+                    }
+                )
+
+    return JsonResponse({'resultados': resultados})
+
+
+@login_required
+def buscar_tipo_ocorrencia(request):
+    tipo_id = request.GET.get('tipo_id')
+    resultado = {}
+
+    if tipo_id:
+        tipo = TipoOcorrencia.objects.filter(id=tipo_id, ativo=True).select_related('setor', 'acao_em_espera').first()
+        if tipo:
+            resultado = {
+                'id': tipo.id,
+                'nome': tipo.nome,
+                'setor_id': tipo.setor.id if tipo.setor else None,
+                'setor_nome': tipo.setor.nome if tipo.setor else '',
+                'acao_em_espera_id': tipo.acao_em_espera.id if tipo.acao_em_espera else None,
+                'acao_em_espera_nome': tipo.acao_em_espera.nome if tipo.acao_em_espera else '',
+            }
+
+    return JsonResponse({'resultado': resultado})
+
+
+@login_required
+def historico_item_rastreio(request):
+    item_id = request.GET.get('item_id')
+    tipo_rastreio = request.GET.get('tipo_rastreio')
+    numero_rastreio = request.GET.get('numero_rastreio')
+    resultados = []
+
+    if item_id and tipo_rastreio and numero_rastreio:
+        item_nf = ItemNotaFiscal.objects.filter(id=item_id).first()
+        if item_nf:
+            historicos = SACItem.objects.filter(
+                item_nota_fiscal__codigo_produto=item_nf.codigo_produto,
+                tipo_rastreio=tipo_rastreio,
+                numero_rastreio=numero_rastreio
+            ).select_related('sac', 'tipo_ocorrencia').order_by('-sac__data_abertura')
+
+            resultados = [
+                {
+                    'sac_numero': h.sac.numero,
+                    'data': h.sac.data_abertura.strftime('%d/%m/%Y %H:%M'),
+                    'ocorrencia': h.tipo_ocorrencia.nome if h.tipo_ocorrencia else (h.observacao_item or ''),
+                }
+                for h in historicos
+            ]
+
+    return JsonResponse({'resultados': resultados})
+
+
+@login_required
+def proximo_numero_sac_api(request):
+    return JsonResponse({'numero': proximo_numero_sac()})
+
+
+# ===============================
+# ANÁLISE COMERCIAL DO SAC
+# ===============================
+
+def _sac_aguardando_acao_gestao_queryset():
+    """Compatibilidade legado: delega para a fila oficial."""
+    return queryset_fila_por_setor(nome_setor='SAC')
+
+
+def _q_analise_comercial():
+    """Compatibilidade legado: helper mantido apenas para histórico do arquivo."""
+    return Q(pk__in=queryset_fila_por_setor(nome_setor='Comercial').values('pk'))
+
+
+def _query_setorial_comercial():
+    return _q_analise_comercial()
+
+
+def _query_setorial_licitacao():
+    return Q(pk__in=queryset_fila_por_setor(nome_setor='Licitação').values('pk'))
+
+
+def _sac_aguarda_acao_licitacao_queryset():
+    return queryset_fila_por_setor(nome_setor='Licitação')
+
+
+def _sac_aguarda_acao_comercial_queryset():
+    return queryset_fila_por_setor(nome_setor='Comercial')
+
+
+def _sac_aguardando_acao_comercial_queryset():
+    return _sac_aguarda_acao_comercial_queryset()
+
+
+def _sac_aguardando_acao_assessoria_queryset():
+    return queryset_fila_por_setor(nome_setor='Assessoria Científica')
+
+
+def _sac_aguardando_acao_logistica_queryset():
+    return queryset_fila_por_setor(nome_setor='Logística')
+
+
+def _sac_aguardando_acao_diretoria_queryset():
+    return queryset_fila_por_setor(nome_setor='Diretoria')
+
+
+def _formatar_tempo_espera(delta):
+    total = int(max(delta.total_seconds(), 0))
+    dias = total // 86400
+    horas = (total % 86400) // 3600
+    minutos = (total % 3600) // 60
+    if dias:
+        return f"{dias}d {horas}h"
+    if horas:
+        return f"{horas}h {minutos}m"
+    return f"{minutos}m"
+
+
+def _classe_tempo_espera(delta):
+    total_horas = max(delta.total_seconds(), 0) / 3600
+    if total_horas < 12:
+        return 'tempo-verde'
+    if total_horas < 24:
+        return 'tempo-amarelo'
+    return 'tempo-vermelho'
+
+
+
+
+def montar_grafico_tempo_status_sac(sac, agora=None, limite=None):
+    historicos_qs = getattr(sac, 'historicos', None)
+    if historicos_qs is None:
+        return []
+
+    agora = agora or timezone.now()
+    historicos_ordenados = list(historicos_qs.all().order_by('-data_evento', '-id'))
+    if limite:
+        historicos_ordenados = historicos_ordenados[:limite]
+
+    grafico_tempo_status = []
+    for i, h in enumerate(historicos_ordenados):
+        data_evento = getattr(h, 'data_evento', None)
+        proximo = historicos_ordenados[i + 1] if i + 1 < len(historicos_ordenados) else None
+        data_proximo = getattr(proximo, 'data_evento', None) if proximo else agora
+
+        delta = (data_proximo - data_evento) if data_evento and data_proximo else timedelta(0)
+        dias = delta.days
+        horas, resto = divmod(delta.seconds, 3600)
+        minutos = resto // 60
+
+        if dias > 0:
+            tempo_txt = f"{dias}d {horas}h {minutos}min"
+        elif horas > 0:
+            tempo_txt = f"{horas}h {minutos}min"
+        else:
+            tempo_txt = f"{minutos}min"
+
+        grafico_tempo_status.append({
+            'status': getattr(getattr(h, 'status_novo', None), 'nome', '') or getattr(getattr(sac, 'status_atual', None), 'nome', '-') or '-',
+            'setor': getattr(getattr(h, 'setor_destino', None), 'nome', '-') or '-',
+            'data_evento_formatada': data_evento.strftime('%d/%m/%Y %H:%M') if data_evento else '-',
+            'tempo_ate_proxima': tempo_txt,
+            'tempo_label': 'Tempo até a próxima mudança' if proximo else 'Tempo em status atual',
+        })
+
+    return grafico_tempo_status
+def _empresa_sac(sac):
+    if sac.empresa:
+        return getattr(sac.empresa, 'nome_fantasia', None) or getattr(sac.empresa, 'razao_social', None) or str(sac.empresa)
+    if sac.cliente:
+        return sac.cliente.razao_social or sac.cliente.nome or '-'
+    return '-'
+
+
+def _nota_sac(sac):
+    if sac.nota_fiscal:
+        return sac.nota_fiscal.numero_nf or sac.nota_fiscal.numero or '-'
+    return '-'
+
+
+def _ultimo_historico_card(sac):
+    historicos_rel = getattr(sac, 'historicos', None)
+    if historicos_rel is None:
+        return None
+    try:
+        historicos = list(historicos_rel.all()[:1])
+        if historicos:
+            return historicos[0]
+    except (AttributeError, TypeError, ValueError):
+        pass
+    try:
+        return historicos_rel.order_by('-data_evento', '-id').first()
+    except (AttributeError, TypeError, ValueError):
+        return None
+
+
+def _status_anterior_card(sac):
+    ultimo = _ultimo_historico_card(sac)
+    if ultimo:
+        if getattr(ultimo, 'acao_executada', None):
+            return ultimo.acao_executada
+        status_ant = getattr(ultimo, 'status_anterior', None)
+        if status_ant and getattr(status_ant, 'nome', None):
+            return status_ant.nome
+        status_novo = getattr(ultimo, 'status_novo', None)
+        if status_novo and getattr(status_novo, 'nome', None):
+            return status_novo.nome
+    return sac.status_atual.nome if getattr(sac, 'status_atual', None) else '-'
+
+
+def _acao_em_espera_card(sac):
+    return sac.acao_em_espera.nome if getattr(sac, 'acao_em_espera', None) else '-'
+
+
+# ============================================================
+# TRAVA DE SEGURANÇA – FILA DA ASSESSORIA CIENTÍFICA
+# Não alterar esta lógica sem comando direto e cirúrgico
+# especificamente para a fila da Assessoria Científica.
+# A fila deve considerar tanto o setor atual quanto o setor
+# de destino configurado na ação em espera, para evitar que
+# SACs sumam da tela por mudanças indiretas em outros fluxos.
+# ============================================================
+ASSESSORIA_CIENTIFICA_NOMES = (
+    'Assessoria Científica',
+    'Assessoria Cientifica',
+)
+
+
+def _q_assessoria_cientifica():
+    return (
+        Q(setor_atual__nome__iexact=ASSESSORIA_CIENTIFICA_NOMES[0]) |
+        Q(setor_atual__nome__iexact=ASSESSORIA_CIENTIFICA_NOMES[1]) |
+        Q(acao_em_espera__setor_destino__nome__iexact=ASSESSORIA_CIENTIFICA_NOMES[0]) |
+        Q(acao_em_espera__setor_destino__nome__iexact=ASSESSORIA_CIENTIFICA_NOMES[1])
+    )
+
+
+def _sac_aguardando_acao_assessoria_queryset():
+    setor_assessoria = (
+        obter_setor_por_nome(ASSESSORIA_CIENTIFICA_NOMES[0]) or
+        obter_setor_por_nome(ASSESSORIA_CIENTIFICA_NOMES[1])
+    )
+
+    qs = (
+        SAC.objects.select_related(
+            'empresa',
+            'cliente',
+            'nota_fiscal',
+            'status_atual',
+            'acao_em_espera',
+            'acao_em_espera__setor_destino',
+            'setor_atual',
+        )
+        .prefetch_related('historicos')
+        .exclude(
+            Q(status_atual__nome__iexact='Concluído') |
+            Q(status_atual__nome__iexact='Concluido') |
+            Q(status_atual__nome__iexact='Cancelado')
+        )
+        .filter(acao_em_espera__isnull=False)
+    )
+
+    if setor_assessoria:
+        qs = qs.filter(
+            Q(setor_atual_id=setor_assessoria.id) |
+            Q(acao_em_espera__setor_destino_id=setor_assessoria.id)
+        )
+    else:
+        qs = qs.filter(_q_assessoria_cientifica())
+
+    return qs.distinct().order_by('data_abertura', 'id')
+
+
+
+
+# ============================================================
+# TRAVA DE SEGURANÇA – FILA DA GESTÃO LOGÍSTICA
+# Não alterar esta lógica sem comando direto e cirúrgico
+# especificamente para a fila da Gestão Logística.
+# A fila considera setor atual, setor destino da ação em espera
+# e também status operacionais tipicamente logísticos para evitar
+# que SACs sumam da tela por inconsistência de atualização.
+# ============================================================
+LOGISTICA_NOMES = (
+    'Logistica',
+    'Logística',
+)
+
+STATUS_LOGISTICA_NOMES = (
+    'Coleta no Cliente',
+    'Trânsito para Ionlab',
+    'Transito para Ionlab',
+    'Trânsito para o Cliente',
+    'Transito para o Cliente',
+    'Faturamento / Expedição',
+    'Faturamento / Expedicao',
+    'Trâmite Documental',
+    'Tramite Documental',
+)
+
+
+ACOES_LOGISTICA_NOMES = (
+    'Aguardando Coleta no Cliente',
+    'Aguardando alocação em Prateleira',
+    'Aguardando alocacao em Prateleira',
+    'Em Trânsito (Com destino a Ionlab)',
+    'Em Transito (Com destino a Ionlab)',
+    'Aguardando Devolução ao Cliente',
+    'Aguardando Devolucao ao Cliente',
+    'Aguardando Emissão da Nota fiscal',
+    'Aguardando Emissao da Nota fiscal',
+    'Em Transito (Com destino ao Cliente)',
+    'Em Trânsito (Com destino ao Cliente)',
+)
+
+
+def _q_gestao_logistica():
+    q = (
+        Q(setor_atual__nome__iexact=LOGISTICA_NOMES[0]) |
+        Q(setor_atual__nome__iexact=LOGISTICA_NOMES[1]) |
+        Q(acao_em_espera__setor_destino__nome__iexact=LOGISTICA_NOMES[0]) |
+        Q(acao_em_espera__setor_destino__nome__iexact=LOGISTICA_NOMES[1]) |
+        Q(acao_em_espera__nome__icontains='Logistica') |
+        Q(acao_em_espera__nome__icontains='Logística')
+    )
+    for nome in STATUS_LOGISTICA_NOMES:
+        q |= Q(status_atual__nome__iexact=nome)
+    for nome in ACOES_LOGISTICA_NOMES:
+        q |= Q(acao_em_espera__nome__iexact=nome)
+    return q
+
+
+def _sac_aguardando_acao_logistica_queryset():
+    setor_logistica = (
+        obter_setor_por_nome(LOGISTICA_NOMES[0]) or
+        obter_setor_por_nome(LOGISTICA_NOMES[1])
+    )
+
+    qs = (
+        SAC.objects.select_related(
+            'empresa',
+            'cliente',
+            'nota_fiscal',
+            'status_atual',
+            'acao_em_espera',
+            'acao_em_espera__setor_destino',
+            'setor_atual',
+        )
+        .prefetch_related('historicos')
+        .exclude(
+            Q(status_atual__nome__iexact='Concluído') |
+            Q(status_atual__nome__iexact='Concluido') |
+            Q(status_atual__nome__iexact='Cancelado')
+        )
+    )
+
+    if setor_logistica:
+        filtro = (
+            Q(setor_atual_id=setor_logistica.id) |
+            Q(acao_em_espera__setor_destino_id=setor_logistica.id) |
+            _q_gestao_logistica()
+        )
+        qs = qs.filter(filtro)
+    else:
+        qs = qs.filter(_q_gestao_logistica())
+
+    return qs.distinct().order_by('data_abertura', 'id')
+
+
+
+DIRETORIA_NOMES = (
+    'Diretoria',
+)
+
+
+def _q_diretoria():
+    q = (
+        Q(setor_atual__nome__iexact='Diretoria') |
+        Q(acao_em_espera__setor_destino__nome__iexact='Diretoria')
+    )
+    q |= Q(acao_em_espera__nome__icontains='Diretoria')
+    q |= Q(status_atual__nome__iexact='Aguardando Aprovação de Desconto')
+    q |= Q(status_atual__nome__iexact='Aguardando Aprovacao de Desconto')
+    q |= Q(acao_em_espera__nome__iexact='Aguardando Aprovação de Desconto')
+    q |= Q(acao_em_espera__nome__iexact='Aguardando Aprovacao de Desconto')
+    return q
+
+
+def _sac_aguardando_acao_diretoria_queryset():
+    setor_diretoria = obter_setor_por_nome('Diretoria')
+
+    qs = (
+        SAC.objects.select_related(
+            'empresa',
+            'cliente',
+            'nota_fiscal',
+            'status_atual',
+            'setor_atual',
+            'acao_em_espera',
+            'acao_em_espera__setor_destino',
+        )
+        .prefetch_related(
+            'itens_sac__item_nota_fiscal',
+            'itens_sac__tipo_ocorrencia',
+            'historicos',
+        )
+        .exclude(
+            Q(status_atual__nome__iexact='Concluído') |
+            Q(status_atual__nome__iexact='Concluido') |
+            Q(status_atual__nome__iexact='Cancelado')
+        )
+    )
+
+    if setor_diretoria is not None:
+        qs = qs.filter(
+            Q(setor_atual_id=setor_diretoria.id) |
+            Q(acao_em_espera__setor_destino_id=setor_diretoria.id) |
+            _q_diretoria()
+        )
+    else:
+        qs = qs.filter(_q_diretoria())
+
+    return qs.distinct().order_by('-data_abertura', '-id')
+
+
+def _data_nota_sac(sac):
+    if sac.nota_fiscal:
+        return getattr(sac.nota_fiscal, 'data_emissao', None) or getattr(sac.nota_fiscal, 'data', None) or getattr(sac.nota_fiscal, 'data_nota', None)
+    return None
+
+
+def sac_eh_comercial(sac):
+    if sac.setor_atual and sac.setor_atual.nome and 'comercial' in sac.setor_atual.nome.lower():
+        return True
+    if sac.acao_em_espera and sac.acao_em_espera.nome and 'comercial' in sac.acao_em_espera.nome.lower():
+        return True
+    return sac.itens_sac.filter(tipo_ocorrencia__nome__icontains='Clientes não confirmou a compra').exists()
+
+
+
+
+def _texto_normalizado(valor):
+    return unicodedata.normalize('NFKD', str(valor or '')).encode('ascii', 'ignore').decode('ascii').strip().lower()
+
+
+def _valor_unitario_item(item_sac):
+    item_nf = getattr(item_sac, 'item_nota_fiscal', None)
+    if item_nf is None:
+        return None
+
+    for attr in ('valor_unitario', 'valor', 'preco_unitario', 'valor_total'):
+        valor = getattr(item_nf, attr, None)
+        if valor not in (None, ''):
+            return valor
+
+    valor_total_item = getattr(item_nf, 'valor_total_item', None)
+    quantidade = getattr(item_nf, 'quantidade', None)
+    try:
+        if valor_total_item not in (None, '') and quantidade not in (None, '', 0):
+            valor_total_dec = Decimal(valor_total_item)
+            quantidade_dec = Decimal(quantidade)
+            if quantidade_dec != 0:
+                return (valor_total_dec / quantidade_dec).quantize(Decimal('0.01'))
+    except (InvalidOperation, ZeroDivisionError, TypeError):
+        pass
+
+    return None
+
+
+def _setor_item_nome(item_sac):
+    tipo = getattr(item_sac, 'tipo_ocorrencia', None)
+    setor = getattr(tipo, 'setor', None)
+    return getattr(setor, 'nome', None)
+
+
+def _item_pertence_ao_setor(item_sac, setor_contexto=None):
+    if setor_contexto is None:
+        return True
+    tipo = getattr(item_sac, 'tipo_ocorrencia', None)
+    setor_item = getattr(tipo, 'setor', None)
+    if setor_item is None:
+        return True
+    return setor_item.id == setor_contexto.id
+
+
+def _descricao_item_sac(item_sac):
+    item_nf = getattr(item_sac, 'item_nota_fiscal', None)
+    for attr in ('descricao_produto', 'descricao_item', 'descricao'):
+        valor = getattr(item_nf, attr, None)
+        if valor:
+            return valor
+    return '-'
+
+
+def montar_contexto_itens_sac(sac, setor_contexto=None):
+    itens = list(
+        sac.itens_sac.select_related('item_nota_fiscal', 'tipo_ocorrencia__setor').all().order_by('id')
+    )
+
+    itens_visiveis = []
+    itens_outros_setores = []
+
+    for item in itens:
+        valor_unitario = _valor_unitario_item(item)
+
+        try:
+            quantidade_com_problema = Decimal(str(item.quantidade_com_problema or 0))
+        except (InvalidOperation, TypeError, ValueError):
+            quantidade_com_problema = Decimal('0')
+
+        try:
+            valor_total_problema = (valor_unitario or Decimal('0')) * quantidade_com_problema
+        except (InvalidOperation, TypeError, ValueError):
+            valor_total_problema = Decimal('0')
+
+        item_dict = {
+            'obj': item,
+            'codigo_produto': getattr(item.item_nota_fiscal, 'codigo_produto', None) or '-',
+            'descricao_item': _descricao_item_sac(item),
+            'tipo_ocorrencia_nome': item.tipo_ocorrencia.nome if item.tipo_ocorrencia else '-',
+            'identificador': item.tipo_rastreio or '-',
+            'numero_rastreio': item.numero_rastreio or '-',
+            'quantidade_nf': getattr(item.item_nota_fiscal, 'quantidade', None),
+            'quantidade_com_problema': item.quantidade_com_problema,
+            'valor_unitario': f"{Decimal(str(valor_unitario or 0)):,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'),
+            'valor_total_problema': f"{Decimal(str(valor_total_problema or 0)):,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'),
+            'observacao_item': (item.observacao_item or '').strip() or '-',
+            'setor_nome': _setor_item_nome(item) or '-',
+        }
+        if _item_pertence_ao_setor(item, setor_contexto):
+            itens_visiveis.append(item_dict)
+        else:
+            itens_outros_setores.append(item_dict)
+
+    avisos_outros_setores = [
+        f"Esse SAC possui outro item com a ocorrência {item['tipo_ocorrencia_nome']} a ser resolvido pelo setor {item['setor_nome']}."
+        for item in itens_outros_setores
+    ]
+
+    # Regra de fallback: se não houver item do setor atual, exibe os itens do SAC para não ocultar informações.
+    if not itens_visiveis and itens_outros_setores:
+        itens_visiveis = itens_outros_setores
+
+    return {
+        'itens_visiveis': itens_visiveis,
+        'itens_outros_setores': itens_outros_setores,
+        'avisos_outros_setores': avisos_outros_setores,
+        'total_visivel': len(itens_visiveis),
+        'total_geral': len(itens),
+    }
+
+
+@login_required
+
+def analise_comercial_sac(request, sac_id=None):
+    sacs_pendentes_qs = _sac_aguardando_acao_comercial_queryset()
+    sac_id_selecionado = sac_id or request.POST.get('sac_id') or request.GET.get('sac')
+    sac = None
+
+    cards_pendentes = []
+    agora = timezone.now()
+    for sac_item in sacs_pendentes_qs:
+        ultimo_historico = sac_item.historicos.order_by('-data_evento', '-id').first()
+        marco = ultimo_historico.data_evento if ultimo_historico else sac_item.data_abertura
+        cliente_nome = (
+            sac_item.cliente.razao_social if sac_item.cliente and getattr(sac_item.cliente, 'razao_social', None)
+            else (sac_item.cliente.nome if sac_item.cliente and getattr(sac_item.cliente, 'nome', None) else '-')
+        )
+        data_referencia = _data_nota_sac(sac_item) or sac_item.data_abertura
+        cards_pendentes.append({
+            'id': sac_item.id,
+            'numero': sac_item.numero or f'SAC {sac_item.id}',
+            'empresa_nome': _empresa_sac(sac_item),
+            'cliente_nome': cliente_nome,
+            'nota_fiscal_numero': _nota_sac(sac_item),
+            'data_referencia': data_referencia,
+            'status_atual_nome': _status_anterior_card(sac_item),
+            'acao_em_espera_nome': _acao_em_espera_card(sac_item),
+            'tempo_espera': _formatar_tempo_espera(agora - marco),
+            'tempo_cor': _classe_tempo_espera(agora - marco),
+            'marco_tempo': marco,
+            'linha_resumo': ' / '.join([
+                sac_item.numero or f'SAC {sac_item.id}',
+                _empresa_sac(sac_item),
+                cliente_nome,
+                _nota_sac(sac_item),
+                data_referencia.strftime('%d/%m/%Y') if data_referencia else '-',
+            ]),
+            'selecionado': str(sac_item.id) == str(sac_id_selecionado),
+        })
+
+    cards_pendentes = sorted(cards_pendentes, key=lambda x: (x['marco_tempo'], x['id']))
+
+    if sac_id_selecionado:
+        sac = sacs_pendentes_qs.filter(id=sac_id_selecionado).first()
+        if sac is None:
+            sac = get_object_or_404(
+                SAC.objects.select_related('empresa', 'cliente', 'nota_fiscal', 'status_atual', 'acao_em_espera', 'setor_atual').prefetch_related('itens_sac__item_nota_fiscal', 'itens_sac__tipo_ocorrencia__setor'),
+                id=sac_id_selecionado
+            )
+
+    historico = []
+    itens_contexto = None
+    itens_sac = []
+    form = None
+    setor_contexto_comercial = None
+    acao_em_espera_atual = '-'
+    usuario_anterior_nome = '-'
+
+    setores_proximo = list(Setor.objects.all().order_by('nome'))
+    mapa_acao_setor = {}
+    for acao in AcaoEmEspera.objects.select_related('setor_destino').all():
+        nome_acao = (acao.nome or '').strip()
+        manual = _texto_normalizado(nome_acao) == 'analise do ocorrido'
+        mapa_acao_setor[str(acao.id)] = {
+            'manual': manual,
+            'setor_id': str(acao.setor_destino.id) if getattr(acao, 'setor_destino', None) else '',
+            'setor_nome': acao.setor_destino.nome if getattr(acao, 'setor_destino', None) else '',
+        }
+
+    proximo_setor_id = request.POST.get('proximo_setor') or request.POST.get('proximo_setor_id') or ''
+
+    if sac:
+        historico = sac.historicos.select_related('usuario', 'status_novo', 'setor_destino', 'setor_origem').order_by('-data_evento', '-id')[:20]
+        grafico_tempo_status = montar_grafico_tempo_status_sac(sac)
+        itens_sac = sac.itens_sac.select_related('item_nota_fiscal', 'tipo_ocorrencia').all()
+        setor_contexto = sac.setor_atual or obter_setor_por_nome('SAC')
+        itens_contexto = montar_contexto_itens_sac(sac, setor_contexto=setor_contexto)
+        setor_contexto_comercial = resolver_setor_contexto_comercial(sac)
+        acao_em_espera_atual = sac.acao_em_espera.nome if getattr(sac, 'acao_em_espera', None) else '-'
+        if historico:
+            usuario_hist = getattr(historico[0], 'usuario', None)
+            if usuario_hist:
+                usuario_anterior_nome = usuario_hist.get_full_name() or usuario_hist.username or '-'
+
+        if request.method == 'POST':
+            form = AnaliseComercialSACForm(request.POST, sac=sac, setor_contexto=setor_contexto_comercial)
+            if form.is_valid():
+                cliente_confirmou = form.cleaned_data['cliente_confirmou_pedido'] == 'sim'
+                cliente_aceita = (form.cleaned_data.get('cliente_aceita_negociacao') or 'nao') == 'sim'
+                valor_desconto = form.cleaned_data.get('valor_desconto_pleiteado')
+                proximo_status = form.cleaned_data.get('proximo_status_sugerido')
+                acao_em_espera = form.cleaned_data.get('acao_em_espera')
+                observacao = (form.cleaned_data.get('observacao_comercial') or '').strip()
+
+                item_pequeno_valor = (form.cleaned_data.get('item_pequeno_valor') or 'nao') == 'sim'
+                proximo_setor = form.cleaned_data.get('proximo_setor')
+
+                nome_status = _texto_normalizado(proximo_status.nome if proximo_status else '')
+                proximo_setor_id = str(proximo_setor.id) if proximo_setor else ''
+
+                if nome_status == 'concluido' and itens_contexto and itens_contexto.get('itens_outros_setores'):
+                    messages.error(request, 'Bloqueado: este SAC ainda possui item pendente de ação em outro setor e não pode ser concluído.')
+                    return redirect(f'/sac/analise-comercial/?sac={sac.id}')
+
+                observacao_salva = observacao
+                if valor_desconto not in (None, ''):
+                    valor_desconto_txt = f"{Decimal(valor_desconto):,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+                    bloco_desconto = f"Valor do desconto pleiteado: R$ {valor_desconto_txt}"
+                    observacao_salva = (observacao_salva + '\n' + bloco_desconto).strip() if observacao_salva else bloco_desconto
+
+                SacAnaliseComercial.objects.update_or_create(
+                    sac=sac,
+                    defaults={
+                        'cliente_confirmou_pedido': cliente_confirmou,
+                        'cliente_aceita_negociacao': cliente_aceita,
+                        'proximo_status_sugerido': proximo_status,
+                        'acao_em_espera': acao_em_espera,
+                        'valor_desconto_pleiteado': valor_desconto,
+                        'observacao_comercial': observacao_salva,
+                        'usuario_responsavel': request.user,
+                        'data_analise': timezone.now(),
+                    }
+                )
+
+                observacao_historico_linhas = [
+                    f"Cliente confirmou o pedido: {'Sim' if cliente_confirmou else 'Não'}",
+                    f"Cliente aceita negociação: {'Sim' if cliente_aceita else 'Não'}",
+                    f"Item de pequeno valor: {'Sim' if item_pequeno_valor else 'Não'}",
+                ]
+                if valor_desconto not in (None, ''):
+                    valor_desconto_txt = f"{Decimal(valor_desconto):,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+                    observacao_historico_linhas.append(f"Valor do desconto pleiteado: R$ {valor_desconto_txt}")
+                observacao_historico_linhas.extend([
+                    f"Próximo status: {proximo_status.nome if proximo_status else '-'}",
+                    f"Ação em espera: {acao_em_espera.nome if acao_em_espera else '-'}",
+                    f"Próximo setor: {proximo_setor.nome if proximo_setor else '-'}",
+                    f"Observações comerciais: {observacao or '-'}",
+                ])
+                observacao_historico = '\n'.join(observacao_historico_linhas)
+
+                setor_destino_validacao = None if nome_status == 'concluido' else (proximo_setor or sac.setor_atual)
+
+                validar_transicao_basica(
+                    sac,
+                    status_novo=proximo_status or sac.status_atual,
+                    acao_nova=acao_em_espera,
+                    setor_destino=setor_destino_validacao if setor_destino_validacao is not None else sac.setor_atual,
+                )
+
+                aplicar_transicao_sac(
+                    sac=sac,
+                    usuario=request.user,
+                    acao_em_espera=acao_em_espera if nome_status != 'concluido' else None,
+                    setor_destino=proximo_setor if nome_status != 'concluido' else None,
+                    status_novo=proximo_status or sac.status_atual,
+                    observacao=observacao_historico,
+                    acao_executada_texto='Análise comercial registrada',
+                )
+
+                messages.success(request, f'Análise comercial do SAC {sac.numero} registrada com sucesso.')
+                return redirect('/sac/analise-comercial/')
+        else:
+            form = AnaliseComercialSACForm(sac=sac, setor_contexto=setor_contexto_comercial)
+            if form and getattr(form, '_fluxo_resolvido', None):
+                fluxo_setor = getattr(form._fluxo_resolvido, 'proximo_setor', None)
+                proximo_setor_id = str(getattr(fluxo_setor, 'id', '') or '')
+
+    return render(request, 'core/analise_comercial_sac.html', {
+        'sac': sac,
+        'historico': historico,
+        'itens_sac': itens_sac,
+        'itens_contexto': itens_contexto,
+        'form': form,
+        'sacs_aguardando_acao_comercial': cards_pendentes,
+        'setores_proximo': setores_proximo,
+        'proximo_setor_id': proximo_setor_id,
+        'mapa_acao_setor_json': json.dumps(mapa_acao_setor),
+        'setor_contexto_comercial': setor_contexto_comercial,
+        'fluxo_comercial_padrao': getattr(form, '_preview_fluxo_padrao', {}),
+        'fluxo_comercial_negociacao': getattr(form, '_preview_fluxo_negociacao', {}),
+        'fluxo_comercial_confirmado': getattr(form, '_preview_fluxo_confirmado', {}),
+        'fluxo_comercial_sem_negociacao': getattr(form, '_preview_fluxo_sem_negociacao', {}),
+        'fluxo_comercial_doacao_brinde': getattr(form, '_preview_fluxo_doacao_brinde', {}),
+        'acao_em_espera_atual': acao_em_espera_atual,
+        'usuario_anterior_nome': usuario_anterior_nome,
+        'fluxo_alertas': diagnosticar_fluxo_inicial(sac, setor_contexto=getattr(sac, 'setor_atual', None), nome_tela='Gestão Comercial') if sac else [],
+    })
+
+
+@login_required
+def painel_navegacao(request):
+    from .models import Setor
+
+    filas_por_setor = []
+    resumos = resumo_filas_por_setor()
+    setor_maior_fila = 'Sem fila'
+    maior_total = -1
+
+    for resumo in resumos:
+        item = {
+            'nome': resumo.nome,
+            'total': resumo.total,
+            'criticos': resumo.criticos,
+            'tempo_mais_antigo': resumo.tempo_mais_antigo,
+            'url': resumo.rota_lista,
+        }
+        filas_por_setor.append(item)
+        if resumo.total > maior_total:
+            maior_total = resumo.total
+            setor_maior_fila = resumo.nome if resumo.total > 0 else setor_maior_fila
+
+    sacs_em_aberto = base_sacs_em_aberto()
+    top_criticos = top_sacs_criticos(5)
+    dash_total_criticos = sum(1 for item in top_criticos if item.get('critico'))
+    total_abertos = sacs_em_aberto.count()
+    dash_maior_fila_total = max((item['total'] for item in filas_por_setor), default=0)
+    sacs_parados = listar_sacs_parados(horas=24, limite=5)
+    auditoria_fluxo = auditar_fluxo_operacional(limite=5)
+
+    return render(request, 'core/painel_navegacao.html', {
+        'dash_total_abertos': total_abertos,
+        'dash_total_criticos': dash_total_criticos,
+        'dash_total_setores': Setor.objects.filter(ativo=True).count(),
+        'dash_setor_maior_fila': setor_maior_fila,
+        'dash_maior_fila_total': dash_maior_fila_total,
+        'dash_filas_por_setor': sorted(filas_por_setor, key=lambda x: (-x['total'], x['nome'])),
+        'dash_top_criticos': top_criticos,
+        'dash_total_parados': len(sacs_parados),
+        'dash_sacs_parados': sacs_parados,
+        'dash_total_inconsistencias': len(auditoria_fluxo),
+        'dash_auditoria_fluxo': auditoria_fluxo,
+    })
+
+
+@login_required
+def gestao_sac(request):
+    sacs_qs = _sac_aguardando_acao_gestao_queryset()
+    sac_id_selecionado = request.GET.get('sac') or request.POST.get('sac_id') or request.POST.get('sac_id_selecao')
+
+    if not sac_id_selecionado:
+        primeiro_sac = sacs_qs.first()
+        if primeiro_sac is not None:
+            sac_id_selecionado = str(primeiro_sac.id)
+
+    sac = None
+
+    cards_pendentes = []
+    agora = timezone.now()
+    for sac_item in sacs_qs:
+        ultimo_historico = sac_item.historicos.order_by('-data_evento', '-id').first()
+        marco = ultimo_historico.data_evento if ultimo_historico else sac_item.data_abertura
+        cliente_nome = (
+            sac_item.cliente.razao_social if sac_item.cliente and getattr(sac_item.cliente, 'razao_social', None)
+            else (sac_item.cliente.nome if sac_item.cliente and getattr(sac_item.cliente, 'nome', None) else '-')
+        )
+        cards_pendentes.append({
+            'id': sac_item.id,
+            'numero': sac_item.numero or f'SAC {sac_item.id}',
+            'empresa_nome': _empresa_sac(sac_item),
+            'cliente_nome': cliente_nome,
+            'nota_fiscal_numero': _nota_sac(sac_item),
+            'status_atual_nome': _status_anterior_card(sac_item),
+            'acao_em_espera_nome': _acao_em_espera_card(sac_item),
+            'tempo_espera': _formatar_tempo_espera(agora - marco),
+            'tempo_cor': _classe_tempo_espera(agora - marco),
+            'marco_tempo': marco,
+            'selecionado': str(sac_item.id) == str(sac_id_selecionado),
+        })
+
+    cards_pendentes = sorted(cards_pendentes, key=lambda x: (x['marco_tempo'], x['id']))
+
+    if sac_id_selecionado:
+        sac = get_object_or_404(
+            SAC.objects.select_related('empresa', 'cliente', 'nota_fiscal', 'status_atual', 'acao_em_espera', 'setor_atual'),
+            id=sac_id_selecionado
+        )
+
+    historicos = []
+    form = None
+    contexto_status = '-'
+    contexto_acao = '-'
+
+    if sac:
+        historicos = sac.historicos.select_related('usuario', 'status_novo', 'setor_destino').order_by('-data_evento', '-id')[:20]
+        contexto_status = sac.status_atual.nome if sac.status_atual else (sac.status_inicial or '-')
+        contexto_acao = sac.acao_em_espera.nome if sac.acao_em_espera else '-'
+
+        if request.method == 'POST' and request.POST.get('acao') == 'selecionar_sac':
+            return redirect(f'/sac/gestao/?sac={sac.id}')
+
+        if request.method == 'POST' and request.POST.get('acao') == 'salvar_gestao':
+            form = GestaoSACPedidoRetornoForm(request.POST, request.FILES, sac=sac, acao_atual_nome=contexto_acao)
+            if form.is_valid():
+                acao_em_espera = form.cleaned_data.get('proxima_acao_em_espera')
+                proximo_status = form.cleaned_data.get('proximo_status')
+                proximo_setor = form.cleaned_data.get('proximo_setor') or sac.setor_atual
+                numero_pedido = (form.cleaned_data.get('numero_pedido') or '').strip()
+                data_pedido = form.cleaned_data.get('data_pedido')
+                observacao_importante = (form.cleaned_data.get('observacao_importante') or '').strip()
+                anexos = request.FILES.getlist('anexos_pdf')
+
+                validar_transicao_basica(
+                    sac,
+                    status_novo=proximo_status or sac.status_atual,
+                    acao_nova=acao_em_espera,
+                    setor_destino=proximo_setor,
+                )
+
+                aplicar_transicao_sac(
+                    sac=sac,
+                    usuario=request.user,
+                    acao_em_espera=acao_em_espera,
+                    setor_destino=proximo_setor,
+                    status_novo=proximo_status or sac.status_atual,
+                    observacao='',
+                    acao_executada_texto='Gestão do SAC registrada',
+                )
+
+                anexos_salvos = 0
+                for arquivo in anexos:
+                    SACAnexo.objects.create(sac=sac, arquivo=arquivo)
+                    anexos_salvos += 1
+
+                observacao_historico = '\n'.join([
+                    f'Ação em espera atual: {contexto_acao or "-"}',
+                    f'Número do pedido: {numero_pedido or "-"}',
+                    f'Data do pedido: {data_pedido.strftime("%d/%m/%Y") if data_pedido else "-"}',
+                    f'Próxima ação em espera: {acao_em_espera.nome if acao_em_espera else "-"}',
+                    f'Próximo status: {proximo_status.nome if proximo_status else "-"}',
+                    f'Próximo setor: {proximo_setor.nome if proximo_setor else "-"}',
+                    f'Observação importante: {observacao_importante or "-"}',
+                    f'Quantidade de anexos PDF: {anexos_salvos}',
+                ])
+
+                if sac.historicos.exists():
+                    ultimo_historico = sac.historicos.order_by('-data_evento', '-id').first()
+                    if ultimo_historico and not (ultimo_historico.observacao or '').strip():
+                        ultimo_historico.observacao = observacao_historico
+                        ultimo_historico.save(update_fields=['observacao'])
+
+                messages.success(request, f'Gestão do SAC {sac.numero} registrada com sucesso.')
+                proximo_sac = _sac_aguardando_acao_gestao_queryset().exclude(id=sac.id).first()
+                if proximo_sac is not None:
+                    return redirect(f'/sac/gestao/?sac={proximo_sac.id}')
+                return redirect('/sac/gestao/')
+        else:
+            form = GestaoSACPedidoRetornoForm(sac=sac, acao_atual_nome=contexto_acao)
+    else:
+        if request.method == 'POST' and request.POST.get('acao') == 'selecionar_sac':
+            sac_id_redirect = request.POST.get('sac_id_selecao')
+            if sac_id_redirect:
+                return redirect(f'/sac/gestao/?sac={sac_id_redirect}')
+
+    if form is None:
+        form = GestaoSACPedidoRetornoForm(sac=sac, acao_atual_nome=contexto_acao if sac else '')
+
+    fluxo_alertas = diagnosticar_fluxo_inicial(sac, setor_contexto=getattr(sac, 'setor_atual', None), nome_tela='Gestão do SAC') if sac else []
+
+    return render(request, 'core/analise_gestao_sac.html', {
+        'sac': sac,
+        'sacs_disponiveis': cards_pendentes,
+        'historicos': historicos,
+        'form': form,
+        'contexto_status': contexto_status,
+        'contexto_acao': contexto_acao,
+        'fluxo_alertas': fluxo_alertas,
+    })
+
+
+@login_required
+def assessoria_cientifica_lista(request):
+    return redirect('/sac/assessoria-cientifica/')
+
+
+
+@login_required
+def pesquisa_sacs(request):
+    termo_cliente = (request.GET.get('cliente') or '').strip()
+    termo_numero = (request.GET.get('numero_sac') or '').strip()
+    termo_produto = (request.GET.get('produto') or '').strip()
+    termo_ocorrencia = (request.GET.get('ocorrencia') or '').strip()
+    sac_id = request.GET.get('sac')
+
+    sacs = SAC.objects.select_related(
+        'empresa',
+        'cliente',
+        'nota_fiscal',
+        'status_atual',
+        'setor_atual',
+    ).prefetch_related(
+        'itens_sac__item_nota_fiscal',
+        'itens_sac__tipo_ocorrencia',
+        'historicos',
+    ).order_by('-data_abertura', '-id')
+
+    if termo_cliente:
+        sacs = sacs.filter(
+            Q(cliente__razao_social__icontains=termo_cliente) |
+            Q(cliente__nome__icontains=termo_cliente)
+        )
+
+    if termo_numero:
+        sacs = sacs.filter(numero__icontains=termo_numero)
+
+    if termo_produto:
+        sacs = sacs.filter(
+            Q(itens_sac__item_nota_fiscal__descricao_produto__icontains=termo_produto) |
+            Q(itens_sac__item_nota_fiscal__referencia__icontains=termo_produto)
+        ).distinct()
+
+    if termo_ocorrencia:
+        sacs = sacs.filter(
+            Q(itens_sac__tipo_ocorrencia__nome__icontains=termo_ocorrencia)
+        ).distinct()
+
+    sac_selecionado = None
+    if sac_id:
+        try:
+            sac_selecionado = sacs.get(id=sac_id)
+        except SAC.DoesNotExist:
+            sac_selecionado = None
+
+    return render(request, 'core/pesquisa_sacs.html', {
+        'sacs': sacs,
+        'sac': sac_selecionado,
+        'termo_cliente': termo_cliente,
+        'termo_numero': termo_numero,
+        'termo_produto': termo_produto,
+        'termo_ocorrencia': termo_ocorrencia,
+    })
+
+
+
+def _extrair_primeiro_valor_do_historico(sac, rotulos):
+    if sac is None:
+        return ''
+    if isinstance(rotulos, str):
+        rotulos = [rotulos]
+    historicos = (
+        SacHistorico.objects.filter(sac=sac)
+        .exclude(observacao__isnull=True)
+        .exclude(observacao__exact='')
+        .order_by('-data_evento', '-id')
+    )
+    rotulos_norm = [r.strip().lower() for r in rotulos]
+    for hist in historicos:
+        texto = (hist.observacao or '').strip()
+        if not texto:
+            continue
+        for linha in texto.splitlines():
+            if ':' not in linha:
+                continue
+            chave, valor = linha.split(':', 1)
+            if chave.strip().lower() in rotulos_norm:
+                return valor.strip()
+    return ''
+
+def _normalizar_decimal_texto_ptbr(valor):
+    bruto = (valor or '').strip()
+    if not bruto:
+        return ''
+    bruto = bruto.replace('R$', '').replace(' ', '')
+    if ',' in bruto and '.' in bruto:
+        if bruto.rfind(',') > bruto.rfind('.'):
+            bruto = bruto.replace('.', '').replace(',', '.')
+        else:
+            bruto = bruto.replace(',', '')
+    elif ',' in bruto:
+        bruto = bruto.replace('.', '').replace(',', '.')
+    try:
+        return Decimal(bruto)
+    except Exception:
+        return None
+
+def _formatar_moeda_hist(valor):
+    if valor in (None, ''):
+        return '-'
+    try:
+        dec = Decimal(str(valor))
+    except Exception:
+        return str(valor)
+    return f"R$ {dec:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+
+def _diretoria_campos_historico(observacoes='', acao_em_espera_setor='', valor_pleiteado='', decisao='', contraproposta='', proximo_status='', proxima_acao='', proximo_setor=''):
+    linhas = []
+    if acao_em_espera_setor:
+        linhas.append(f"Ação em espera desse setor: {acao_em_espera_setor}")
+    if valor_pleiteado not in (None, ''):
+        linhas.append(f"Valor do desconto pleiteado: {_formatar_moeda_hist(valor_pleiteado)}")
+    if decisao:
+        linhas.append(f"O valor do desconto será: {decisao}")
+    if contraproposta not in (None, ''):
+        linhas.append(f"Contra proposta de desconto: {_formatar_moeda_hist(contraproposta)}")
+    if proximo_status:
+        linhas.append(f"Próximo status: {proximo_status}")
+    if proxima_acao:
+        linhas.append(f"Ação em espera: {proxima_acao}")
+    if proximo_setor:
+        linhas.append(f"Próximo setor: {proximo_setor}")
+    linhas.append(f"Observações: {(observacoes or '').strip() or '-'}")
+    return "\n".join(linhas)
+
+
+@login_required
+def analise_diretoria(request):
+    sac_id = request.GET.get('sac')
+    agora = timezone.now()
+
+    sacs_qs = _sac_aguardando_acao_diretoria_queryset()
+
+    sacs_disponiveis = []
+    for s in sacs_qs:
+        marco_tempo = getattr(s, 'data_abertura', None)
+        tempo_espera_delta = (agora - marco_tempo) if marco_tempo else timedelta(0)
+
+        dias = tempo_espera_delta.days
+        horas, resto = divmod(tempo_espera_delta.seconds, 3600)
+        minutos = resto // 60
+
+        if dias > 0:
+            tempo_espera = f"{dias}d {horas}h"
+        elif horas > 0:
+            tempo_espera = f"{horas}h {minutos}min"
+        else:
+            tempo_espera = f"{minutos}min"
+
+        sacs_disponiveis.append({
+            'id': s.id,
+            'numero': getattr(s, 'numero', ''),
+            'empresa_nome': getattr(getattr(s, 'empresa', None), 'razao_social', '') or getattr(getattr(s, 'empresa', None), 'nome', ''),
+            'cliente_nome': getattr(getattr(s, 'cliente', None), 'razao_social', '') or getattr(getattr(s, 'cliente', None), 'nome', ''),
+            'nota_fiscal_numero': getattr(getattr(s, 'nota_fiscal', None), 'numero_nf', '') or getattr(getattr(s, 'nota_fiscal', None), 'numero', ''),
+            'status_atual_nome': _status_anterior_card(s),
+            'acao_em_espera_nome': _acao_em_espera_card(s),
+            'tempo_espera': tempo_espera,
+            'tempo_cor': _classe_tempo_espera(tempo_espera_delta),
+        })
+
+    sac = None
+    historicos = []
+    grafico_tempo_status = []
+
+    if sac_id:
+        try:
+            sac = sacs_qs.get(id=sac_id)
+        except SAC.DoesNotExist:
+            sac = None
+
+    if sac and request.method == 'POST':
+        acao_setor_nome = (getattr(getattr(sac, 'acao_em_espera', None), 'nome', '') or '').strip()
+        valor_pleiteado_texto = (request.POST.get('valor_desconto_pleiteado') or '').strip()
+        decisao_desconto = (request.POST.get('decisao_desconto') or '').strip().upper()
+        contraproposta_texto = (request.POST.get('contra_proposta_desconto') or '').strip()
+        observacoes_diretoria = (request.POST.get('observacoes_diretoria') or '').strip()
+
+        valor_pleiteado = _normalizar_decimal_texto_ptbr(valor_pleiteado_texto)
+        contraproposta = _normalizar_decimal_texto_ptbr(contraproposta_texto)
+
+        if acao_setor_nome.lower() == 'aguardando aprovação de desconto' or acao_setor_nome.lower() == 'aguardando aprovacao de desconto':
+            if valor_pleiteado in (None, ''):
+                valor_hist = _extrair_primeiro_valor_do_historico(sac, 'Valor do desconto pleiteado')
+                valor_pleiteado = _normalizar_decimal_texto_ptbr(valor_hist)
+
+            if not decisao_desconto:
+                messages.error(request, 'Selecione se o valor do desconto será Aprovado ou Reprovado.')
+                return redirect(f'/sac/diretoria/?sac={sac.id}')
+
+            if decisao_desconto == 'APROVADO':
+                status_novo = obter_status_por_nome('Concluído') or obter_status_por_nome('Concluido')
+                observacao = _diretoria_campos_historico(
+                    observacoes=observacoes_diretoria,
+                    acao_em_espera_setor=acao_setor_nome,
+                    valor_pleiteado=valor_pleiteado,
+                    decisao='Aprovado',
+                    proximo_status=getattr(status_novo, 'nome', 'Concluído'),
+                    proxima_acao='',
+                    proximo_setor='',
+                )
+                aplicar_transicao_sac(
+                    sac=sac,
+                    usuario=request.user,
+                    acao_em_espera=None,
+                    setor_destino=None,
+                    status_novo=status_novo,
+                    observacao=observacao,
+                    acao_executada_texto='Análise da Diretoria registrada',
+                )
+                messages.success(request, f'Análise da Diretoria do SAC {sac.numero} registrada com sucesso.')
+                return redirect(f'/sac/analise-comercial/?sac={sac.id}')
+
+            if decisao_desconto == 'REPROVADO':
+                if contraproposta in (None, ''):
+                    messages.error(request, 'Informe a Contra Proposta de desconto.')
+                    return redirect(f'/sac/diretoria/?sac={sac.id}')
+
+                acao_destino = resolver_acao_por_codigo('LIGAR_CLIENTE_COMERCIAL') or resolver_acao_por_codigo('LIGAR_PARA_O_CLIENTE_COMERCIAL') or resolver_acao_por_codigo('COMERCIAL_LIGAR_CLIENTE') or AcaoEmEspera.objects.filter(nome__iexact='Ligar para o Cliente - Comercial').first()
+                status_novo = obter_status_por_nome('Em Análise') or obter_status_por_nome('Em Analise')
+                setor_destino = obter_setor_por_nome('Gestão Comercial') or obter_setor_por_nome('Gestao Comercial') or obter_setor_por_nome('Comercial')
+
+                observacao = _diretoria_campos_historico(
+                    observacoes=observacoes_diretoria,
+                    acao_em_espera_setor=acao_setor_nome,
+                    valor_pleiteado=valor_pleiteado,
+                    decisao='Reprovado',
+                    contraproposta=contraproposta,
+                    proximo_status=getattr(status_novo, 'nome', 'Em Análise'),
+                    proxima_acao=getattr(acao_destino, 'nome', 'Ligar para o Cliente'),
+                    proximo_setor=getattr(setor_destino, 'nome', 'Comercial'),
+                )
+                aplicar_transicao_sac(
+                    sac=sac,
+                    usuario=request.user,
+                    acao_em_espera=acao_destino,
+                    setor_destino=setor_destino,
+                    status_novo=status_novo,
+                    observacao=observacao,
+                    acao_executada_texto='Análise da Diretoria registrada',
+                )
+                messages.success(request, f'Análise da Diretoria do SAC {sac.numero} registrada com sucesso.')
+                return redirect(f'/sac/diretoria/?sac={sac.id}')
+
+        else:
+            observacao = _diretoria_campos_historico(
+                observacoes=observacoes_diretoria,
+                acao_em_espera_setor=acao_setor_nome,
+            )
+            registrar_historico_sac(
+                sac=sac,
+                usuario=request.user,
+                acao_executada='Análise da Diretoria registrada',
+                status_anterior=sac.status_atual,
+                status_novo=sac.status_atual,
+                setor_origem=sac.setor_atual,
+                setor_destino=sac.setor_atual,
+                observacao=observacao,
+            )
+            messages.success(request, f'Observações da Diretoria do SAC {sac.numero} registradas com sucesso.')
+            return redirect(f'/sac/diretoria/?sac={sac.id}')
+
+    if sac:
+        historicos_qs = getattr(sac, 'historicos', None)
+        if historicos_qs is not None:
+            historicos = historicos_qs.all().order_by('-data_evento', '-id')
+            historicos_ordenados = list(historicos_qs.all().order_by('-data_evento', '-id'))
+        else:
+            historicos_ordenados = []
+
+        grafico_tempo_status = montar_grafico_tempo_status_sac(sac, agora=agora)
+    fluxo_alertas = []
+    valor_desconto_pleiteado_inicial = _extrair_primeiro_valor_do_historico(sac, 'Valor do desconto pleiteado') if sac else ''
+    total_itens = sac.itens_sac.count() if sac else 0
+
+    return render(request, 'core/analise_diretoria.html', {
+        'sacs_disponiveis': sacs_disponiveis,
+        'sac': sac,
+        'historicos': historicos,
+        'grafico_tempo_status': grafico_tempo_status,
+        'fluxo_alertas': fluxo_alertas,
+        'valor_desconto_pleiteado_inicial': valor_desconto_pleiteado_inicial,
+        'total_itens': total_itens,
+    })
+
+
+@login_required
+def assessoria_cientifica(request):
+    sacs_qs = _sac_aguardando_acao_assessoria_queryset()
+    agora = timezone.now()
+    cards_pendentes = []
+
+    for sac_item in sacs_qs:
+        ultimo_historico = sac_item.historicos.order_by('-data_evento', '-id').first()
+        marco = ultimo_historico.data_evento if ultimo_historico else sac_item.data_abertura
+        cliente_nome = (
+            sac_item.cliente.razao_social if sac_item.cliente and getattr(sac_item.cliente, 'razao_social', None)
+            else (sac_item.cliente.nome if sac_item.cliente and getattr(sac_item.cliente, 'nome', None) else '-')
+        )
+        tempo_espera_delta = agora - marco
+        cards_pendentes.append({
+            'id': sac_item.id,
+            'numero': sac_item.numero or f'SAC {sac_item.id}',
+            'empresa_nome': _empresa_sac(sac_item),
+            'cliente_nome': cliente_nome,
+            'nota_fiscal_numero': _nota_sac(sac_item),
+            'status_atual_nome': _status_anterior_card(sac_item),
+            'acao_em_espera_nome': _acao_em_espera_card(sac_item),
+            'tempo_espera': _formatar_tempo_espera(tempo_espera_delta),
+            'tempo_cor': _classe_tempo_espera(tempo_espera_delta),
+            'marco_tempo': marco,
+        })
+
+    cards_pendentes = sorted(cards_pendentes, key=lambda x: (x['marco_tempo'], x['id']))
+
+    return render(request, 'core/assessoria_cientifica.html', {
+        'sacs_disponiveis': cards_pendentes,
+        'total_sacs': len(cards_pendentes),
+    })# ==============================
+# 🔒 MÓDULO: GESTÃO LOGÍSTICA
+# NÃO ALTERAR SEM COMANDO DIRETO
+# ==============================
+
+from django.shortcuts import get_object_or_404, render
+from django.contrib.auth.decorators import login_required
+from core.models import SAC
+
+
+
+
+def _sac_tem_identificador_serial(sac):
+    return sac.itens_sac.filter(tipo_rastreio='SERIAL').exists()
+
+
+def _normalizar_bool_logistica(valor):
+    if valor == 'SIM':
+        return 'Sim'
+    if valor == 'NAO':
+        return 'Não'
+    return valor or '-'
+
+
+def _nome_usuario_sistema(usuario):
+    if not usuario:
+        return '-'
+    try:
+        usuario_sistema = getattr(usuario, 'usuario_sistema', None)
+        nome = (getattr(usuario_sistema, 'nome_completo', '') or '').strip()
+        if nome:
+            return nome
+    except Exception:
+        pass
+    try:
+        nome = (usuario.get_full_name() or '').strip()
+        if nome:
+            return nome
+    except Exception:
+        pass
+    try:
+        return usuario.get_username() or '-'
+    except Exception:
+        return str(usuario) or '-'
+
+
+def _dados_contexto_logistica(sac):
+    setor_anterior = '-'
+    usuario_solicitante = '-'
+    acao_atual = getattr(getattr(sac, 'acao_em_espera', None), 'nome', '') or '-'
+    tipo_ocorrencia = '-'
+    try:
+        itens = sac.itens_sac.select_related('tipo_ocorrencia').all()
+        for item in itens:
+            nome_tipo = getattr(getattr(item, 'tipo_ocorrencia', None), 'nome', '') or ''
+            if nome_tipo.strip():
+                tipo_ocorrencia = nome_tipo.strip()
+                break
+    except Exception:
+        pass
+    try:
+        historicos = list(sac.historicos.select_related('usuario', 'setor_origem', 'setor_destino').order_by('-data_evento', '-id'))
+        if historicos:
+            atual = historicos[0]
+            setor_anterior = getattr(getattr(atual, 'setor_origem', None), 'nome', '') or '-'
+            usuario_solicitante = _nome_usuario_sistema(getattr(atual, 'usuario', None))
+    except Exception:
+        pass
+    return {
+        'setor_anterior_logistica': setor_anterior,
+        'usuario_solicitante_logistica': usuario_solicitante,
+        'tipo_ocorrencia_logistica': tipo_ocorrencia,
+        'acao_em_espera_atual_logistica': acao_atual,
+    }
+
+def _formatar_observacao_gestao_logistica(acao_nome, cleaned_data, tem_serial):
+    linhas = [f'Ações Executadas - Gestão Logística | Ação em espera de origem: {acao_nome}']
+
+    def add(label, key, bool_field=False, data_field=False):
+        valor = cleaned_data.get(key)
+        if valor in (None, ''):
+            return
+        if bool_field:
+            valor = _normalizar_bool_logistica(valor)
+        elif data_field and hasattr(valor, 'strftime'):
+            valor = valor.strftime('%d/%m/%Y')
+        linhas.append(f'{label}: {valor}')
+
+    acao_normalizada = (acao_nome or '').strip().lower()
+    if acao_normalizada in {'aguardando alocação em prateleira', 'aguardando alocacao em prateleira'}:
+        add('Fiscalmente o item já entrou no estoque', 'fiscalmente_entrou_estoque', bool_field=True)
+        add('Item/Equipamento alocado em Prateleira', 'item_alocado_prateleira', bool_field=True)
+        add('Endereço alocado', 'endereco_alocado')
+        add('Nome de quem fez a Alocação em prateleira', 'nome_alocacao_prateleira')
+    elif acao_normalizada == 'aguardando coleta no cliente':
+        add('Nome da Transportadora', 'nome_transportadora')
+        add('Telefone da Transportadora', 'telefone_transportadora')
+        add('Contato', 'contato_transportadora')
+        add('Email', 'email_transportadora')
+        add('Data da Coleta', 'data_coleta', data_field=True)
+        add('Número da Cotação do frete', 'numero_cotacao_frete')
+        add('Valor do frete Cotado', 'valor_frete_cotado')
+        add('Quantos dias para entregar na Ionlab', 'dias_entrega_ionlab')
+        add('Data Prevista para Chegar na Ionlab', 'data_prevista_chegada_ionlab', data_field=True)
+        tipo_nota = cleaned_data.get('tipo_nota_fiscal')
+        if tipo_nota == 'NOSSA_NOTA_FISCAL':
+            linhas.append('Nossa Nota fiscal ou Nota fiscal do Cliente: Nossa Nota fiscal')
+        elif tipo_nota == 'NOTA_FISCAL_CLIENTE':
+            linhas.append('Nossa Nota fiscal ou Nota fiscal do Cliente: Nota fiscal do Cliente')
+        add('Data de emissão da Nota fiscal', 'data_emissao_nota_fiscal', data_field=True)
+        add('Numero da Nota Fiscal', 'numero_nota_fiscal')
+    elif acao_normalizada in {'aguardando devolução ao cliente', 'aguardando devolucao ao cliente', 'aguardando emissão da nota fiscal', 'aguardando emissao da nota fiscal'}:
+        add('Nome da Transportadora', 'nome_transportadora')
+        add('Telefone da Transportadora', 'telefone_transportadora')
+        add('Contato', 'contato_transportadora')
+        add('Email', 'email_transportadora')
+        add('Data da Expedição', 'data_expedicao', data_field=True)
+        add('Número da Cotação do frete', 'numero_cotacao_frete')
+        add('Valor do frete Cotado', 'valor_frete_cotado')
+        add('Quantos dias para entregar no Cliente', 'dias_entrega_cliente')
+        add('Data Prevista para Chegar no Cliente', 'data_prevista_chegada_cliente', data_field=True)
+        add('Data de emissão da Nota fiscal', 'data_emissao_nota_fiscal', data_field=True)
+        add('Numero da Nota Fiscal', 'numero_nota_fiscal')
+    elif acao_normalizada in {'em transito (com destino ao cliente)', 'em trânsito (com destino ao cliente)'}:
+        add('Data efetiva da Entrega', 'data_efetiva_entrega', data_field=True)
+        add('Nome do Recebedor', 'nome_recebedor')
+    elif acao_normalizada in {'em trânsito (com destino a ionlab)', 'em transito (com destino a ionlab)'}:
+        add('Data do Recebimento', 'data_recebimento', data_field=True)
+        add('Nome do Recebedor', 'nome_recebedor')
+        add('Embalagem Intacta', 'embalagem_intacta', bool_field=True)
+        add('Número do Ctrc', 'numero_ctrc')
+        add('Valor do Frete no Ctrc', 'valor_frete_ctrc')
+        add('Ctrc com divergência de valor', 'ctrc_divergencia_valor')
+        if tem_serial:
+            add('Equipamento com alguma avaria', 'equipamento_com_avaria', bool_field=True)
+        else:
+            add('Itens com alguma avaria', 'itens_com_avaria', bool_field=True)
+        add('Detalhamento das avarias', 'detalhamento_avarias')
+        add('Total de Itens dentro da Embalagem incluindo o equipamento' if tem_serial else 'Total de Itens dentro da Embalagem', 'total_itens_embalagem')
+        if tem_serial:
+            add('Lista de itens dentro da embalagem', 'lista_itens_embalagem')
+            add('Equipamento recebido com embalagem original', 'equipamento_embalagem_original', bool_field=True)
+            add('Equipamento Recebido em caixa de Madeira', 'equipamento_caixa_madeira', bool_field=True)
+        add('Quantidade de volumes recebido', 'quantidade_volumes_recebido')
+        add('Peso Total', 'peso_total')
+    elif acao_normalizada in {'análise do ocorrido - logistica', 'análise do ocorrido - logística', 'analise do ocorrido - logistica'}:
+        add('Tipo de produto', 'tipo_produto')
+        add('Nome do Embalador', 'nome_embalador')
+        add('Embalagem de madeira', 'embalagem_madeira', bool_field=True)
+        add('Embalagem Original', 'embalagem_original', bool_field=True)
+        add('Ressalva no CT-e', 'ressalva_cte', bool_field=True)
+        add('Nome do Separador', 'nome_separador')
+        add('Nome de quem fez o BIP', 'nome_bip')
+        add('Quantidade total Romaneio', 'quantidade_total_romaneio')
+        add('Quantidade total na conferência de embalagem', 'quantidade_total_conferencia_embalagem')
+        add('Peso Total dos itens', 'peso_total_itens')
+        add('Quantidade de volumes expedidos', 'quantidade_volumes_expedidos')
+        add('Quantidade de volumes na nota fiscal', 'quantidade_volumes_nota_fiscal')
+        add('Quantidade de volumes no CT-e', 'quantidade_volumes_cte')
+        add('Peso no CT-e', 'peso_cte')
+        alerta = cleaned_data.get('_alerta_divergencia_romaneio')
+        if alerta:
+            linhas.append(alerta)
+        add('Observações', 'observacoes')
+
+    acao_destino = cleaned_data.get('proxima_acao_em_espera')
+    setor_destino = cleaned_data.get('proximo_setor')
+    if acao_destino:
+        linhas.append(f'Próxima ação em espera: {acao_destino.nome}')
+    if setor_destino:
+        linhas.append(f'Setor Destino: {setor_destino.nome}')
+    return '\n'.join(linhas)
+
+
+@login_required
+def gestao_logistica(request, sac_id=None):
+    if not sac_id:
+        sacs_qs = _sac_aguardando_acao_logistica_queryset()
+        agora = timezone.now()
+        cards_pendentes = []
+
+        for sac_item in sacs_qs:
+            ultimo_historico = sac_item.historicos.order_by('-data_evento', '-id').first()
+            marco = ultimo_historico.data_evento if ultimo_historico else sac_item.data_abertura
+            cliente_nome = (
+                sac_item.cliente.razao_social if sac_item.cliente and getattr(sac_item.cliente, 'razao_social', None)
+                else (sac_item.cliente.nome if sac_item.cliente and getattr(sac_item.cliente, 'nome', None) else '-')
+            )
+            tempo_espera_delta = agora - marco
+            cards_pendentes.append({
+                'id': sac_item.id,
+                'numero': sac_item.numero or f'SAC {sac_item.id}',
+                'empresa_nome': _empresa_sac(sac_item),
+                'cliente_nome': cliente_nome,
+                'nota_fiscal_numero': _nota_sac(sac_item),
+                'status_atual_nome': sac_item.status_atual.nome if sac_item.status_atual else '-',
+                'acao_em_espera_nome': sac_item.acao_em_espera.nome if sac_item.acao_em_espera else '-',
+                'tempo_espera': _formatar_tempo_espera(tempo_espera_delta),
+                'tempo_cor': _classe_tempo_espera(tempo_espera_delta),
+                'marco_tempo': marco,
+            })
+
+        cards_pendentes = sorted(cards_pendentes, key=lambda x: (x['marco_tempo'], x['id']))
+
+        return render(request, 'core/gestao_logistica.html', {
+            'modo_lista': True,
+            'sac': None,
+            'historicos': [],
+            'sacs_disponiveis': cards_pendentes,
+            'total_sacs': len(cards_pendentes),
+        })
+
+    sac = get_object_or_404(
+        SAC.objects.select_related('empresa', 'cliente', 'nota_fiscal', 'status_atual', 'setor_atual', 'acao_em_espera'),
+        id=sac_id
+    )
+
+    historicos = sac.historicos.order_by('-data_evento', '-id')[:10]
+    grafico_tempo_status = montar_grafico_tempo_status_sac(sac)
+    acao_atual_nome = (sac.acao_em_espera.nome if sac.acao_em_espera else '').strip()
+    tem_serial = _sac_tem_identificador_serial(sac)
+
+    if request.method == 'POST':
+        form = GestaoLogisticaAcaoExecutadaForm(request.POST, sac=sac, acao_atual_nome=acao_atual_nome, tem_serial=tem_serial)
+        if form.is_valid():
+            cleaned = form.cleaned_data
+            observacao = _formatar_observacao_gestao_logistica(acao_atual_nome, cleaned, tem_serial)
+            aplicar_transicao_sac(
+                sac=sac,
+                usuario=request.user,
+                acao_em_espera=cleaned.get('proxima_acao_em_espera'),
+                setor_destino=cleaned.get('proximo_setor'),
+                status_novo=cleaned.get('proximo_status'),
+                observacao=observacao,
+                acao_executada_texto='Gestão Logística registrada',
+            )
+            messages.success(request, 'Ação executada da Gestão Logística registrada com sucesso.')
+            return redirect('gestao_logistica', sac_id=sac.id)
+        else:
+            messages.error(request, 'Não foi possível salvar. Verifique os campos obrigatórios do formulário.')
+    else:
+        form = GestaoLogisticaAcaoExecutadaForm(sac=sac, acao_atual_nome=acao_atual_nome, tem_serial=tem_serial)
+
+    fluxo_alertas = diagnosticar_fluxo_inicial(sac, setor_contexto=getattr(sac, 'setor_atual', None), nome_tela='Gestão Logística')
+    contexto_logistica = _dados_contexto_logistica(sac)
+
+    context = {
+        'sac': sac,
+        'historicos': historicos,
+        'modo_lista': False,
+        'form': form,
+        'tem_serial': tem_serial,
+        'acao_atual_nome': acao_atual_nome,
+        'acao_atual_normalizada': acao_atual_nome.lower(),
+        'fluxo_alertas': fluxo_alertas,
+        'grafico_tempo_status': grafico_tempo_status,
+        **contexto_logistica,
+    }
+
+    return render(request, 'core/gestao_logistica.html', context)
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from django.shortcuts import render, redirect
+
+def _rota_inicial_por_setor_usuario(user):
+    try:
+        usuario_sistema = getattr(user, 'usuario_sistema', None)
+        setor = getattr(usuario_sistema, 'setor', None)
+        nome = ((getattr(setor, 'nome', '') or '').lower())
+    except (AttributeError, TypeError, ValueError):
+        nome = ''
+
+    if 'comercial' in nome:
+        return 'analise_comercial_sac_lista'
+    if 'assessoria' in nome:
+        return 'assessoria_cientifica'
+    if 'diretoria' in nome:
+        return 'analise_diretoria'
+    if 'logistica' in nome or 'logística' in nome:
+        return 'gestao_logistica_lista'
+    if 'gestao' in nome:
+        return 'gestao_sac'
+    return 'painel_navegacao'
+
+
+def login_interno(request):
+    if request.user.is_authenticated:
+        return redirect(_rota_inicial_por_setor_usuario(request.user))
+
+    erro = None
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = authenticate(request, username=username, password=password)
+
+        if user:
+            auth_login(request, user)
+            return redirect(_rota_inicial_por_setor_usuario(user))
+
+        erro = 'Usuário ou senha inválidos.'
+
+    return render(request, 'core/login_interno.html', {'erro': erro})
+
+
+def logout_interno(request):
+    auth_logout(request)
+    return redirect('login_interno')
+
+
+
+
+def _texto_normalizado_licitacao(valor):
+    texto = unicodedata.normalize("NFKD", str(valor or "")).encode("ascii", "ignore").decode("ascii")
+    return " ".join(texto.strip().lower().split())
+
+
+def _itens_tipo_ocorrencia_licitacao(sac):
+    itens = list(sac.itens_sac.select_related("tipo_ocorrencia").all()) if sac else []
+    nomes = [_texto_normalizado_licitacao(getattr(getattr(i, "tipo_ocorrencia", None), "nome", "")) for i in itens]
+    return itens, nomes
+
+
+def _resolver_status_em_analise():
+    obj = resolver_status_por_codigo('EM_ANALISE')
+    if obj:
+        return obj
+    for nome in ("Em Análise", "Em Analise", "Em análise", "Em analise"):
+        obj = StatusSAC.objects.filter(nome__iexact=nome, ativo=True).first()
+        if obj:
+            return obj
+    return None
+
+
+def _resolver_acao_sac_analise_ocorrido():
+    obj = resolver_acao_por_codigo('ANALISE_OCORRIDO_SAC')
+    if obj:
+        return obj
+    for nome in ("Análise do Ocorrido – SAC", "Análise do Ocorrido - SAC", "Analise do Ocorrido – SAC", "Analise do Ocorrido - SAC"):
+        obj = AcaoEmEspera.objects.filter(nome__iexact=nome, ativo=True).select_related("setor_destino").first()
+        if obj:
+            return obj
+    # fallback menos restritivo
+    for obj in AcaoEmEspera.objects.filter(ativo=True).select_related("setor_destino"):
+        base = _texto_normalizado_licitacao(obj.nome)
+        if "analise do ocorrido" in base and "sac" in base:
+            return obj
+    return None
+
+
+def _resolver_acao_sac_pedido_retorno():
+    obj = resolver_acao_por_codigo('AGUARDANDO_PEDIDO_ENTRADA_RETORNO') or resolver_acao_por_codigo('EMISSAO_DO_PEDIDO_DE_ENTRADA_RETORNO')
+    if obj:
+        return obj
+    for nome in (
+        "Aguardando Emissão do Pedido (Entrada/Retorno)",
+        "Aguardando Emissao do Pedido (Entrada/Retorno)",
+        "Aguardando Emissão do Pedido de Entrada/Retorno",
+        "Aguardando Emissao do Pedido de Entrada/Retorno",
+    ):
+        obj = AcaoEmEspera.objects.filter(nome__iexact=nome, ativo=True).select_related("setor_destino").first()
+        if obj:
+            return obj
+    for obj in AcaoEmEspera.objects.filter(ativo=True).select_related("setor_destino"):
+        base = _texto_normalizado_licitacao(obj.nome)
+        if "aguardando emissao" in base and "pedido" in base and "entrada retorno" in base:
+            return obj
+    return None
+
+
+def _resolver_setor_sac():
+    obj = resolver_setor_por_codigo('SAC')
+    if obj:
+        return obj
+    for nome in ("SAC",):
+        obj = Setor.objects.filter(nome__iexact=nome, ativo=True).first()
+        if obj:
+            return obj
+    return None
+
+
+def _resolver_fluxo_fixo_licitacao(sac):
+    _, nomes_ocorrencia = _itens_tipo_ocorrencia_licitacao(sac)
+    status_em_analise = _resolver_status_em_analise()
+    setor_sac = _resolver_setor_sac()
+
+    if any(nome in {"pedido enviado em duplicidade licitacao", "pedido enviado em duplicidade (licitacao)"} or "pedido enviado em duplicidade" in nome and "licitacao" in nome for nome in nomes_ocorrencia):
+        return {
+            "status": status_em_analise,
+            "acao": _resolver_acao_sac_pedido_retorno(),
+            "setor": setor_sac,
+            "motivo": "duplicidade_licitacao",
+        }
+
+    if any(nome in {"itens equipamentos em desacordo com edital empenho", "itens/equipamentos em desacordo com edital/empenho"} or ("desacordo" in nome and "edital" in nome and "empenho" in nome) for nome in nomes_ocorrencia):
+        return {
+            "status": status_em_analise,
+            "acao": _resolver_acao_sac_analise_ocorrido(),
+            "setor": setor_sac,
+            "motivo": "desacordo_edital",
+        }
+
+    return None
+
+
+def _parse_decimal_licitacao(valor):
+    texto = str(valor or '').strip()
+    if not texto:
+        return Decimal('0')
+    texto = texto.replace('R$', '').replace(' ', '')
+    if ',' in texto and '.' in texto:
+        if texto.rfind(',') > texto.rfind('.'):
+            texto = texto.replace('.', '').replace(',', '.')
+        else:
+            texto = texto.replace(',', '')
+    elif ',' in texto:
+        texto = texto.replace('.', '').replace(',', '.')
+    try:
+        return Decimal(texto)
+    except (InvalidOperation, ValueError, TypeError):
+        return Decimal('0')
+
+
+def _formatar_decimal_licitacao(valor):
+    try:
+        decimal_valor = Decimal(str(valor or 0)).quantize(Decimal('0.01'))
+    except (InvalidOperation, ValueError, TypeError):
+        decimal_valor = Decimal('0.00')
+    texto = f"{decimal_valor:,.2f}"
+    return texto.replace(',', 'X').replace('.', ',').replace('X', '.')
+
+
+def _extrair_dados_analise_licitacao(sac):
+    dados = {}
+    if not sac:
+        return dados
+
+    historico = (
+        sac.historicos
+        .filter(acao_executada='Análise de licitação registrada')
+        .order_by('-data_evento', '-id')
+        .first()
+    )
+    if not historico or not historico.observacao:
+        return dados
+
+    mapa = {
+        'tipo de produto:': 'tipo_produto',
+        'usuário que classificou o edital:': 'usuario_classificou_edital',
+        'usuario que classificou o edital:': 'usuario_classificou_edital',
+        'qual ponto divergiu:': 'qual_ponto_divergiu',
+        'teve erro de classificação:': 'teve_erro_classificacao',
+        'teve erro de classificacao:': 'teve_erro_classificacao',
+        'edital estava claro/objetivo:': 'edital_estava_claro',
+        'justificativa:': 'justificativa',
+        'temos uma referência correta pra atender:': 'tem_referencia_correta',
+        'temos uma referencia correta pra atender:': 'tem_referencia_correta',
+        'referência correta:': 'referencia_correta',
+        'referencia correta:': 'referencia_correta',
+        'valor da referência correta:': 'valor_referencia_correta',
+        'valor da referencia correta:': 'valor_referencia_correta',
+        'marca alternativa:': 'marca_alternativa',
+        'valor marca alternativa:': 'valor_marca_alternativa',
+        'nome do usuário que gerou o pedido:': 'nome_usuario_gerou_pedido',
+        'nome do usuario que gerou o pedido:': 'nome_usuario_gerou_pedido',
+        'nome do usuário que fez a conferência:': 'nome_usuario_fez_conferencia',
+        'nome do usuario que fez a conferencia:': 'nome_usuario_fez_conferencia',
+        'justificativa do erro:': 'justificativa_erro',
+    }
+    for linha in str(historico.observacao).splitlines():
+        linha_limpa = linha.strip()
+        if not linha_limpa:
+            continue
+        chave = _texto_normalizado_licitacao(linha_limpa.split(':', 1)[0] + ':')
+        for prefixo, destino in mapa.items():
+            if chave == _texto_normalizado_licitacao(prefixo):
+                dados[destino] = linha_limpa.split(':', 1)[1].strip() if ':' in linha_limpa else ''
+                break
+    return dados
+
+
+def _montar_contexto_analise_licitacao(sac, dados_base=None):
+    dados_base = dict(dados_base or {})
+    itens, nomes_ocorrencia = _itens_tipo_ocorrencia_licitacao(sac)
+    item_relevante = itens[0] if itens else None
+
+    flow = _resolver_fluxo_fixo_licitacao(sac) or {}
+    valor_unitario = _valor_unitario_item_nf(getattr(item_relevante, 'item_nota_fiscal', None))
+    quantidade = sum(Decimal(str(getattr(i, 'quantidade_com_problema', 0) or 0)) for i in itens) if itens else Decimal('0')
+    valor_total = valor_unitario * quantidade
+
+    flow_case = ''
+    if flow.get('motivo') == 'duplicidade_licitacao':
+        flow_case = 'pedido_duplicidade'
+    elif flow.get('motivo') == 'desacordo_edital':
+        flow_case = 'desacordo_edital'
+
+    ctx = {
+        'flow_case': flow_case,
+        'tipo_produto': dados_base.get('tipo_produto', ''),
+        'valor_unitario_vendido': _formatar_decimal_licitacao(valor_unitario),
+        'quantidade_com_problema': _formatar_decimal_sem_zeros(quantidade),
+        'valor_total_com_problema': _formatar_decimal_licitacao(valor_total),
+        'proximo_status_nome': getattr(flow.get('status'), 'nome', 'Em Análise') if flow else 'Em Análise',
+        'proximo_setor_nome': getattr(flow.get('setor'), 'nome', 'SAC') if flow else 'SAC',
+        'proxima_acao_nome': getattr(flow.get('acao'), 'nome', '-') if flow else '-',
+    }
+    for key in [
+        'usuario_classificou_edital','qual_ponto_divergiu','teve_erro_classificacao','edital_estava_claro',
+        'justificativa','tem_referencia_correta','referencia_correta','valor_referencia_correta',
+        'marca_alternativa','valor_marca_alternativa','nome_usuario_gerou_pedido',
+        'nome_usuario_fez_conferencia','justificativa_erro'
+    ]:
+        ctx[key] = dados_base.get(key, '')
+
+    base_valor = _parse_decimal_licitacao(ctx['valor_unitario_vendido'])
+    valor_ref = _parse_decimal_licitacao(ctx.get('valor_referencia_correta'))
+    diff_ref = valor_ref - base_valor
+    ctx['diferenca_referencia'] = _formatar_decimal_licitacao(diff_ref) if ctx.get('valor_referencia_correta') else ''
+    ctx['diferenca_referencia_positiva'] = diff_ref > 0
+
+    valor_alt = _parse_decimal_licitacao(ctx.get('valor_marca_alternativa'))
+    diff_alt = valor_alt - base_valor
+    ctx['diferenca_marca_alternativa'] = _formatar_decimal_licitacao(diff_alt) if ctx.get('valor_marca_alternativa') else ''
+    ctx['diferenca_marca_alternativa_positiva'] = diff_alt > 0
+    return ctx
+
+
+@login_required
+def gestao_licitacao(request, sac_id=None):
+    sacs_pendentes_qs = _sac_aguarda_acao_licitacao_queryset()
+    sac_id_selecionado = sac_id or request.POST.get('sac_id') or request.GET.get('sac')
+    sac = None
+
+    cards_pendentes = []
+    agora = timezone.now()
+    for sac_item in sacs_pendentes_qs:
+        ultimo_historico = sac_item.historicos.order_by('-data_evento', '-id').first()
+        marco = ultimo_historico.data_evento if ultimo_historico else sac_item.data_abertura
+        cliente_nome = (
+            sac_item.cliente.razao_social if sac_item.cliente and getattr(sac_item.cliente, 'razao_social', None)
+            else (sac_item.cliente.nome if sac_item.cliente and getattr(sac_item.cliente, 'nome', None) else '-')
+        )
+        cards_pendentes.append({
+            'id': sac_item.id,
+            'numero': sac_item.numero or f'SAC {sac_item.id}',
+            'empresa_nome': _empresa_sac(sac_item),
+            'cliente_nome': cliente_nome,
+            'nota_fiscal_numero': _nota_sac(sac_item),
+            'status_atual_nome': _status_anterior_card(sac_item),
+            'acao_em_espera_nome': _acao_em_espera_card(sac_item),
+            'tempo_espera': _formatar_tempo_espera(agora - marco),
+            'tempo_cor': _classe_tempo_espera(agora - marco),
+            'marco_tempo': marco,
+            'selecionado': str(sac_item.id) == str(sac_id_selecionado),
+        })
+    cards_pendentes = sorted(cards_pendentes, key=lambda x: (x['marco_tempo'], x['id']))
+
+    if sac_id_selecionado:
+        sac = get_object_or_404(
+            SAC.objects.select_related('empresa', 'cliente', 'nota_fiscal', 'status_atual', 'acao_em_espera', 'setor_atual')
+            .prefetch_related('itens_sac__item_nota_fiscal', 'itens_sac__tipo_ocorrencia__setor', 'historicos'),
+            id=sac_id_selecionado
+        )
+
+    historico = []
+    itens_contexto = None
+    itens_sac = []
+    form = None
+    grafico_tempo_status = []
+    setor_contexto_licitacao = None
+    acao_em_espera_atual = '-'
+    usuario_anterior_nome = '-'
+    licitacao_ctx = None
+
+    if sac:
+        historico = sac.historicos.select_related('usuario', 'status_novo', 'setor_destino', 'setor_origem').order_by('-data_evento', '-id')[:20]
+        grafico_tempo_status = montar_grafico_tempo_status_sac(sac)
+        itens_sac = sac.itens_sac.select_related('item_nota_fiscal', 'tipo_ocorrencia').all()
+        setor_contexto = sac.setor_atual or obter_setor_por_nome('Licitação') or obter_setor_por_nome('Licitacao')
+        itens_contexto = montar_contexto_itens_sac(sac, setor_contexto=setor_contexto)
+        setor_contexto_licitacao = resolver_setor_contexto_licitacao(sac)
+        acao_em_espera_atual = sac.acao_em_espera.nome if getattr(sac, 'acao_em_espera', None) else '-'
+        if historico:
+            usuario_hist = getattr(historico[0], 'usuario', None)
+            if usuario_hist:
+                usuario_anterior_nome = usuario_hist.get_full_name() or usuario_hist.username or '-'
+
+        dados_iniciais = _extrair_dados_analise_licitacao(sac)
+
+        if request.method == 'POST':
+            dados_post = {
+                'tipo_produto': (request.POST.get('tipo_produto') or '').strip(),
+                'usuario_classificou_edital': (request.POST.get('usuario_classificou_edital') or '').strip(),
+                'qual_ponto_divergiu': (request.POST.get('qual_ponto_divergiu') or '').strip(),
+                'teve_erro_classificacao': (request.POST.get('teve_erro_classificacao') or '').strip(),
+                'edital_estava_claro': (request.POST.get('edital_estava_claro') or '').strip(),
+                'justificativa': (request.POST.get('justificativa') or '').strip(),
+                'tem_referencia_correta': (request.POST.get('tem_referencia_correta') or '').strip(),
+                'referencia_correta': (request.POST.get('referencia_correta') or '').strip(),
+                'valor_referencia_correta': (request.POST.get('valor_referencia_correta') or '').strip(),
+                'marca_alternativa': (request.POST.get('marca_alternativa') or '').strip(),
+                'valor_marca_alternativa': (request.POST.get('valor_marca_alternativa') or '').strip(),
+                'nome_usuario_gerou_pedido': (request.POST.get('nome_usuario_gerou_pedido') or '').strip(),
+                'nome_usuario_fez_conferencia': (request.POST.get('nome_usuario_fez_conferencia') or '').strip(),
+                'justificativa_erro': (request.POST.get('justificativa_erro') or '').strip(),
+            }
+            licitacao_ctx = _montar_contexto_analise_licitacao(sac, dados_post)
+            flow = _resolver_fluxo_fixo_licitacao(sac)
+
+            erros = []
+            if not dados_post['tipo_produto']:
+                erros.append('Tipo de produto é obrigatório.')
+
+            if not flow:
+                erros.append('Não foi possível determinar o fluxo fixo da Licitação para este SAC.')
+
+            if licitacao_ctx.get('flow_case') == 'desacordo_edital':
+                if not dados_post['usuario_classificou_edital']:
+                    erros.append('Usuário que Classificou o edital é obrigatório.')
+                if not dados_post['teve_erro_classificacao']:
+                    erros.append('Teve erro de classificação é obrigatório.')
+                if not dados_post['edital_estava_claro']:
+                    erros.append('Edital estava claro/objetivo é obrigatório.')
+                if dados_post['edital_estava_claro'] == 'Não' and not dados_post['justificativa']:
+                    erros.append('Justificativa é obrigatória quando o edital não estava claro/objetivo.')
+                if not dados_post['tem_referencia_correta']:
+                    erros.append('Temos uma Referência correta pra atender é obrigatório.')
+                if dados_post['tem_referencia_correta'] == 'Sim':
+                    if not dados_post['referencia_correta']:
+                        erros.append('Referência Correta é obrigatória.')
+                    if not dados_post['valor_referencia_correta']:
+                        erros.append('Valor da Referência Correta é obrigatório.')
+                elif dados_post['tem_referencia_correta'] == 'Não':
+                    if not dados_post['marca_alternativa']:
+                        erros.append('Marca Alternativa é obrigatória.')
+                    if not dados_post['valor_marca_alternativa']:
+                        erros.append('Valor Marca Alternativa é obrigatório.')
+            elif licitacao_ctx.get('flow_case') == 'pedido_duplicidade':
+                if not dados_post['nome_usuario_gerou_pedido']:
+                    erros.append('Nome do Usuário que Gerou o Pedido é obrigatório.')
+                if not dados_post['nome_usuario_fez_conferencia']:
+                    erros.append('Nome do Usuário que fez a Conferência é obrigatório.')
+
+            if erros:
+                for erro in erros:
+                    messages.error(request, erro)
+            else:
+                observacao_historico_linhas = [
+                    f"Tipo de produto: {dados_post['tipo_produto']}",
+                ]
+                if licitacao_ctx.get('flow_case') == 'desacordo_edital':
+                    observacao_historico_linhas.extend([
+                        f"Usuário que Classificou o edital: {dados_post['usuario_classificou_edital'] or '-'}",
+                        f"Qual ponto divergiu: {dados_post['qual_ponto_divergiu'] or '-'}",
+                        f"Teve erro de classificação: {dados_post['teve_erro_classificacao'] or '-'}",
+                        f"Edital estava claro/objetivo: {dados_post['edital_estava_claro'] or '-'}",
+                        f"Justificativa: {dados_post['justificativa'] or '-'}",
+                        f"Temos uma Referência correta pra atender: {dados_post['tem_referencia_correta'] or '-'}",
+                        f"Referência Correta: {dados_post['referencia_correta'] or '-'}",
+                        f"Valor da Referência Correta: {dados_post['valor_referencia_correta'] or '-'}",
+                        f"Marca Alternativa: {dados_post['marca_alternativa'] or '-'}",
+                        f"Valor Marca Alternativa: {dados_post['valor_marca_alternativa'] or '-'}",
+                    ])
+                elif licitacao_ctx.get('flow_case') == 'pedido_duplicidade':
+                    observacao_historico_linhas.extend([
+                        f"Nome do Usuário que Gerou o Pedido: {dados_post['nome_usuario_gerou_pedido'] or '-'}",
+                        f"Nome do Usuário que fez a Conferência: {dados_post['nome_usuario_fez_conferencia'] or '-'}",
+                        f"Justificativa do Erro: {dados_post['justificativa_erro'] or '-'}",
+                    ])
+                observacao_historico_linhas.extend([
+                    f"Próximo status: {getattr(flow.get('status'), 'nome', '-')}",
+                    f"Ação em espera: {getattr(flow.get('acao'), 'nome', '-')}",
+                    f"Próximo setor: {getattr(flow.get('setor'), 'nome', '-')}",
+                ])
+                observacao_historico = '\n'.join(observacao_historico_linhas)
+
+                SacAnaliseComercial.objects.update_or_create(
+                    sac=sac,
+                    defaults={
+                        'cliente_confirmou_pedido': False,
+                        'cliente_aceita_negociacao': False,
+                        'proximo_status_sugerido': flow.get('status'),
+                        'acao_em_espera': flow.get('acao'),
+                        'valor_desconto_pleiteado': None,
+                        'observacao_comercial': observacao_historico,
+                        'usuario_responsavel': request.user,
+                        'data_analise': timezone.now(),
+                    }
+                )
+
+                aplicar_transicao_sac(
+                    sac=sac,
+                    usuario=request.user,
+                    acao_em_espera=flow.get('acao'),
+                    setor_destino=flow.get('setor'),
+                    status_novo=flow.get('status') or sac.status_atual,
+                    observacao=observacao_historico,
+                    acao_executada_texto='Análise de licitação registrada',
+                )
+
+                messages.success(request, f'Análise de licitação do SAC {sac.numero} registrada com sucesso.')
+                setor_fluxo = flow.get('setor')
+                nome_setor_fluxo = (getattr(setor_fluxo, 'nome', '') or '').strip().lower()
+                if nome_setor_fluxo == 'sac':
+                    return redirect(f'/sac/gestao/?sac={sac.id}')
+                return redirect('/sac/gestao-licitacao/')
+        else:
+            licitacao_ctx = _montar_contexto_analise_licitacao(sac, dados_iniciais)
+
+    return render(request, 'core/gestao_licitacao.html', {
+        'sac': sac,
+        'historico': historico,
+        'itens_sac': itens_sac,
+        'itens_contexto': itens_contexto,
+        'form': form,
+        'licitacao_ctx': licitacao_ctx,
+        'cards_pendentes': cards_pendentes,
+        'setor_contexto_licitacao': setor_contexto_licitacao,
+        'acao_em_espera_atual': acao_em_espera_atual,
+        'usuario_anterior_nome': usuario_anterior_nome,
+        'fluxo_alertas': diagnosticar_fluxo_inicial(sac, setor_contexto=getattr(sac, 'setor_atual', None), nome_tela='Gestão Licitação') if sac else [],
+        'grafico_tempo_status': grafico_tempo_status,
+    })
+
+
+# === OVERRIDE MODULAR SEGURO ===
+from core.views_modular.views_gestao import gestao_sac as gestao_sac
+
+
+# === OVERRIDE MODULAR LOGISTICA ===
+from core.views_modular.views_logistica import gestao_logistica as gestao_logistica
+
+
+# === BLINDAGEM CANONICA FINAL: ASSISTÊNCIA TÉCNICA ===
+from core.views_modular.views_assistencia_tecnica import gestao_assistencia_tecnica as gestao_assistencia_tecnica
+from core.services.sac_bridge import (
+    sac_aguardando_acao_assistencia_tecnica_queryset as _sac_aguardando_acao_assistencia_tecnica_queryset,
+)

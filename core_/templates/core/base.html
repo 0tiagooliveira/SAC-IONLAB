@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}SAC Intranet{% endblock %}</title>
+    <style>
+        :root{
+            --azul:#0d3b66;
+            --azul-2:#145a8f;
+            --ciano:#00b4c7;
+            --texto:#17324d;
+            --muted:#64748b;
+            --borda:#d6e3ef;
+            --card:#fff;
+            --bg:#f4f8fc;
+            --shadow:0 18px 40px rgba(13,59,102,.10);
+            --danger:#d62839;
+        }
+        *{box-sizing:border-box}
+        body{
+            margin:0;
+            font-family:Arial,sans-serif;
+            color:var(--texto);
+            background:
+                radial-gradient(circle at top right,rgba(0,180,199,.14),transparent 30%),
+                linear-gradient(180deg,#f8fbfe 0%,#eef5fb 100%);
+        }
+        .shell{
+            min-height:100vh;
+            display:grid;
+            grid-template-columns:280px 1fr;
+        }
+        .sidebar{
+            background:linear-gradient(180deg,var(--azul) 0%, #0f4f82 100%);
+            color:#fff;
+            padding:24px 18px;
+            box-shadow:8px 0 24px rgba(13,59,102,.12);
+            position:sticky;
+            top:0;
+            height:100vh;
+            overflow:auto;
+        }
+        .brand{
+            display:flex;
+            align-items:center;
+            gap:14px;
+            padding:10px 8px 22px;
+            border-bottom:1px solid rgba(255,255,255,.14);
+            margin-bottom:20px;
+        }
+        .brand img{
+            width:54px;
+            height:54px;
+            object-fit:contain;
+            border-radius:14px;
+            background:rgba(255,255,255,.10);
+            padding:6px;
+        }
+        .brand h1{
+            margin:0;
+            font-size:18px;
+            line-height:1.2;
+        }
+        .brand p{
+            margin:4px 0 0;
+            font-size:12px;
+            color:rgba(255,255,255,.75);
+        }
+        .nav-group{
+            margin-bottom:20px;
+        }
+        .nav-label{
+            font-size:11px;
+            text-transform:uppercase;
+            letter-spacing:.08em;
+            color:rgba(255,255,255,.58);
+            margin:0 0 8px;
+            padding:0 8px;
+        }
+        .nav{
+            display:grid;
+            gap:8px;
+        }
+        .nav a{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            text-decoration:none;
+            color:#fff;
+            padding:12px 14px;
+            border-radius:14px;
+            background:rgba(255,255,255,.06);
+            border:1px solid rgba(255,255,255,.08);
+            transition:.18s ease;
+            font-weight:700;
+            font-size:14px;
+        }
+        .nav a.active{
+            background:linear-gradient(135deg,rgba(0,180,199,.42),rgba(255,255,255,.14));
+            border-color:rgba(0,180,199,.55);
+            box-shadow:0 10px 24px rgba(0,180,199,.18);
+        }
+        .nav a.active::before{
+            content:"";
+            width:8px;
+            height:8px;
+            border-radius:999px;
+            background:#fff;
+            display:inline-block;
+        }
+        .nav a:hover{
+            transform:translateX(2px);
+            background:rgba(255,255,255,.12);
+            border-color:rgba(255,255,255,.18);
+        }
+        .nav .highlight{
+            background:linear-gradient(135deg,rgba(0,180,199,.38),rgba(255,255,255,.08));
+            border-color:rgba(0,180,199,.42);
+        }
+        .main{
+            padding:0;
+            min-width:0;
+        }
+        .topbar{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:18px;
+            padding:18px 26px;
+            background:rgba(255,255,255,.72);
+            backdrop-filter:blur(10px);
+            border-bottom:1px solid #dde8f3;
+            position:sticky;
+            top:0;
+            z-index:10;
+        }
+        .topbar h2{
+            margin:0;
+            font-size:18px;
+            color:var(--azul);
+        }
+        .topbar p{
+            margin:4px 0 0;
+            color:var(--muted);
+            font-size:13px;
+        }
+        .topbar-actions{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+        }
+        .top-btn{
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            text-decoration:none;
+            font-weight:700;
+            padding:11px 15px;
+            border-radius:14px;
+            border:1px solid #d8e4ef;
+            background:#fff;
+            color:var(--azul);
+            box-shadow:0 10px 20px rgba(13,59,102,.06);
+        }
+        .page-wrap{
+            padding:24px;
+        }
+        .queue-card{
+            max-width:1380px;
+            margin:0 auto 18px;
+            background:#fff;
+            border:1px solid #d6e3ef;
+            border-radius:24px;
+            box-shadow:0 18px 40px rgba(13,59,102,.10);
+            overflow:hidden;
+        }
+        .queue-head{
+            padding:18px 22px;
+            border-bottom:1px solid #e5edf5;
+            background:linear-gradient(180deg,#fff 0%,#f7fbff 100%);
+        }
+        .queue-head h3{
+            margin:0;
+            color:#0d3b66;
+            font-size:20px;
+        }
+        .queue-head p{
+            margin:6px 0 0;
+            color:#64748b;
+            font-size:13px;
+        }
+        .queue-list{
+            padding:14px;
+            display:grid;
+            gap:10px;
+        }
+        .queue-row-link{
+            text-decoration:none;
+            color:inherit;
+            display:block;
+        }
+        .queue-row-link:hover .queue-row{
+            transform:translateY(-2px);
+            box-shadow:0 16px 28px rgba(13,59,102,.10);
+            border-color:#9fc3e4;
+            background:linear-gradient(180deg,#ffffff 0%,#f7fbff 100%);
+        }
+        .queue-row{
+            position:relative;
+        }
+        .queue-row::after{
+            content:"↗";
+            position:absolute;
+            right:14px;
+            top:12px;
+            font-size:14px;
+            color:#5f7893;
+            font-weight:700;
+        }
+        .queue-row-link:hover .queue-row::after{
+            color:#0d3b66;
+        }
+        .queue-row-link:hover .queue-row .queue-tag.critico{
+            filter:brightness(.95);
+        }
+        .queue-row-link:hover .queue-row .queue-tag.alerta{
+            filter:brightness(.97);
+        }
+        .queue-row-link:hover .queue-row .queue-tag.normal{
+            filter:brightness(.97);
+        }
+        .queue-row-link:hover .queue-row{
+            transform:translateY(-2px);
+            box-shadow:0 12px 24px rgba(13,59,102,.08);
+            border-color:#bfd4e8;
+        }
+        .queue-row{
+            display:grid,
+            grid-template-columns:minmax(120px,150px) 1fr minmax(140px,180px) minmax(110px,140px);
+            gap:12px;
+            padding:14px 16px;
+            border:1px solid #dbe8f4;
+            border-radius:18px;
+            background:#fff;
+            align-items:center;
+        }
+        .queue-tag{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            padding:7px 10px;
+            border-radius:999px;
+            font-weight:700;
+            font-size:12px;
+        }
+        .queue-tag.normal{background:#eef5fb;color:#31597d;}
+        .queue-tag.alerta{background:#fff7e7;color:#7d5a00;}
+        .queue-tag.critico{background:#b3261e;color:#fff;}
+        @media (max-width:900px){
+            .queue-row{grid-template-columns:1fr;}
+        }
+        .page{max-width:1380px;margin:0 auto}
+        .hero{
+            display:grid;
+            grid-template-columns:96px 1fr auto;
+            gap:20px;
+            align-items:center;
+            padding:26px;
+            border-radius:28px;
+            background:linear-gradient(135deg,var(--azul) 0%,var(--azul-2) 55%,#0f7490 100%);
+            color:#fff;
+            box-shadow:var(--shadow)
+        }
+        .logo-box{
+            width:96px;height:96px;border-radius:22px;background:rgba(255,255,255,.14);
+            display:flex;align-items:center;justify-content:center
+        }
+        .logo-box img{max-width:70px;max-height:70px}
+        .hero h1{margin:0;font-size:34px}
+        .hero p{margin:8px 0 0;line-height:1.5;color:rgba(255,255,255,.86)}
+        .hero-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+        .btn{
+            display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:700;
+            padding:13px 18px;border-radius:15px;border:none;cursor:pointer;font-size:14px
+        }
+        .btn-light{background:#fff;color:var(--azul)}
+        .btn-outline{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.24)}
+        .messages{margin-top:16px}
+        .msg{padding:14px 16px;border-radius:14px;margin-bottom:10px;font-weight:700}
+        .msg.success{background:#e9f7ef;border:1px solid #cdebd8;color:#185f37}
+        .msg.error{background:#b3261e;border:1px solid #8e1c16;color:#fff}
+        .msg.warning{background:#fff7e7;border:1px solid #f2d494;color:#7d5a00}
+        .detail-layout{margin-top:22px;display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+        .stack{display:grid;gap:18px}
+        .card{
+            background:var(--card);border:1px solid var(--borda);border-radius:24px;
+            box-shadow:var(--shadow);padding:22px
+        }
+        .card h2{margin:0 0 18px;font-size:22px;color:var(--azul)}
+        .field{margin-bottom:14px}
+        .field label{display:block;margin-bottom:6px;font-size:13px;font-weight:700;color:#355675}
+        input,select,textarea{
+            width:100%;border:1px solid #cfdeec;border-radius:14px;padding:12px 14px;
+            font-size:14px;outline:none;background:#fff
+        }
+        input[readonly],textarea[readonly],.readonly{background:#f4f7fb;color:#45627d}
+        textarea{min-height:120px;resize:vertical}
+        .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .item-box,.history-item,.timeline-box{
+            border:1px solid #dbe8f3;border-radius:18px;padding:16px;background:#fff
+        }
+        .item-title,.history-title{font-size:18px;font-weight:700;color:var(--azul);margin-bottom:6px}
+        .item-sub,.history-sub,.muted{color:#5f7893;font-size:13px}
+        .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+        .btn-primary{background:linear-gradient(135deg,var(--ciano),#1499bd);color:#fff}
+        .btn-dark{background:linear-gradient(135deg,var(--azul),#174e7e);color:#fff}
+        .empty{
+            background:#f7fbff;border:1px dashed #d4e2ef;color:#617b96;border-radius:16px;
+            padding:18px;font-size:14px
+        }
+        @media (max-width:1180px){
+            .shell{grid-template-columns:1fr}
+            .sidebar{position:relative;height:auto}
+            .detail-layout,.grid-2{grid-template-columns:1fr}
+        }
+        @media (max-width:760px){
+            .page-wrap{padding:14px}
+            .hero{grid-template-columns:1fr}
+            .hero-actions{justify-content:flex-start}
+            .logo-box{width:82px;height:82px}
+            .hero h1{font-size:28px}
+            .topbar{padding:14px}
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+<div class="shell">
+    <aside class="sidebar">
+        <div class="brand">
+            <img src="/static/core/img/logo-ionlab.png" alt="Ionlab">
+            <div>
+                <h1>Painel SAC</h1>
+                <p>Gestão interna Iongroup</p>
+            </div>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-label">Navegação</div>
+            <div class="nav">
+                <a class="highlight" href="/intra/">🏠 Painel principal</a>
+                <a href="/sac/abrir/">➕ Abrir novo SAC</a>
+                <a href="/sac/gestao/">🗂 Gestão do SAC</a>
+                <a href="/sac/analise-comercial/">💼 Gestão Comercial</a>
+                <a href="/sac/gestao-logistica/">🚚 Gestão Logística</a>
+                <a href="/sac/diretoria/">🏛 Diretoria</a>
+            </div>
+        </div>
+        <div class="nav-group">
+            <div class="nav-label">Setores cadastrados</div>
+            <div class="nav">
+                {% for item in menu_setores_dinamicos %}
+                    {% if item.url %}
+                        <a href="{{ item.url }}" class="{% if item.slug == setor_slug_atual %}active{% endif %}">
+                            <span>{{ item.nome }}</span>
+                            <span style="margin-left:auto;background:rgba(255,255,255,.16);padding:4px 9px;border-radius:999px">{{ item.total }}</span>
+                        </a>
+                    {% else %}
+                        <a href="/admin/core/setor/" title="Setor ainda sem rota pública">
+                            <span>{{ item.nome }}</span>
+                            <span style="margin-left:auto;background:rgba(255,255,255,.16);padding:4px 9px;border-radius:999px">{{ item.total }}</span>
+                        </a>
+                    {% endif %}
+                {% empty %}
+                    <a href="/admin/core/setor/">
+                        <span>Nenhum setor cadastrado</span>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <div>
+                <h2>{% block topbar_title %}SAC Intranet{% endblock %}</h2>
+                <p>{% block topbar_subtitle %}Base visual unificada das telas do sistema.{% endblock %}</p>
+            </div>
+            <div class="topbar-actions">
+                <a class="top-btn" href="/intra/">Painel</a>
+                <a class="top-btn" href="/sac/abrir/">Novo SAC</a>
+            </div>
+        </div>
+
+        <div class="page-wrap">
+            {% if fila_setorial_atual %}
+            <section class="queue-card">
+                <div class="queue-head">
+                    <h3>SACs aguardando ação — {{ fila_setorial_nome }}</h3>
+                    <p>Fila dinâmica do setor atual, ordenada por criticidade de tempo aguardando.</p>
+                </div>
+                <div class="queue-list">
+                    {% for item in fila_setorial_atual %}
+                    <a class="queue-row-link" href="{{ item.url|default:'#' }}">
+                        <div class="queue-row">
+                            <div>
+                                <div class="muted">Número do SAC</div>
+                                <strong>{{ item.numero_sac }}</strong>
+                            </div>
+                            <div>
+                                <div class="muted">Cliente / Ação em espera</div>
+                                <strong>{{ item.cliente }}</strong><br>
+                                <span class="muted">{{ item.acao_em_espera }}</span>
+                            </div>
+                            <div>
+                                <div class="muted">Status atual</div>
+                                <strong>{{ item.status_atual }}</strong>
+                            </div>
+                            <div>
+                                <div class="muted">Tempo aguardando</div>
+                                <span class="queue-tag {{ item.tempo_classe }}">{{ item.tempo_aguardando }}</span>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+</div>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

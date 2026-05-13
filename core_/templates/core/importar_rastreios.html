@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Importação de Serial/Lote</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f6fa;
+            margin: 0;
+            padding: 24px;
+        }
+        .caixa {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            border-radius: 10px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .linha { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 6px; font-weight: bold; }
+        input, select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            border: 1px solid #cfcfcf;
+            border-radius: 6px;
+        }
+        button {
+            background: #1f5fa8;
+            color: #fff;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .mensagem {
+            background: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 14px;
+        }
+        .resumo {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 18px;
+            background: #fafafa;
+        }
+    </style>
+</head>
+<body>
+    <div class="caixa">
+        <h2>Importação de Serial / Lote</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mensagem">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="linha">
+                <label>Empresa</label>
+                {{ form.empresa }}
+            </div>
+
+            <div class="linha">
+                <label>Planilha Excel</label>
+                {{ form.arquivo }}
+            </div>
+
+            <button type="submit">Importar serial/lote</button>
+        </form>
+
+        {% if resumo %}
+            <div class="resumo">
+                <p><strong>Empresa:</strong> {{ resumo.empresa }}</p>
+                <p><strong>Notas importadas:</strong> {{ resumo.notas_importadas }}</p>
+                <p><strong>Notas ignoradas por já existirem:</strong> {{ resumo.notas_ignoradas }}</p>
+                <p><strong>Registros criados:</strong> {{ resumo.registros_criados }}</p>
+                <p><strong>Linhas sem número de nota:</strong> {{ resumo.linhas_sem_numero }}</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

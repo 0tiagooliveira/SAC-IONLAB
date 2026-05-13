@@ -1,0 +1,1204 @@
+{% extends 'core/base.html' %}
+{% block title %}Dashboard SAC + SLA{% endblock %}
+{% block topbar_title %}Dashboard SLA{% endblock %}
+{% block topbar_subtitle %}Indicadores visuais, setores, vencimentos e itens campeoes do SAC.{% endblock %}
+{% block extra_head %}
+<style>
+
+    :root{
+      --bg:#edf5f9;
+      --card:#fff;
+      --ink:#0d2f4d;
+      --muted:#60788f;
+      --line:#d2e2ee;
+      --blue:#0d3b66;
+      --blue-2:#145a8f;
+      --cyan:#00b4c7;
+      --green:#149b7e;
+      --gold:#d7a11b;
+      --red:#d62839;
+      --shadow:0 18px 42px rgba(13,59,102,.12);
+    }
+    *{box-sizing:border-box}
+    .page{max-width:1540px;margin:0 auto;padding:28px}
+    .hero{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:22px;
+      align-items:center;
+      padding:28px;
+      color:#fff;
+      border-radius:28px;
+      background:linear-gradient(135deg,var(--blue),var(--blue-2) 58%,#0f7892);
+      border-bottom:5px solid var(--cyan);
+      box-shadow:var(--shadow);
+    }
+    .eyebrow{display:inline-flex;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.18);font-size:12px;font-weight:900;text-transform:uppercase}
+    h1{margin:14px 0 7px;font-size:38px;line-height:1.1}
+    .hero p{margin:0;color:rgba(255,255,255,.84);line-height:1.5;max-width:940px}
+    .hero h1,.hero .eyebrow,.hero a.btn-blue,.btn-blue,.btn-blue *,.rank-pos,.rank-pos *{color:#fff}
+    .hero-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;border-radius:13px;padding:11px 15px;border:1px solid transparent;text-decoration:none;font-weight:900;font-size:14px;cursor:pointer}
+    .btn-light{background:#fff;color:var(--blue)}
+    .btn-blue{background:linear-gradient(135deg,var(--blue),var(--blue-2));color:#fff}
+    .btn-muted{background:#eef6fb;color:#254d70;border-color:var(--line)}
+    .company-filter{margin-top:18px;background:#fff;border:1px solid var(--line);border-radius:22px;padding:16px 18px;box-shadow:var(--shadow)}
+    .company-filter-head{display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+    .company-filter-title{display:flex;flex-direction:column;gap:3px}
+    .company-filter-title strong{color:var(--blue);font-size:17px}
+    .company-filter-title span{color:var(--muted);font-size:13px}
+    .company-buttons{display:flex;gap:9px;flex-wrap:wrap}
+    .company-btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:12px 18px;border-radius:999px;border:1px solid #cfe0ec;background:#f7fbff;color:#254d70;text-decoration:none;font-size:16px;font-weight:900}
+    .company-btn.active{background:linear-gradient(135deg,var(--blue),var(--cyan));border-color:transparent;color:#fff;box-shadow:0 10px 22px rgba(13,59,102,.18)}
+    .kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-top:22px}
+    .kpi{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--shadow);min-width:0}
+    .kpi small{display:block;color:var(--muted);text-transform:uppercase;font-weight:900;font-size:11px;margin-bottom:9px}
+    .kpi strong{display:block;font-size:29px;line-height:1;color:var(--blue);overflow-wrap:anywhere}
+    .kpi .hint{margin-top:8px;color:var(--muted);font-size:13px;line-height:1.35}
+    .kpi.red strong{color:var(--red)}.kpi.gold strong{color:var(--gold)}.kpi.green strong{color:var(--green)}
+    .section{margin-top:22px}
+    .section-head{display:flex;justify-content:space-between;gap:16px;align-items:end;margin-bottom:14px;flex-wrap:wrap}
+    .section-head h2{margin:0;font-size:24px;color:var(--blue)}
+    .section-head p{margin:5px 0 0;color:var(--muted);font-size:14px}
+    .grid{display:grid;gap:18px}
+    .grid-2{grid-template-columns:1fr 1fr}
+    .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .chart-card,.table-card,.rank-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:22px;
+      box-shadow:var(--shadow);
+      padding:20px;
+      min-width:0;
+    }
+    .chart-card h3,.table-card h3,.rank-card h3{margin:0 0 4px;color:var(--blue);font-size:19px}
+    .sub{margin:0 0 16px;color:var(--muted);font-size:13px;line-height:1.4}
+    canvas{width:100%;height:280px;display:block}
+    .chart-small canvas{height:230px}
+    .chart-tall canvas{height:430px}
+    .usage-time-card canvas{height:980px}
+    .usage-time-grid{align-items:start}
+    .period-chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:16px}
+    .period-chart{border:1px solid #d7e6f1;border-radius:18px;padding:14px;background:linear-gradient(180deg,#fff,#f8fcff)}
+    .period-chart h4{margin:0 0 4px;color:var(--blue);font-size:16px}
+    .period-chart p{margin:0 0 10px;color:var(--muted);font-size:12px}
+    .period-chart canvas{height:360px}
+    .equipment-ratio-chart .period-chart canvas{height:880px}
+    .resolution-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .resolution-card canvas{height:300px}
+    .dashboard-stack{grid-template-columns:1fr}
+    .sector-action-list{display:grid;gap:9px;margin-top:14px;border-top:1px solid #e4eef6;padding-top:14px}
+    .sector-action-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;border:1px solid #d7e6f1;border-radius:14px;background:#f8fcff;padding:10px 12px}
+    .sector-action-row strong{color:var(--blue);font-size:13px;overflow-wrap:anywhere}
+    .sector-action-row span{font-weight:900;color:var(--blue)}
+    .sector-action-row small{grid-column:1/-1;color:var(--muted);line-height:1.35;overflow-wrap:anywhere}
+    .sector-sac-list{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:7px;margin-top:2px}
+    .sector-sac-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid #cfe0ec;border-radius:999px;background:#fff;padding:6px 9px;color:#254d70;font-size:12px;font-weight:800}
+    .sector-sac-pill b{color:var(--blue)}
+    .sector-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:13px}
+    .sector-card{border:1px solid #d7e6f1;border-radius:18px;background:linear-gradient(180deg,#fff,#f8fcff);padding:15px;min-width:0}
+    .sector-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}
+    .sector-top strong{font-size:17px;color:var(--blue)}
+    .badge{display:inline-flex;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:900;background:#eef6fb;color:#315d7e;white-space:nowrap}
+    .badge.red{background:#fdecec;color:#a32121}.badge.gold{background:#fff7df;color:#7c5700}.badge.green{background:#e8f7ef;color:#155d42}
+    .sector-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .metric{border:1px solid #e1edf5;border-radius:13px;padding:10px;background:#fff}
+    .metric small{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;font-weight:900;margin-bottom:5px}
+    .metric strong{font-size:16px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:12px 10px;border-bottom:1px solid #edf2f7;text-align:left;font-size:14px;vertical-align:top}
+    th{color:var(--blue);background:#f4f9fd;font-size:12px;text-transform:uppercase}
+    .sla-verde{color:var(--green);font-weight:900}.sla-amarelo{color:#8a6500;font-weight:900}.sla-vermelho{color:var(--red);font-weight:900}
+    .tempo-verde,.tempo-amarelo,.tempo-vermelho{display:inline-flex;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900}
+    .tempo-verde{background:#e8f7ef;color:#155d42}.tempo-amarelo{background:#fff7df;color:#7c5700}.tempo-vermelho{background:#fdecec;color:#a32121}
+    .rank-list{display:grid;gap:10px}
+    .rank-split{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .rank-group-title{display:flex;align-items:center;gap:10px;margin:8px 0 10px;color:var(--blue);font-size:15px;font-weight:900}
+    .rank-group-title::after{content:'';height:1px;flex:1;background:#dbe8f2}
+    .rank-item{display:grid;grid-template-columns:38px minmax(0,1fr) 76px;gap:12px;align-items:center;border:1px solid #d7e6f1;border-radius:14px;padding:12px;background:linear-gradient(180deg,#fff,#f8fcff);min-width:0}
+    .rank-pos{width:30px;height:30px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--cyan));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px}
+    .rank-title{font-weight:900;color:var(--blue);overflow-wrap:anywhere;line-height:1.2}
+    .rank-desc{color:var(--muted);font-size:12px;line-height:1.35;overflow-wrap:anywhere}
+    .rank-total{text-align:right;font-weight:900;color:var(--blue)}
+    .rank-total small{display:block;color:var(--muted);font-weight:700;margin-top:4px}
+    .empty{border:1px dashed #c7d9e8;border-radius:16px;padding:18px;color:var(--muted);background:#f8fcff}
+    .critical-link{color:var(--blue);font-weight:900;text-decoration:none}
+    .muted{color:var(--muted)}
+    .dashboard-tabs{position:sticky;top:0;z-index:5;margin-top:18px;background:rgba(237,245,249,.94);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:24px;padding:12px;box-shadow:var(--shadow);display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+    .dashboard-tab{border:1px solid #cfe0ec;background:linear-gradient(180deg,#fff,#f8fcff);color:var(--blue);border-radius:17px;min-height:58px;padding:10px 13px;font-weight:900;cursor:pointer;display:flex;align-items:center;gap:10px;text-align:left;box-shadow:0 8px 18px rgba(13,59,102,.06)}
+    .dashboard-tab:hover{border-color:#8fcfe0;transform:translateY(-1px)}
+    .dashboard-tab.active{background:linear-gradient(135deg,var(--blue),var(--blue-2) 58%,var(--cyan));color:#fff;border-color:transparent;box-shadow:0 14px 26px rgba(13,59,102,.22)}
+    .tab-index{width:30px;height:30px;border-radius:11px;background:#e9f5fb;color:var(--blue);display:inline-flex;align-items:center;justify-content:center;font-size:12px;letter-spacing:.02em;flex:0 0 auto}
+    .dashboard-tab.active .tab-index{background:#fff;color:var(--blue)}
+    .tab-label{line-height:1.2}
+    .dashboard-panel, .dashboard-card-panel{display:none}
+    .dashboard-panel.active{display:block}
+    .dashboard-card-panel.active{display:block}
+    .equipment-filter-box{border:1px solid var(--line);background:linear-gradient(180deg,#fff,#f7fcff);border-radius:20px;padding:14px;margin:0 0 16px;display:grid;grid-template-columns:1fr 1.4fr;gap:14px;align-items:start}
+    .equipment-filter-group small{display:block;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:900;margin-bottom:8px}
+    .equipment-filter-actions{display:flex;flex-wrap:wrap;gap:8px}
+    .equipment-filter-btn{border:1px solid #cfe0ec;background:#fff;color:var(--blue);border-radius:999px;padding:9px 13px;font-weight:900;cursor:pointer;box-shadow:0 7px 14px rgba(13,59,102,.06)}
+    .equipment-filter-btn.active{background:linear-gradient(135deg,var(--blue),var(--cyan));border-color:transparent;color:#fff;box-shadow:0 12px 22px rgba(13,59,102,.18)}
+    .equipment-filter-note{color:var(--muted);font-size:12px;margin-top:8px}
+    @media(max-width:1260px){.kpis{grid-template-columns:repeat(3,1fr)}.grid-3{grid-template-columns:1fr}.grid-2{grid-template-columns:1fr}.resolution-grid{grid-template-columns:1fr}.period-chart-grid{grid-template-columns:1fr}.equipment-filter-box{grid-template-columns:1fr}}
+    @media(max-width:760px){.page{padding:18px}.hero{grid-template-columns:1fr}.hero-actions{justify-content:flex-start}.company-buttons{display:grid;grid-template-columns:1fr 1fr}.kpis{grid-template-columns:1fr}.sector-metrics{grid-template-columns:1fr}h1{font-size:30px}.rank-split{grid-template-columns:1fr}.rank-item{grid-template-columns:34px minmax(0,1fr) 56px}.rank-total{align-self:start}}
+  
+</style>
+{% endblock %}
+{% block content %}
+<div class="page">
+
+    <section class="hero">
+      <div>
+        <span class="eyebrow">Dashboard visual do SAC</span>
+        <h1>SLA, setores e reincidência por item</h1>
+        <p>Visão geral para todos os usuários acompanharem gargalos, vencimentos, evolução mensal e itens que mais geram chamados por referência.</p>
+      </div>
+      <div class="hero-actions">
+        <a class="btn btn-light" href="/intra/">Voltar ao painel</a>
+        <a class="btn btn-blue" href="/sac/pesquisa/">Consultar SACs</a>
+      </div>
+    </section>
+
+    <section class="company-filter" aria-label="Filtro por empresa">
+      <div class="company-filter-head">
+        <div class="company-filter-title">
+          <strong>Empresa em visualização</strong>
+          <span>{% if dashboard_agrupado %}Todas as empresas agrupadas{% else %}Dados filtrados por {{ empresa_selecionada.razao_social }}{% endif %}</span>
+        </div>
+      </div>
+      <div class="company-buttons">
+        <a class="company-btn {% if dashboard_agrupado %}active{% endif %}" href="?empresa=agrupado">Agrupado</a>
+        {% for empresa in empresas_dashboard %}
+          <a class="company-btn {% if empresa.codigo == empresa_codigo_selecionado %}active{% endif %}" href="?empresa={{ empresa.codigo }}">{{ empresa.codigo|default:empresa.razao_social }}</a>
+        {% endfor %}
+      </div>
+    </section>
+
+    <nav class="dashboard-tabs" aria-label="Categorias do dashboard">
+      <button class="dashboard-tab active" type="button" data-dashboard-tab="criticos"><span class="tab-index">01</span><span class="tab-label">SACs mais críticos</span></button>
+      <button class="dashboard-tab" type="button" data-dashboard-tab="campeoes"><span class="tab-index">02</span><span class="tab-label">Campeões de SAC</span></button>
+      <button class="dashboard-tab" type="button" data-dashboard-tab="vencidos"><span class="tab-index">03</span><span class="tab-label">Vencidos por setor</span></button>
+      <button class="dashboard-tab" type="button" data-dashboard-tab="tempo"><span class="tab-index">04</span><span class="tab-label">Tempo médio de resolução</span></button>
+      <button class="dashboard-tab" type="button" data-dashboard-tab="grupos"><span class="tab-index">05</span><span class="tab-label">Grupos campeões de SAC</span></button>
+      <button class="dashboard-tab" type="button" data-dashboard-tab="clientes"><span class="tab-index">06</span><span class="tab-label">Clientes com mais SACs</span></button>
+      <button class="dashboard-tab" type="button" data-dashboard-tab="vendas"><span class="tab-index">07</span><span class="tab-label">Quantidade de Vendas X Quantidade de SACs</span></button>
+      <button class="dashboard-tab" type="button" data-dashboard-tab="ocorrencias"><span class="tab-index">08</span><span class="tab-label">Tipos de ocorrência mais comuns</span></button>
+      <button class="dashboard-tab" type="button" data-dashboard-tab="equipamentos"><span class="tab-index">09</span><span class="tab-label">SACs por quantidade vendida do grupo</span></button>
+      <button class="dashboard-tab" type="button" data-dashboard-tab="tempouso"><span class="tab-index">10</span><span class="tab-label">Tempo medio de uso</span></button>
+    </nav>
+
+    <section class="kpis">
+      <div class="kpi"><small>Total de SACs abertos</small><strong>{{ resumo.total_abertos }}</strong><div class="hint">Em andamento no fluxo.</div></div>
+      <div class="kpi red"><small>SACs vencidos</small><strong>{{ resumo.sla_vencidos }}</strong><div class="hint">Acima do limite de {{ sla_amarelo_horas }}h.</div></div>
+      <div class="kpi gold"><small>Próximos do vencimento</small><strong>{{ resumo.sla_proximos }}</strong><div class="hint">Entre {{ sla_verde_horas }}h e {{ sla_amarelo_horas }}h.</div></div>
+      <div class="kpi green"><small>Concluídos no mês</small><strong>{{ resumo.concluidos_mes }}</strong><div class="hint">Finalizados no mês atual.</div></div>
+      <div class="kpi green"><small>Conclusão no prazo</small><strong>{{ resumo.taxa_conclusao_prazo }}%</strong><div class="hint">Finalizados dentro do limite.</div></div>
+    </section>
+
+    <section class="section dashboard-panel" data-dashboard-panel="criticos">
+      <div class="section-head">
+        <div>
+          <h2>SACs mais crÃ­ticos</h2>
+          <p>Ordenados do mais antigo para o mais recente.</p>
+        </div>
+      </div>
+      <div class="table-card">
+        <table>
+          <thead><tr><th>SAC</th><th>Cliente</th><th>Setor</th><th>Status</th><th>AÃ§Ã£o</th><th>Tempo</th><th>SLA</th><th>Auditoria</th></tr></thead>
+          <tbody>
+          {% for item in cards %}
+            <tr>
+              <td><strong>{{ item.numero_sac }}</strong></td>
+              <td>{{ item.cliente }}</td>
+              <td>{{ item.setor }}</td>
+              <td>{{ item.status }}</td>
+              <td>{{ item.acao }}</td>
+              <td><span class="{{ item.tempo_cor }}">{{ item.tempo_setor }}</span></td>
+              <td class="sla-{{ item.sla_classe }}">{{ item.sla_rotulo }}</td>
+              <td><a class="critical-link" href="/sac/{{ item.id }}/auditoria/">Abrir</a></td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="8">Nenhum SAC em aberto encontrado.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section dashboard-panel" data-dashboard-panel="vencidos">
+      <div class="chart-card chart-small">
+        <h3>Vencidos por setor</h3>
+        <p class="sub">Onde o risco esta concentrado.</p>
+        <canvas id="chartVencidosSetor"></canvas>
+      </div>
+    </section>
+
+    <section class="section dashboard-panel" data-dashboard-panel="tempo">
+      <div class="section-head">
+        <div>
+          <h2>Tempo médio de resolução</h2>
+          <p>Média em dias por mês, agrupada pelo ano de abertura do SAC. Se concluir no ano seguinte, permanece no ano em que foi aberto.</p>
+        </div>
+      </div>
+      <div class="resolution-grid">
+        {% for bloco in tempo_resolucao_anos %}
+          <div class="chart-card resolution-card">
+            <h3>{{ bloco.ano }}</h3>
+            <p class="sub">SACs abertos neste ano, mesmo quando a conclusão ocorreu depois.</p>
+            <canvas id="chartTempoResolucao{{ bloco.ano }}"></canvas>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="section dashboard-panel" data-dashboard-panel="tempouso">
+      <div class="section-head">
+        <div>
+          <h2>Tempo medio de uso</h2>
+          <p>Tempo entre a data da nota fiscal e a data de abertura do SAC, agrupado por grupo de equipamento.</p>
+        </div>
+      </div>
+      <div class="period-chart-grid usage-time-grid">
+        <div class="chart-card chart-tall usage-time-card">
+          <h3>Tempo medio de uso</h3>
+          <p class="sub">Media de tempo de uso em cada grupo de equipamento.</p>
+          <canvas id="chartTempoMedioUso"></canvas>
+        </div>
+        <div class="chart-card chart-tall usage-time-card">
+          <h3>Menor tempo de uso</h3>
+          <p class="sub">Menor tempo de uso encontrado dentro do mesmo grupo.</p>
+          <canvas id="chartMenorTempoUso"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="section dashboard-panel" data-dashboard-panel="geral">
+      <div class="section-head">
+        <div>
+          <h2>Gráficos principais</h2>
+          <p>Leitura visual dos vencimentos por setor e evolucao mensal dos SACs.</p>
+        </div>
+        <div class="muted">Gerado em {{ gerado_em|date:"d/m/Y H:i" }}</div>
+      </div>
+      <div class="grid">
+        <div class="chart-card">
+          <h3>SACs abertos por mês</h3>
+          <p class="sub">Comparativo do ano corrente com o ano anterior ({{ ano_anterior }}). A linha vermelha representa {{ ano_anterior }}.</p>
+          <canvas id="chartAbertosComparativoAnos"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="section dashboard-panel" data-dashboard-panel="campeoes">
+      <div class="section-head">
+        <div>
+          <h2>Campeões de SAC</h2>
+          <p>Equipamentos são contados por número de serial. Consumíveis são contados por SAC vinculado à referência.</p>
+        </div>
+      </div>
+      <div class="equipment-filter-box" data-equipment-filter-box>
+        <div class="equipment-filter-group">
+          <small>Origem dos equipamentos</small>
+          <div class="equipment-filter-actions">
+            {% for filtro in filtros_equipamentos.origens %}
+              <button class="equipment-filter-btn{% if filtro.key == 'geral' %} active{% endif %}" type="button" data-equipment-filter="origem" data-filter-value="{{ filtro.key }}">{{ filtro.label }}</button>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="equipment-filter-group">
+          <small>Voltagem</small>
+          <div class="equipment-filter-actions">
+            {% for filtro in filtros_equipamentos.voltagens %}
+              <button class="equipment-filter-btn{% if filtro.key == 'todas' %} active{% endif %}" type="button" data-equipment-filter="voltagem" data-filter-value="{{ filtro.key }}">{{ filtro.label }}</button>
+            {% endfor %}
+          </div>
+          <div class="equipment-filter-note">Os filtros atuam apenas nos rankings de equipamentos.</div>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="rank-card">
+          <h3>Campeões de SAC Equipamentos</h3>
+          <div class="rank-split">
+            <div>
+              <div class="rank-group-title">{{ ranking_itens.ano_anterior.titulo }}</div>
+              <p class="sub">{{ ranking_itens.ano_anterior.periodo }}</p>
+              <div class="rank-list" data-equipment-ranking-list="ano_anterior">
+                {% for item in ranking_itens.ano_anterior.equipamentos %}
+                  <div class="rank-item">
+                    <div class="rank-pos">{{ item.posicao }}</div>
+                    <div>
+                      <div class="rank-title">{{ item.codigo }}</div>
+                      <div class="rank-desc">{{ item.descricao }}</div>
+                    </div>
+                    <div class="rank-total">{{ item.total_sacs }}<small>{{ item.percentual }}%</small></div>
+                  </div>
+                {% empty %}
+                  <div class="empty">Sem equipamentos no período.</div>
+                {% endfor %}
+              </div>
+            </div>
+            <div>
+              <div class="rank-group-title">{{ ranking_itens.ano_corrente.titulo }}</div>
+              <p class="sub">{{ ranking_itens.ano_corrente.periodo }}</p>
+              <div class="rank-list" data-equipment-ranking-list="ano_corrente">
+                {% for item in ranking_itens.ano_corrente.equipamentos %}
+                  <div class="rank-item">
+                    <div class="rank-pos">{{ item.posicao }}</div>
+                    <div>
+                      <div class="rank-title">{{ item.codigo }}</div>
+                      <div class="rank-desc">{{ item.descricao }}</div>
+                    </div>
+                    <div class="rank-total">{{ item.total_sacs }}<small>{{ item.percentual }}%</small></div>
+                  </div>
+                {% empty %}
+                  <div class="empty">Sem equipamentos no período.</div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="rank-card">
+          <h3>Campeões de SAC Consumíveis</h3>
+          <div class="rank-split">
+            <div>
+              <div class="rank-group-title">{{ ranking_itens.ano_anterior.titulo }}</div>
+              <p class="sub">{{ ranking_itens.ano_anterior.periodo }}</p>
+              <div class="rank-list">
+                {% for item in ranking_itens.ano_anterior.consumiveis %}
+                  <div class="rank-item">
+                    <div class="rank-pos">{{ item.posicao }}</div>
+                    <div>
+                      <div class="rank-title">{{ item.codigo }}</div>
+                      <div class="rank-desc">{{ item.descricao }}</div>
+                    </div>
+                    <div class="rank-total">{{ item.total_sacs }}<small>{{ item.percentual }}%</small></div>
+                  </div>
+                {% empty %}
+                  <div class="empty">Sem consumíveis no período.</div>
+                {% endfor %}
+              </div>
+            </div>
+            <div>
+              <div class="rank-group-title">{{ ranking_itens.ano_corrente.titulo }}</div>
+              <p class="sub">{{ ranking_itens.ano_corrente.periodo }}</p>
+              <div class="rank-list">
+                {% for item in ranking_itens.ano_corrente.consumiveis %}
+                  <div class="rank-item">
+                    <div class="rank-pos">{{ item.posicao }}</div>
+                    <div>
+                      <div class="rank-title">{{ item.codigo }}</div>
+                      <div class="rank-desc">{{ item.descricao }}</div>
+                    </div>
+                    <div class="rank-total">{{ item.total_sacs }}<small>{{ item.percentual }}%</small></div>
+                  </div>
+                {% empty %}
+                  <div class="empty">Sem consumíveis no período.</div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section dashboard-panel" data-dashboard-panel="detalhes">
+      <div class="grid dashboard-stack">
+        <div class="chart-card chart-tall dashboard-card-panel" data-dashboard-card-panel="ocorrencias">
+          <h3>Tipos de ocorrência mais comuns</h3>
+          <p class="sub">Comparativo por quantidade de itens vinculados aos SACs.</p>
+          <div class="period-chart-grid">
+            <div class="period-chart">
+              <h4>Ano anterior ({{ ano_anterior }})</h4>
+              <p>Tipos de ocorrência mais comuns ano anterior ({{ ano_anterior }}).</p>
+              <canvas id="chartOcorrenciasAnoAnterior"></canvas>
+            </div>
+            <div class="period-chart">
+              <h4>Ano corrente</h4>
+              <p>Tipos de ocorrência mais comuns ano corrente.</p>
+              <canvas id="chartOcorrenciasAnoCorrente"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="chart-card chart-tall dashboard-card-panel" data-dashboard-card-panel="clientes">
+          <h3>Clientes com mais SACs</h3>
+          <p class="sub">Comparativo do ano anterior ({{ ano_anterior }}) e do ano corrente até o mês atual.</p>
+          <div class="period-chart-grid">
+            <div class="period-chart">
+              <h4>Ano anterior ({{ ano_anterior }})</h4>
+              <p>Ranking por chamados abertos.</p>
+              <canvas id="chartClientesAnoAnterior"></canvas>
+            </div>
+            <div class="period-chart">
+              <h4>Ano corrente</h4>
+              <p>Acumulado até hoje.</p>
+              <canvas id="chartClientesAnoCorrente"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="chart-card chart-tall dashboard-card-panel" data-dashboard-card-panel="vendas">
+          <h3>Quantidade de Vendas X Quantidade de SACs</h3>
+          <p class="sub">Percentual de notas fiscais do período que tiveram SAC vinculado, considerando a data de emissão da nota.</p>
+          <div class="period-chart-grid">
+            <div class="period-chart">
+              <h4>Ano anterior ({{ ano_anterior }})</h4>
+              <p>NFs com SAC / NFs emitidas.</p>
+              <canvas id="chartVendasSacsAnoAnterior"></canvas>
+            </div>
+            <div class="period-chart">
+              <h4>Ano corrente</h4>
+              <p>Acumulado até hoje.</p>
+              <canvas id="chartVendasSacsAnoCorrente"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="chart-card chart-tall dashboard-card-panel" data-dashboard-card-panel="grupos">
+          <h3>Grupos campeoes de SAC</h3>
+          <p class="sub">Top 10 grupos de equipamentos com mais SACs por periodo.</p>
+          <div class="equipment-filter-box" data-equipment-filter-box>
+            <div class="equipment-filter-group">
+              <small>Origem dos equipamentos</small>
+              <div class="equipment-filter-actions">
+                {% for filtro in filtros_equipamentos.origens %}
+                  <button class="equipment-filter-btn{% if filtro.key == 'geral' %} active{% endif %}" type="button" data-equipment-filter="origem" data-filter-value="{{ filtro.key }}">{{ filtro.label }}</button>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="equipment-filter-group">
+              <small>Voltagem</small>
+              <div class="equipment-filter-actions">
+                {% for filtro in filtros_equipamentos.voltagens %}
+                  <button class="equipment-filter-btn{% if filtro.key == 'todas' %} active{% endif %}" type="button" data-equipment-filter="voltagem" data-filter-value="{{ filtro.key }}">{{ filtro.label }}</button>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="period-chart-grid">
+            <div class="period-chart">
+              <h4>Ano anterior ({{ ano_anterior }})</h4>
+              <p>Quantidade de SACs por grupo.</p>
+              <canvas id="chartGruposAnoAnterior"></canvas>
+            </div>
+            <div class="period-chart">
+              <h4>Ano corrente</h4>
+              <p>Acumulado ate hoje.</p>
+              <canvas id="chartGruposAnoCorrente"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="chart-card chart-tall equipment-ratio-chart dashboard-card-panel" data-dashboard-card-panel="equipamentos">
+          <h3>SACs por quantidade vendida do grupo</h3>
+          <p class="sub">Percentual de equipamentos vendidos que apresentaram SAC por grupo. Vendas internas desconsideradas.</p>
+          <div class="equipment-filter-box" data-equipment-filter-box>
+            <div class="equipment-filter-group">
+              <small>Origem dos equipamentos</small>
+              <div class="equipment-filter-actions">
+                {% for filtro in filtros_equipamentos.origens %}
+                  <button class="equipment-filter-btn{% if filtro.key == 'geral' %} active{% endif %}" type="button" data-equipment-filter="origem" data-filter-value="{{ filtro.key }}">{{ filtro.label }}</button>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="equipment-filter-group">
+              <small>Voltagem</small>
+              <div class="equipment-filter-actions">
+                {% for filtro in filtros_equipamentos.voltagens %}
+                  <button class="equipment-filter-btn{% if filtro.key == 'todas' %} active{% endif %}" type="button" data-equipment-filter="voltagem" data-filter-value="{{ filtro.key }}">{{ filtro.label }}</button>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="period-chart-grid">
+            <div class="period-chart">
+              <h4>Ano anterior ({{ ano_anterior }})</h4>
+              <p>Equipamentos com SAC / equipamentos vendidos.</p>
+              <canvas id="chartPercentualGrupoAnoAnterior"></canvas>
+            </div>
+            <div class="period-chart">
+              <h4>Ano corrente</h4>
+              <p>Acumulado ate hoje.</p>
+              <canvas id="chartPercentualGrupoAnoCorrente"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script id="dashboard-data" type="application/json">{{ charts_json|safe }}</script>
+<script>
+(function(){
+  const node = document.getElementById('dashboard-data');
+  if(!node){ return; }
+  const data = JSON.parse(node.textContent || '{}');
+  const css = getComputedStyle(document.documentElement);
+  const ink = css.getPropertyValue('--ink').trim() || '#0d2f4d';
+  const muted = css.getPropertyValue('--muted').trim() || '#60788f';
+  const line = css.getPropertyValue('--line').trim() || '#d2e2ee';
+  const equipmentFilterState = {origem: 'geral', voltagem: 'todas'};
+  document.querySelectorAll('h2').forEach(title => {
+    if(title.textContent.includes('SACs mais')){
+      title.textContent = 'SACs mais criticos';
+    }
+  });
+
+  function setup(canvas){
+    if(!canvas){ return null; }
+    const rect = canvas.getBoundingClientRect();
+    if(rect.width < 2 || rect.height < 2){ return null; }
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+    canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, rect.width, rect.height);
+    ctx.font = '12px Arial';
+    return {ctx, w: rect.width, h: rect.height};
+  }
+
+  function escapeHtml(value){
+    return String(value ?? '').replace(/[&<>"']/g, char => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#39;'
+    }[char]));
+  }
+
+  function currentEquipmentData(tipo){
+    return data.equipamentos_filtrados?.[tipo]?.[equipmentFilterState.origem]?.[equipmentFilterState.voltagem] || {};
+  }
+
+  function renderEquipmentRankings(){
+    const rankingData = currentEquipmentData('ranking');
+    document.querySelectorAll('[data-equipment-ranking-list]').forEach(container => {
+      const periodo = container.dataset.equipmentRankingList;
+      const items = rankingData?.[periodo] || [];
+      if(!items.length){
+        container.innerHTML = '<div class="empty">Sem equipamentos para este filtro.</div>';
+        return;
+      }
+      container.innerHTML = items.map((item, index) => `
+        <div class="rank-item">
+          <div class="rank-pos">${index + 1}</div>
+          <div>
+            <div class="rank-title">${escapeHtml(item.codigo || '-')}</div>
+            <div class="rank-desc">${escapeHtml(item.descricao || '-')}</div>
+          </div>
+          <div class="rank-total">${escapeHtml(item.total_sacs || 0)}<small>${escapeHtml(item.percentual || 0)}%</small></div>
+        </div>
+      `).join('');
+    });
+  }
+
+  function syncEquipmentFilterButtons(){
+    document.querySelectorAll('[data-equipment-filter]').forEach(button => {
+      const tipo = button.dataset.equipmentFilter;
+      button.classList.toggle('active', equipmentFilterState[tipo] === button.dataset.filterValue);
+    });
+  }
+
+  function wrapLabel(text, max){
+    text = String(text || '-');
+    return text.length > max ? text.slice(0, max - 1) + '…' : text;
+  }
+
+  function wrapWords(text, maxChars, maxLines){
+    const words = String(text || '-').split(/\s+/).filter(Boolean);
+    const lines = [];
+    let current = '';
+    words.forEach(word => {
+      const next = current ? `${current} ${word}` : word;
+      if(next.length <= maxChars){
+        current = next;
+      }else{
+        if(current){ lines.push(current); }
+        current = word;
+      }
+    });
+    if(current){ lines.push(current); }
+    if(lines.length > maxLines){
+      const limited = lines.slice(0, maxLines);
+      limited[maxLines - 1] = wrapLabel(limited[maxLines - 1], Math.max(6, maxChars - 1));
+      return limited;
+    }
+    return lines.length ? lines : ['-'];
+  }
+
+  function isUsageTimeChart(canvasId){
+    return canvasId === 'chartTempoMedioUso' || canvasId === 'chartMenorTempoUso';
+  }
+
+  function drawUsageTimeValue(ctx, text, x, y, maxWidth){
+    if(ctx.measureText(text).width <= maxWidth){
+      ctx.fillText(text, x, y);
+      return;
+    }
+    const parts = String(text).split(' - ');
+    if(parts.length > 1){
+      ctx.fillText(parts[0], x, y - 7);
+      ctx.fillText(parts.slice(1).join(' - '), x, y + 7);
+    }else{
+      ctx.fillText(text, x, y);
+    }
+  }
+
+  function drawBar(canvasId, chart, horizontal){
+    const canvas = document.getElementById(canvasId);
+    if(horizontal && isUsageTimeChart(canvasId) && chart){
+      const rows = (chart.labels || []).length;
+      canvas.style.height = `${Math.max(820, rows * 48 + 82)}px`;
+    }
+    const env = setup(canvas);
+    if(!env || !chart){ return; }
+    const {ctx, w, h} = env;
+    const labels = chart.labels || [];
+    const values = chart.values || [];
+    const max = Math.max(1, ...values);
+    const colors = chart.colors || [];
+    const suffix = chart.suffix || '';
+    const valueLabels = chart.value_labels || [];
+    const usageTimeChart = isUsageTimeChart(canvasId);
+    const detailedLabels = canvasId.startsWith('chartOcorrencias') || canvasId.startsWith('chartClientes') || canvasId.startsWith('chartVendasSacs') || canvasId.startsWith('chartTempo') || canvasId.startsWith('chartMenor');
+    if(usageTimeChart){
+      ctx.font = '700 12px Arial';
+    }
+    const maxValueLabelWidth = usageTimeChart
+      ? Math.max(78, ...valueLabels.map(label => ctx.measureText(label || '').width))
+      : 0;
+    const detailPad = usageTimeChart ? Math.min(310, Math.max(210, w * 0.34)) : Math.min(260, Math.max(150, w * 0.42));
+    const rightPad = usageTimeChart ? Math.min(Math.max(maxValueLabelWidth + 28, 128), Math.max(104, w * 0.32)) : 18;
+    const pad = {
+      l: horizontal ? (detailedLabels ? detailPad : 126) : 34,
+      r: horizontal && usageTimeChart ? rightPad : 18,
+      t: 18,
+      b: horizontal ? 18 : 54
+    };
+    ctx.strokeStyle = line;
+    ctx.fillStyle = muted;
+    ctx.lineWidth = 1;
+    if(horizontal){
+      const gap = 9;
+      const minBarH = usageTimeChart ? 24 : (detailedLabels ? 30 : 12);
+      const barH = Math.max(minBarH, (h - pad.t - pad.b - gap * Math.max(0, labels.length - 1)) / Math.max(1, labels.length));
+      const plotW = Math.max(32, w - pad.l - pad.r);
+      labels.forEach((label, i) => {
+        const y = pad.t + i * (barH + gap);
+        const bw = plotW * ((values[i] || 0) / max);
+        ctx.fillStyle = muted;
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        if(detailedLabels){
+          const lines = wrapWords(label, usageTimeChart ? 28 : 32, usageTimeChart ? 2 : 3);
+          const lineHeight = 13;
+          const startY = y + barH / 2 - ((lines.length - 1) * lineHeight / 2);
+          lines.forEach((line, idx) => {
+            ctx.fillText(line, pad.l - 12, startY + idx * lineHeight);
+          });
+        }else{
+          ctx.fillText(wrapLabel(label, 18), pad.l - 10, y + barH / 2);
+        }
+        ctx.fillStyle = colors[i] || '#0d3b66';
+        roundRect(ctx, pad.l, y, Math.max(2, bw), barH, 7);
+        ctx.fill();
+        const displayValue = valueLabels[i] || `${values[i] || 0}${suffix}`;
+        ctx.font = usageTimeChart ? '700 12px Arial' : '12px Arial';
+        const valueWidth = ctx.measureText(displayValue).width;
+        const canFitInside = bw > valueWidth + 18;
+        if(usageTimeChart){
+          ctx.fillStyle = ink;
+          ctx.textAlign = 'left';
+          drawUsageTimeValue(ctx, displayValue, pad.l + plotW + 12, y + barH / 2, Math.max(70, pad.r - 24));
+        }else if(canFitInside){
+          ctx.fillStyle = '#fff';
+          ctx.textAlign = 'right';
+          ctx.fillText(displayValue, pad.l + bw - 8, y + barH / 2);
+        }else{
+          ctx.fillStyle = ink;
+          ctx.textAlign = 'left';
+          ctx.fillText(displayValue, pad.l + bw + 6, y + barH / 2);
+        }
+        ctx.font = '12px Arial';
+      });
+    }else{
+      const gap = 12;
+      const barW = Math.max(18, (w - pad.l - pad.r - gap * Math.max(0, labels.length - 1)) / Math.max(1, labels.length));
+      labels.forEach((label, i) => {
+        const bh = (h - pad.t - pad.b) * ((values[i] || 0) / max);
+        const x = pad.l + i * (barW + gap);
+        const y = h - pad.b - bh;
+        ctx.fillStyle = colors[i] || '#0d3b66';
+        roundRect(ctx, x, y, barW, Math.max(2, bh), 8);
+        ctx.fill();
+        ctx.textAlign = 'center';
+        const displayValue = `${values[i] || 0}${suffix}`;
+        if(bh > 24){
+          ctx.fillStyle = '#fff';
+          ctx.textBaseline = 'top';
+          ctx.fillText(displayValue, x + barW / 2, y + 7);
+        }else{
+          ctx.fillStyle = ink;
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(displayValue, x + barW / 2, y - 5);
+        }
+        ctx.save();
+        ctx.translate(x + barW / 2, h - pad.b + 9);
+        ctx.rotate(-Math.PI / 5);
+        ctx.fillStyle = muted;
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(wrapLabel(label, 13), 0, 0);
+        ctx.restore();
+      });
+    }
+  }
+
+  function drawSalesRatioBar(canvasId, chart){
+    const env = setup(document.getElementById(canvasId));
+    if(!env || !chart){ return; }
+    const {ctx, w, h} = env;
+    const labels = chart.labels || [];
+    const values = chart.values || [];
+    const details = chart.details || [];
+    const max = Math.max(1, ...values);
+    const leftW = Math.min(270, Math.max(180, w * 0.38));
+    const rightW = Math.min(130, Math.max(104, w * 0.18));
+    const pad = {l: leftW, r: rightW, t: 14, b: 14};
+    const gap = 9;
+    const rowH = Math.max(30, (h - pad.t - pad.b - gap * Math.max(0, labels.length - 1)) / Math.max(1, labels.length));
+    const barW = Math.max(70, w - pad.l - pad.r - 18);
+    const fmt = (number) => Number.isInteger(Number(number || 0)) ? String(Math.trunc(Number(number || 0))) : String(number || 0);
+
+    labels.forEach((label, i) => {
+      const y = pad.t + i * (rowH + gap);
+      const value = values[i] || 0;
+      const detail = details[i] || {};
+      const fmt = (number) => Number.isInteger(Number(number || 0)) ? String(Math.trunc(Number(number || 0))) : String(number || 0);
+      const bw = barW * (value / max);
+
+      ctx.fillStyle = muted;
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      const lines = wrapWords(label, 30, 2);
+      const lineHeight = 13;
+      const startY = y + rowH / 2 - ((lines.length - 1) * lineHeight / 2);
+      lines.forEach((line, idx) => {
+        ctx.fillText(line, pad.l - 14, startY + idx * lineHeight);
+      });
+
+      ctx.fillStyle = '#e8f1f7';
+      roundRect(ctx, pad.l, y + 3, barW, rowH - 6, 8);
+      ctx.fill();
+      ctx.fillStyle = '#0d7f9b';
+      roundRect(ctx, pad.l, y + 3, Math.max(3, bw), rowH - 6, 8);
+      ctx.fill();
+
+      ctx.font = '700 12px Arial';
+      if(bw > 44){
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'right';
+        ctx.fillText(`${value}%`, pad.l + bw - 8, y + rowH / 2);
+      }else{
+        ctx.fillStyle = ink;
+        ctx.textAlign = 'left';
+        ctx.fillText(`${value}%`, pad.l + bw + 7, y + rowH / 2);
+      }
+
+      ctx.textAlign = 'left';
+      ctx.fillStyle = ink;
+      ctx.fillText(`${detail.notas_com_sac || 0} NFs com problema`, pad.l + barW + 14, y + rowH / 2 - 7);
+      ctx.font = '11px Arial';
+      ctx.fillStyle = muted;
+      ctx.fillText(`de ${detail.notas || 0} vendas`, pad.l + barW + 14, y + rowH / 2 + 8);
+      ctx.font = '12px Arial';
+    });
+  }
+
+  function drawEquipmentGroupRatioBar(canvasId, chart){
+    const env = setup(document.getElementById(canvasId));
+    if(!env || !chart){ return; }
+    const {ctx, w, h} = env;
+    const labels = chart.labels || [];
+    const values = chart.values || [];
+    const details = chart.details || [];
+    const max = Math.max(1, ...values);
+    const leftW = Math.min(240, Math.max(160, w * 0.34));
+    const rightW = Math.min(150, Math.max(118, w * 0.22));
+    const pad = {l: leftW, r: rightW, t: 14, b: 14};
+    const gap = 9;
+    const rowH = Math.max(30, (h - pad.t - pad.b - gap * Math.max(0, labels.length - 1)) / Math.max(1, labels.length));
+    const barW = Math.max(70, w - pad.l - pad.r - 18);
+    const fmt = (number) => Number.isInteger(Number(number || 0)) ? String(Math.trunc(Number(number || 0))) : String(number || 0);
+
+    labels.forEach((label, i) => {
+      const y = pad.t + i * (rowH + gap);
+      const value = values[i] || 0;
+      const detail = details[i] || {};
+      const bw = barW * (value / max);
+
+      ctx.fillStyle = muted;
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      const lines = wrapWords(label, 24, 2);
+      const lineHeight = 13;
+      const startY = y + rowH / 2 - ((lines.length - 1) * lineHeight / 2);
+      lines.forEach((line, idx) => {
+        ctx.fillText(line, pad.l - 14, startY + idx * lineHeight);
+      });
+
+      ctx.fillStyle = '#e8f1f7';
+      roundRect(ctx, pad.l, y + 3, barW, rowH - 6, 8);
+      ctx.fill();
+      ctx.fillStyle = '#0d7f9b';
+      roundRect(ctx, pad.l, y + 3, Math.max(3, bw), rowH - 6, 8);
+      ctx.fill();
+
+      ctx.font = '700 12px Arial';
+      if(bw > 44){
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'right';
+        ctx.fillText(`${value}%`, pad.l + bw - 8, y + rowH / 2);
+      }else{
+        ctx.fillStyle = ink;
+        ctx.textAlign = 'left';
+        ctx.fillText(`${value}%`, pad.l + bw + 7, y + rowH / 2);
+      }
+
+      ctx.textAlign = 'left';
+      ctx.fillStyle = ink;
+      ctx.fillText(`${fmt(detail.com_sac)} com SAC`, pad.l + barW + 14, y + rowH / 2 - 7);
+      ctx.font = '11px Arial';
+      ctx.fillStyle = muted;
+      ctx.fillText(`de ${fmt(detail.vendidos)} vendidos`, pad.l + barW + 14, y + rowH / 2 + 8);
+      ctx.font = '12px Arial';
+    });
+  }
+
+  function drawDonut(canvasId, chart){
+    const env = setup(document.getElementById(canvasId));
+    if(!env || !chart){ return; }
+    const {ctx, w, h} = env;
+    const values = chart.values || [];
+    const labels = chart.labels || [];
+    const colors = chart.colors || ['#149b7e','#d7a11b','#d62839'];
+    const total = values.reduce((a,b) => a + Number(b || 0), 0);
+    const cx = w / 2;
+    const cy = h / 2 - 8;
+    const r = Math.min(w, h) * .30;
+    let start = -Math.PI / 2;
+    if(!total){
+      ctx.strokeStyle = line;
+      ctx.lineWidth = 28;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.stroke();
+    }else{
+      values.forEach((value, i) => {
+        const angle = (value / total) * Math.PI * 2;
+        ctx.strokeStyle = colors[i] || '#0d3b66';
+        ctx.lineWidth = 28;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, start, start + angle);
+        ctx.stroke();
+        start += angle;
+      });
+    }
+    ctx.fillStyle = ink;
+    ctx.font = '700 24px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(total, cx, cy - 4);
+    ctx.font = '12px Arial';
+    ctx.fillStyle = muted;
+    ctx.fillText('SACs', cx, cy + 19);
+    const lx = 18;
+    let ly = h - 48;
+    labels.forEach((label, i) => {
+      ctx.fillStyle = colors[i] || '#0d3b66';
+      ctx.beginPath();
+      ctx.arc(lx, ly, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = muted;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`${label}: ${values[i] || 0}`, lx + 12, ly);
+      ly += 17;
+    });
+  }
+
+  function drawGroupedBar(canvasId, chart){
+    const env = setup(document.getElementById(canvasId));
+    if(!env || !chart){ return; }
+    const {ctx, w, h} = env;
+    const labels = chart.labels || [];
+    const series = chart.series || [];
+    const max = Math.max(1, ...series.flatMap(s => s.values || []));
+    const pad = {l:34, r:16, t:46, b:42};
+    const plotW = w - pad.l - pad.r;
+    const plotH = h - pad.t - pad.b;
+    const groupGap = 16;
+    const groupW = Math.max(22, (plotW - groupGap * Math.max(0, labels.length - 1)) / Math.max(1, labels.length));
+    const barGap = 4;
+    const barW = Math.max(4, (groupW - barGap * Math.max(0, series.length - 1)) / Math.max(1, series.length));
+
+    ctx.strokeStyle = line;
+    ctx.beginPath();
+    ctx.moveTo(pad.l, h - pad.b);
+    ctx.lineTo(w - pad.r, h - pad.b);
+    ctx.stroke();
+
+    let legendX = pad.l;
+    series.forEach(s => {
+      ctx.fillStyle = s.color || '#0d3b66';
+      roundRect(ctx, legendX, 18, 12, 12, 4);
+      ctx.fill();
+      ctx.fillStyle = muted;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      const text = wrapLabel(s.name, 18);
+      ctx.fillText(text, legendX + 17, 24);
+      legendX += Math.min(160, 28 + text.length * 7);
+    });
+
+    labels.forEach((label, i) => {
+      const gx = pad.l + i * (groupW + groupGap);
+      series.forEach((s, j) => {
+        const value = (s.values || [])[i] || 0;
+        const bh = plotH * value / max;
+        const x = gx + j * (barW + barGap);
+        const y = h - pad.b - bh;
+        ctx.fillStyle = s.color || '#0d3b66';
+        roundRect(ctx, x, y, barW, Math.max(2, bh), 5);
+        ctx.fill();
+        if(value){
+          ctx.fillStyle = bh > 22 ? '#fff' : ink;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = bh > 22 ? 'top' : 'bottom';
+          ctx.fillText(value, x + barW / 2, bh > 22 ? y + 6 : y - 4);
+        }
+      });
+      ctx.fillStyle = muted;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText(label, gx + groupW / 2, h - pad.b + 10);
+    });
+  }
+
+  function drawLine(canvasId, chart){
+    const env = setup(document.getElementById(canvasId));
+    if(!env || !chart){ return; }
+    const {ctx, w, h} = env;
+    const labels = chart.labels || [];
+    const series = chart.series || [
+      {name:'Abertos', values: chart.abertos || [], color:'#0d3b66'},
+      {name:'Concluidos', values: chart.concluidos || [], color:'#149b7e'},
+    ];
+    const numericValues = series.flatMap(s => (s.values || []).filter(v => v !== null && v !== undefined));
+    const max = Math.max(1, ...numericValues);
+    const pad = {l:44,r:18,t:46,b:42};
+    const plotW = w - pad.l - pad.r;
+    const plotH = h - pad.t - pad.b;
+
+    ctx.strokeStyle = line;
+    ctx.fillStyle = muted;
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    for(let step = 0; step <= 4; step++){
+      const value = Math.round(max * step / 4);
+      const y = h - pad.b - (plotH * step / 4);
+      ctx.beginPath();
+      ctx.moveTo(pad.l, y);
+      ctx.lineTo(w - pad.r, y);
+      ctx.stroke();
+      ctx.fillText(value, pad.l - 8, y);
+    }
+
+    let legendX = pad.l;
+    series.forEach(s => {
+      ctx.fillStyle = s.color;
+      roundRect(ctx, legendX, 16, 14, 8, 4);
+      ctx.fill();
+      ctx.fillStyle = muted;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(s.name, legendX + 19, 20);
+      legendX += Math.max(92, String(s.name || '').length * 8 + 38);
+    });
+
+    series.forEach(s => {
+      ctx.strokeStyle = s.color;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      let started = false;
+      (s.values || []).forEach((value, i) => {
+        if(value === null || value === undefined){ return; }
+        const x = pad.l + (plotW * i / Math.max(1, labels.length - 1));
+        const y = h - pad.b - (plotH * (value || 0) / max);
+        if(!started){ ctx.moveTo(x, y); started = true; } else { ctx.lineTo(x, y); }
+      });
+      ctx.stroke();
+      (s.values || []).forEach((value, i) => {
+        if(value === null || value === undefined){ return; }
+        const x = pad.l + (plotW * i / Math.max(1, labels.length - 1));
+        const y = h - pad.b - (plotH * (value || 0) / max);
+        ctx.fillStyle = s.color;
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = ink;
+        ctx.font = '700 11px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(value || 0, x, y - 7);
+        ctx.font = '12px Arial';
+      });
+    });
+
+    ctx.fillStyle = muted;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    labels.forEach((label, i) => {
+      const x = pad.l + (plotW * i / Math.max(1, labels.length - 1));
+      ctx.fillText(label, x, h - 18);
+    });
+  }
+
+  function drawResolutionChart(canvasId, chart){
+    const env = setup(document.getElementById(canvasId));
+    if(!env || !chart){ return; }
+    const {ctx, w, h} = env;
+    const labels = chart.labels || [];
+    const values = chart.values || [];
+    const counts = chart.counts || [];
+    const max = Math.max(1, ...values);
+    const pad = {l:42, r:18, t:24, b:46};
+    const gap = 10;
+    const barW = Math.max(18, (w - pad.l - pad.r - gap * Math.max(0, labels.length - 1)) / Math.max(1, labels.length));
+
+    ctx.strokeStyle = line;
+    ctx.beginPath();
+    ctx.moveTo(pad.l, h - pad.b);
+    ctx.lineTo(w - pad.r, h - pad.b);
+    ctx.stroke();
+
+    labels.forEach((label, i) => {
+      const value = values[i] || 0;
+      const bh = (h - pad.t - pad.b) * value / max;
+      const x = pad.l + i * (barW + gap);
+      const y = h - pad.b - bh;
+      ctx.fillStyle = value ? '#0d3b66' : '#dce8f1';
+      roundRect(ctx, x, y, barW, Math.max(3, bh), 8);
+      ctx.fill();
+      ctx.fillStyle = value ? ink : muted;
+      ctx.font = '700 11px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(value ? `${value}d` : '-', x + barW / 2, y - 5);
+      if(counts[i]){
+        ctx.font = '10px Arial';
+        ctx.fillStyle = value ? '#fff' : muted;
+        ctx.fillText(`${counts[i]} SACs`, x + barW / 2, Math.max(pad.t + 12, y + 16));
+      }
+      ctx.font = '12px Arial';
+      ctx.fillStyle = muted;
+      ctx.textBaseline = 'top';
+      ctx.fillText(label, x + barW / 2, h - pad.b + 12);
+    });
+  }
+
+  function roundRect(ctx, x, y, width, height, radius){
+    const r = Math.min(radius, Math.abs(width) / 2, Math.abs(height) / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + width, y, x + width, y + height, r);
+    ctx.arcTo(x + width, y + height, x, y + height, r);
+    ctx.arcTo(x, y + height, x, y, r);
+    ctx.arcTo(x, y, x + width, y, r);
+    ctx.closePath();
+  }
+
+  let activeDashboardTab = 'criticos';
+  let resizeTimer = null;
+
+  function render(tabName){
+    const tab = tabName || activeDashboardTab;
+    if(tab === 'vencidos'){
+      drawBar('chartVencidosSetor', data.vencidos_setor, true);
+    }else if(tab === 'tempo'){
+      (data.tempo_resolucao_anos || []).forEach(chart => {
+        drawResolutionChart(`chartTempoResolucao${chart.ano}`, chart);
+      });
+    }else if(tab === 'tempouso'){
+      drawBar('chartTempoMedioUso', data.tempo_uso_equipamentos?.media, true);
+      drawBar('chartMenorTempoUso', data.tempo_uso_equipamentos?.menor, true);
+    }else if(tab === 'ocorrencias'){
+      drawBar('chartOcorrenciasAnoAnterior', data.ocorrencias_periodos?.ano_anterior, true);
+      drawBar('chartOcorrenciasAnoCorrente', data.ocorrencias_periodos?.ano_corrente, true);
+    }else if(tab === 'clientes'){
+      drawBar('chartClientesAnoAnterior', data.clientes_periodos?.ano_anterior, true);
+      drawBar('chartClientesAnoCorrente', data.clientes_periodos?.ano_corrente, true);
+    }else if(tab === 'vendas'){
+      drawSalesRatioBar('chartVendasSacsAnoAnterior', data.vendas_x_sacs?.ano_anterior);
+      drawSalesRatioBar('chartVendasSacsAnoCorrente', data.vendas_x_sacs?.ano_corrente);
+    }else if(tab === 'grupos'){
+      const chartData = currentEquipmentData('grupos');
+      drawBar('chartGruposAnoAnterior', chartData?.ano_anterior, true);
+      drawBar('chartGruposAnoCorrente', chartData?.ano_corrente, true);
+    }else if(tab === 'equipamentos'){
+      const chartData = currentEquipmentData('percentual');
+      drawEquipmentGroupRatioBar('chartPercentualGrupoAnoAnterior', chartData?.ano_anterior);
+      drawEquipmentGroupRatioBar('chartPercentualGrupoAnoCorrente', chartData?.ano_corrente);
+    }else if(tab === 'campeoes'){
+      renderEquipmentRankings();
+    }
+  }
+
+  const tabs = Array.from(document.querySelectorAll('[data-dashboard-tab]'));
+  const panels = Array.from(document.querySelectorAll('[data-dashboard-panel]'));
+  const cardPanels = Array.from(document.querySelectorAll('[data-dashboard-card-panel]'));
+
+  document.querySelectorAll('[data-equipment-filter]').forEach(button => {
+    button.addEventListener('click', () => {
+      const tipo = button.dataset.equipmentFilter;
+      equipmentFilterState[tipo] = button.dataset.filterValue;
+      syncEquipmentFilterButtons();
+      renderEquipmentRankings();
+      if(['grupos','equipamentos'].includes(activeDashboardTab)){
+        render(activeDashboardTab);
+      }
+    });
+  });
+  syncEquipmentFilterButtons();
+  renderEquipmentRankings();
+
+  function showDashboardTab(tabName){
+    activeDashboardTab = tabName;
+    tabs.forEach(tab => {
+      tab.classList.toggle('active', tab.dataset.dashboardTab === tabName);
+    });
+    panels.forEach(panel => {
+      const isDetails = panel.dataset.dashboardPanel === 'detalhes';
+      const detailTabs = ['ocorrencias','clientes','vendas','grupos','equipamentos'];
+      const isActive = panel.dataset.dashboardPanel === tabName || (isDetails && detailTabs.includes(tabName));
+      panel.classList.toggle('active', isActive);
+    });
+    cardPanels.forEach(card => {
+      card.classList.toggle('active', card.dataset.dashboardCardPanel === tabName);
+    });
+    window.requestAnimationFrame(() => render(tabName));
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => showDashboardTab(tab.dataset.dashboardTab));
+  });
+  showDashboardTab('criticos');
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => render(), 120);
+  });
+})();
+</script>
+{% endblock %}

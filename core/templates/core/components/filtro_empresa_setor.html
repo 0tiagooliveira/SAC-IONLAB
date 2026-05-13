@@ -1,0 +1,35 @@
+{% if empresas_filtro %}
+<style>
+    .company-filter{margin-top:18px;background:linear-gradient(135deg,#ffffff 0%,#eefaff 100%);border:1px solid #cfe2f0;border-radius:22px;padding:16px 18px;box-shadow:0 14px 30px rgba(13,59,102,.08)}
+    .company-filter-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:12px}
+    .company-filter-title{margin:0;color:#0d3b66;font-size:18px;font-weight:800}
+    .company-filter-subtitle{margin:4px 0 0;color:#54708a;font-size:13px}
+    .company-filter-buttons{display:flex;gap:10px;flex-wrap:wrap}
+    .company-filter-btn{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:10px 15px;border-radius:999px;border:1px solid #bdd3e6;background:#fff;color:#0d3b66;text-decoration:none;font-weight:800;font-size:13px;box-shadow:0 8px 18px rgba(13,59,102,.06)}
+    .company-filter-btn.active{background:linear-gradient(135deg,#0d3b66,#0b8ea0);border-color:#0b8ea0;color:#fff}
+    @media (max-width:760px){.company-filter-head{align-items:flex-start;flex-direction:column}.company-filter-btn{flex:1 1 auto}}
+</style>
+<section class="company-filter" aria-label="Filtro por empresa">
+    <div class="company-filter-head">
+        <div>
+            <h2 class="company-filter-title">Empresa em visualização</h2>
+            <p class="company-filter-subtitle">
+                {% if empresa_agrupada %}
+                    Mostrando a fila do setor com todas as empresas agrupadas.
+                {% else %}
+                    Mostrando a fila do setor apenas para {{ empresa_selecionada.razao_social|default:empresa_selecionada.codigo }}.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+    <div class="company-filter-buttons">
+        <a class="company-filter-btn {% if empresa_agrupada %}active{% endif %}" href="?empresa=agrupado">Agrupado</a>
+        {% for empresa in empresas_filtro %}
+            <a class="company-filter-btn {% if empresa.codigo == empresa_codigo_selecionado %}active{% endif %}" href="?empresa={{ empresa.codigo }}">{{ empresa.codigo }}</a>
+        {% endfor %}
+    </div>
+</section>
+{% if mostrar_indicadores_globais_sac and indicadores_globais_sac %}
+    {% include 'core/partials/indicadores_globais_sac.html' %}
+{% endif %}
+{% endif %}

@@ -1,0 +1,486 @@
+MAPA DE DEPENDENCIAS SAC
+======================================================================
+Gerado em: 2026-05-01 10:02:45
+Somente leitura. Nao altera arquivos, regras, banco, status, setores ou fluxos.
+
+RESUMO
+- BAIXO: 1
+- MEDIO: 214
+
+METRICAS
+- arquivos_python: 261
+- templates_html: 76
+- urls_mapeadas: 38
+- templates_renderizados: 99
+
+ACHADOS
+[BAIXO] core/management/commands/auditar_integridade_sac.py:247 - Render com template dinamico encontrado.
+    Conferir se ha fallback seguro.
+[MEDIO] core/views.py:1569 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views.py:1571 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views.py:1573 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views.py:1575 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views.py:1577 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views.py:1579 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views.py:1581 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views.py:3312 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views.py:3370 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views.py:3498 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views.py:3553 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views.py:3554 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views.py:3561 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views.py:3581 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views.py:3775 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views.py:3798 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views.py:3803 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views.py:3829 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views.py:3847 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views.py:4610 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views.py:4611 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_backup_antes_diretoria.py:1414 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_backup_antes_diretoria.py:1416 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_backup_antes_diretoria.py:1418 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_backup_antes_diretoria.py:1420 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_backup_antes_diretoria.py:1422 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_backup_antes_diretoria.py:1424 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_backup_antes_diretoria.py:1426 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_backup_antes_diretoria.py:2702 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_backup_antes_diretoria.py:2714 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_backup_antes_diretoria.py:2773 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_backup_antes_diretoria.py:2906 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_backup_antes_diretoria.py:2961 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_backup_antes_diretoria.py:2962 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_backup_antes_diretoria.py:2969 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_backup_antes_diretoria.py:2989 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_backup_antes_diretoria.py:3183 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_backup_antes_diretoria.py:3206 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_backup_antes_diretoria.py:3211 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_backup_antes_diretoria.py:3237 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_backup_antes_diretoria.py:3255 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_backup_antes_diretoria.py:4006 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_backup_antes_diretoria.py:4007 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views.py:1559 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views.py:1561 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views.py:1563 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views.py:1565 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views.py:1567 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views.py:1569 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views.py:1571 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views.py:3302 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views.py:3360 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views.py:3488 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views.py:3543 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views.py:3544 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views.py:3551 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views.py:3571 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views.py:3765 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views.py:3788 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views.py:3793 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views.py:3819 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views.py:3837 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views.py:4600 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views.py:4601 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_backup_antes_diretoria.py:1414 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_backup_antes_diretoria.py:1416 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_backup_antes_diretoria.py:1418 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_backup_antes_diretoria.py:1420 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_backup_antes_diretoria.py:1422 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_backup_antes_diretoria.py:1424 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_backup_antes_diretoria.py:1426 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_backup_antes_diretoria.py:2702 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_backup_antes_diretoria.py:2714 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_backup_antes_diretoria.py:2773 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_backup_antes_diretoria.py:2906 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_backup_antes_diretoria.py:2961 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_backup_antes_diretoria.py:2962 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_backup_antes_diretoria.py:2969 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_backup_antes_diretoria.py:2989 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_backup_antes_diretoria.py:3183 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_backup_antes_diretoria.py:3206 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_backup_antes_diretoria.py:3211 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_backup_antes_diretoria.py:3237 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_backup_antes_diretoria.py:3255 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_backup_antes_diretoria.py:4006 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_backup_antes_diretoria.py:4007 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] hotfix_motor_tecnico/aplicar_hotfix_motor_tecnico.py:94 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] hotfix_motor_tecnico/aplicar_hotfix_motor_tecnico.py:95 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:2003 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:2007 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:2062 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:2134 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:2192 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:2199 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:2216 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] _backup_patch_assistencia_tecnica_parte_1_2_20260426_0934/core/views_modular/views_assistencia_tecnica.py:158 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] _backup_patch_assistencia_tecnica_parte_1_2_20260426_0934/core/views_modular/views_assistencia_tecnica.py:162 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] _backup_patch_assistencia_tecnica_parte_1_2_20260426_0934/core/views_modular/views_assistencia_tecnica.py:166 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] _backup_patch_assistencia_tecnica_parte_1_2_20260426_0934/core/views_modular/views_assistencia_tecnica.py:177 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] _backup_patch_assistencia_tecnica_parte_1_2_20260426_0934/core/views_modular/views_assistencia_tecnica.py:179 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_assistencia_tecnica.py:385 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_assistencia_tecnica.py:388 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_assistencia_tecnica.py:391 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_assistencia_tecnica.py:395 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_assistencia_tecnica.py:398 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_assistencia_tecnica.py:401 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_assistencia_tecnica.py:418 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_assistencia_tecnica.py:439 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_assistencia_tecnica.py:442 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_assistencia_tecnica.py:450 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_assistencia_tecnica.py:454 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_assistencia_tecnica.py:458 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_assistencia_tecnica.py:461 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_assistencia_tecnica.py:464 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_assistencia_tecnica.py:468 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_assistencia_tecnica.py:486 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_assistencia_tecnica.py:488 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_comercial.py:139 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_comercial.py:204 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_diretoria.py:188 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_diretoria.py:211 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_diretoria.py:216 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_diretoria.py:242 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_diretoria.py:260 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_financeiro.py:205 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_financeiro.py:209 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_financeiro.py:213 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_financeiro.py:218 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_financeiro.py:244 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_financeiro.py:247 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_gestao.py:176 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_gestao.py:178 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_gestao.py:180 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_gestao.py:182 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_gestao.py:184 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_gestao.py:186 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_gestao.py:188 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_gestao.py:341 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_gestao.py:355 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_gestao.py:367 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_gestao.py:523 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_gestao.py:525 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_gestao.py:527 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_gestao.py:529 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_gestao.py:531 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_gestao.py:533 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_gestao.py:535 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_licitacao.py:207 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core_/views_modular/views_licitacao.py:208 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_assistencia_tecnica.py:385 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_assistencia_tecnica.py:388 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_assistencia_tecnica.py:391 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_assistencia_tecnica.py:395 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_assistencia_tecnica.py:398 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_assistencia_tecnica.py:401 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_assistencia_tecnica.py:418 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_assistencia_tecnica.py:439 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_assistencia_tecnica.py:442 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_assistencia_tecnica.py:450 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_assistencia_tecnica.py:454 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_assistencia_tecnica.py:458 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_assistencia_tecnica.py:461 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_assistencia_tecnica.py:464 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_assistencia_tecnica.py:468 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_assistencia_tecnica.py:486 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_assistencia_tecnica.py:488 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_comercial.py:139 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_comercial.py:204 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_diretoria.py:188 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_diretoria.py:211 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_diretoria.py:216 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_diretoria.py:242 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_diretoria.py:260 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_financeiro.py:205 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_financeiro.py:209 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_financeiro.py:213 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_financeiro.py:218 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_financeiro.py:244 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_financeiro.py:247 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_gestao.py:176 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_gestao.py:178 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_gestao.py:180 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_gestao.py:182 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_gestao.py:184 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_gestao.py:186 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_gestao.py:188 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_gestao.py:341 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_gestao.py:355 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_gestao.py:367 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_gestao.py:523 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_gestao.py:525 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_gestao.py:527 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_gestao.py:529 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_gestao.py:531 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_gestao.py:533 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_gestao.py:535 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_licitacao.py:207 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/views_modular/views_licitacao.py:208 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/management/commands/auditar_mapa_dependencias_sac.py:218 - Redirect com URL hardcoded.
+    Futuro ideal: usar name/reverse para evitar quebra se rota mudar.
+[MEDIO] core/uuu.py:2006 - Funcao muito longa: clean (272 linhas).
+    Risco de regressao; revisar antes de alterar.
+[MEDIO] core/views.py:494 - Funcao muito longa: importar_notas_excel (251 linhas).
+    Risco de regressao; revisar antes de alterar.
+[MEDIO] core/views.py:1206 - Funcao muito longa: abrir_sac (393 linhas).
+    Risco de regressao; revisar antes de alterar.
+[MEDIO] core/views.py:1702 - Funcao muito longa: analise_tecnica_sac (696 linhas).
+    Risco de regressao; revisar antes de alterar.
+[MEDIO] core/views_backup_antes_diretoria.py:435 - Funcao muito longa: importar_notas_excel (251 linhas).
+    Risco de regressao; revisar antes de alterar.
+[MEDIO] core/views_backup_antes_diretoria.py:1125 - Funcao muito longa: abrir_sac (314 linhas).
+    Risco de regressao; revisar antes de alterar.
+[MEDIO] core_/uuu.py:2006 - Funcao muito longa: clean (272 linhas).
+    Risco de regressao; revisar antes de alterar.
+[MEDIO] core_/views.py:484 - Funcao muito longa: importar_notas_excel (251 linhas).
+    Risco de regressao; revisar antes de alterar.
+[MEDIO] core_/views.py:1196 - Funcao muito longa: abrir_sac (393 linhas).
+    Risco de regressao; revisar antes de alterar.
+[MEDIO] core_/views.py:1692 - Funcao muito longa: analise_tecnica_sac (696 linhas).
+    Risco de regressao; revisar antes de alterar.
+[MEDIO] core_/views_backup_antes_diretoria.py:435 - Funcao muito longa: importar_notas_excel (251 linhas).
+    Risco de regressao; revisar antes de alterar.
+[MEDIO] core_/views_backup_antes_diretoria.py:1125 - Funcao muito longa: abrir_sac (314 linhas).
+    Risco de regressao; revisar antes de alterar.
+[MEDIO] core_/views_modular/views_gestao.py:274 - Funcao muito longa: gestao_sac (302 linhas).
+    Risco de regressao; revisar antes de alterar.
+[MEDIO] core/views_modular/views_gestao.py:274 - Funcao muito longa: gestao_sac (302 linhas).
+    Risco de regressao; revisar antes de alterar.
+[MEDIO] core/views.py - Modularizacao parcial detectada: views.py ainda tem 4652 linhas e views_modular tem 10 arquivos.
+    Evitar duplicar regra entre os dois locais.
+
+ROTAS MAPEADAS
+- config/urls.py | admin/ | admin.site.urls | name=
+- config/urls.py | login/ | login_interno | name=login_interno
+- config/urls.py | logout/ | logout_interno | name=logout_interno
+- config/urls.py |  | RedirectView.as_view(url='/intra/' | name=
+- config/urls.py | intra/ | painel_navegacao | name=painel_navegacao
+- config/urls.py | sac/dashboard/ | dashboard_sla | name=dashboard_sla
+- config/urls.py | sac/gestao/ | gestao_sac | name=gestao_sac
+- config/urls.py | sac/pesquisa/ | pesquisa_sacs | name=pesquisa_sacs
+- config/urls.py | sac/assessoria-cientifica/ | assessoria_cientifica | name=assessoria_cientifica
+- config/urls.py | sac/diretoria/ | analise_diretoria | name=analise_diretoria
+- config/urls.py | importar/ | importar_notas_excel | name=importar
+- config/urls.py | importar-rastreios/ | importar_rastreios_excel | name=importar_rastreios
+- config/urls.py | importar-tabela-pecas/ | importar_tabela_pecas_excel | name=importar_tabela_pecas
+- config/urls.py | corrigir-banco/ | executar_correcao_banco | name=executar_correcao_banco
+- config/urls.py | sac/abrir/ | abrir_sac | name=abrir_sac
+- config/urls.py | sac/<int:sac_id>/analise-tecnica/ | analise_tecnica_sac | name=analise_tecnica_sac
+- config/urls.py | sac/analise-comercial/ | analise_comercial_sac | name=analise_comercial_sac_lista
+- config/urls.py | sac/<int:sac_id>/analise-comercial/ | analise_comercial_sac | name=analise_comercial_sac
+- config/urls.py | sac/gestao-logistica/ | gestao_logistica | name=gestao_logistica_lista
+- config/urls.py | sac/<int:sac_id>/gestao-logistica/ | gestao_logistica | name=gestao_logistica
+- config/urls.py | sac/assistencia-tecnica/ | gestao_assistencia_tecnica | name=assistencia_tecnica_lista
+- config/urls.py | sac/<int:sac_id>/assistencia-tecnica/ | gestao_assistencia_tecnica | name=assistencia_tecnica
+- config/urls.py | sac/gestao-financeira/ | gestao_financeira | name=gestao_financeira_lista
+- config/urls.py | sac/<int:sac_id>/gestao-financeira/ | gestao_financeira | name=gestao_financeira
+- config/urls.py | sac/<int:sac_id>/auditoria/ | auditoria_visual_sac | name=auditoria_visual_sac
+- config/urls.py | api/clientes/ | buscar_clientes | name=buscar_clientes
+- config/urls.py | api/contatos-cliente/ | listar_contatos_cliente | name=listar_contatos_cliente
+- config/urls.py | api/notas-cliente/ | listar_notas_cliente | name=listar_notas_cliente
+- config/urls.py | api/itens-nota/ | listar_itens_nota | name=listar_itens_nota
+- config/urls.py | api/rastreios-item/ | listar_rastreios_item | name=listar_rastreios_item
+- config/urls.py | api/tipo-ocorrencia/ | buscar_tipo_ocorrencia | name=buscar_tipo_ocorrencia
+- config/urls.py | api/historico-item-rastreio/ | historico_item_rastreio | name=historico_item_rastreio
+- config/urls.py | api/proximo-numero-sac/ | proximo_numero_sac_api | name=proximo_numero_sac_api
+- config/urls.py | api/buscar-serial/ | buscar_serial_api | name=buscar_serial_api
+- config/urls.py | api/buscar-vendedor-por-nota/ | buscar_vendedor_por_nota | name=buscar_vendedor_por_nota
+- config/urls.py | api/buscar-vendedor/ | buscar_vendedor_por_nota | name=buscar_vendedor_por_nota_alias
+- config/urls.py | sac/gestao-licitacao/ | gestao_licitacao | name=gestao_licitacao_lista
+- config/urls.py | sac/<int:sac_id>/gestao-licitacao/ | gestao_licitacao | name=gestao_licitacao

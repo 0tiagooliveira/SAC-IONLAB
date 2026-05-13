@@ -1,0 +1,128 @@
+{% extends 'core/base.html' %}
+{% block title %}Importacoes{% endblock %}
+{% block topbar_title %}Importacoes{% endblock %}
+{% block topbar_subtitle %}Importacao de dados do SAC.{% endblock %}
+{% block extra_head %}
+<style>
+        .caixa {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            border-radius: 10px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .linha {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            border: 1px solid #cfcfcf;
+            border-radius: 6px;
+        }
+        button {
+            background: #1f5fa8;
+            color: #fff;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+        .mensagem {
+            background: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 14px;
+            white-space: pre-wrap;
+        }
+        .erro {
+            background: #fdecea;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 14px;
+        }
+        .resumo {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 18px;
+            background: #fafafa;
+        }
+        .acoes {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+        h2, h3 {
+            margin-top: 0;
+        }
+    
+</style>
+{% endblock %}
+{% block content %}
+<div class="caixa">
+        <h2>Importação de Notas Fiscais</h2>
+        <p>O sistema importa notas para a empresa selecionada e ignora automaticamente notas fiscais que já existirem para a mesma empresa, sem interromper o restante da planilha.</p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mensagem">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        {% if form.errors %}
+            <div class="erro">
+                Verifique os campos obrigatórios e tente novamente.
+            </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="linha">
+                <label for="{{ form.empresa.id_for_label }}">Empresa</label>
+                {{ form.empresa }}
+            </div>
+
+            <div class="linha">
+                <label for="{{ form.arquivo.id_for_label }}">Planilha Excel</label>
+                {{ form.arquivo }}
+            </div>
+
+            <div class="acoes">
+                <button type="submit">Importar notas fiscais</button>
+            </div>
+        </form>
+
+        {% if user.is_superuser %}
+        <form method="post" action="{% url 'executar_correcao_banco' %}" style="margin-top: 16px;">
+            {% csrf_token %}
+            <button type="submit">Corrigir banco automaticamente</button>
+        </form>
+        {% endif %}
+
+        {% if resumo %}
+            <div class="resumo">
+                <h3>Resumo da importação</h3>
+                <p><strong>Empresa:</strong> {{ resumo.empresa }}</p>
+                <p><strong>Notas importadas:</strong> {{ resumo.notas_importadas }}</p>
+                <p><strong>Notas ignoradas por já existirem:</strong> {{ resumo.notas_ignoradas }}</p>
+                <p><strong>Clientes criados:</strong> {{ resumo.clientes_criados }}</p>
+                <p><strong>Itens criados:</strong> {{ resumo.itens_criados }}</p>
+                <p><strong>Itens atualizados:</strong> {{ resumo.itens_atualizados }}</p>
+                <p><strong>Linhas ignoradas por nota sem número:</strong> {{ resumo.notas_sem_numero }}</p>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,34 @@
+PATCH: Auditoria Preventiva do SAC
+
+Objetivo:
+- Instalar um comando de auditoria que NÃO altera regras, NÃO muda banco e NÃO mexe em telas.
+- Serve para apontar riscos antes de qualquer correção futura.
+
+Arquivo adicionado:
+- core/management/commands/auditar_integridade_sac.py
+
+Comando principal:
+- python manage.py auditar_integridade_sac --detalhado --limite 50
+
+Comando apenas código, sem banco:
+- python manage.py auditar_integridade_sac --somente-codigo --detalhado --limite 50
+
+O que ele verifica:
+1. Backups/ZIPs soltos dentro do projeto.
+2. Arquivos Python grandes demais.
+3. Erros de sintaxe Python.
+4. except Exception / except genérico.
+5. Textos fixos sensíveis de status/setor/ação espalhados no código.
+6. Templates referenciados e não localizados.
+7. Mistura de core.views com views_modular/urls_modular.
+8. Cadastros básicos e fluxos no banco.
+9. SACs com ação/setor sem regra de fluxo.
+10. SACs concluídos com ação/setor pendente.
+11. Tempo de uso vazio quando existe data de NF/revenda.
+12. Clientes importados com código terminando em .0.
+
+Segurança:
+- Não executa migrate.
+- Não cria registros.
+- Não altera registros.
+- Não altera regras do SAC.

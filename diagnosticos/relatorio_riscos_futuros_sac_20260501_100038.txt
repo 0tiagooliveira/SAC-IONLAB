@@ -1,0 +1,1523 @@
+RELATORIO DE RISCOS FUTUROS - SAC
+======================================================================
+Gerado em: 2026-05-01 10:00:38
+Projeto: C:\Ionlab\SAC\programa\SAC_Intranet_oficial
+
+RESUMO
+- CRITICO: 0
+- ALTO: 12
+- MEDIO: 287
+- BAIXO: 78
+
+OBSERVACAO
+Auditoria somente leitura. Nenhuma regra, arquivo ou dado foi alterado.
+
+ACHADOS
+----------------------------------------------------------------------
+[ALTO] core/forms.py
+  Forms muito grande (2193 linhas).
+  Detalhe: Risco de acoplamento entre formularios.
+
+[MEDIO] core/uuu.py
+  Arquivo grande (2277 linhas).
+  Detalhe: Revisar modularizacao futura sem alterar regra.
+
+[ALTO] core/views.py
+  Arquivo central muito grande (4652 linhas).
+  Detalhe: Risco de regressao em telas nao relacionadas.
+
+[MEDIO] core/views_backup_antes_diretoria.py
+  Arquivo grande (4033 linhas).
+  Detalhe: Revisar modularizacao futura sem alterar regra.
+
+[MEDIO] core_/forms.py
+  Arquivo grande (2193 linhas).
+  Detalhe: Revisar modularizacao futura sem alterar regra.
+
+[MEDIO] core_/uuu.py
+  Arquivo grande (2277 linhas).
+  Detalhe: Revisar modularizacao futura sem alterar regra.
+
+[MEDIO] core_/views.py
+  Arquivo grande (4642 linhas).
+  Detalhe: Revisar modularizacao futura sem alterar regra.
+
+[MEDIO] core_/views_backup_antes_diretoria.py
+  Arquivo grande (4033 linhas).
+  Detalhe: Revisar modularizacao futura sem alterar regra.
+
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py
+  Arquivo grande (2472 linhas).
+  Detalhe: Revisar modularizacao futura sem alterar regra.
+
+[MEDIO] core/forms.py:467
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/forms.py:516
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/forms.py:771
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/forms.py:779
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/forms.py:1364
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/forms.py:1423
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/forms.py:1742
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/forms.py:1857
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/forms.py:1978
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/forms.py:2001
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/test_fluxo_alertas_e_filas.py:30
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/test_views_smoke.py:24
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/uuu.py:505
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/uuu.py:760
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/uuu.py:768
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/uuu.py:1353
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/uuu.py:1412
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/uuu.py:1731
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/uuu.py:1894
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/uuu.py:2032
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/uuu.py:2062
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/uuu.py:2085
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views.py:3681
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views.py:3689
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views.py:3937
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views.py:3943
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views.py:3947
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views.py:3963
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views.py:3971
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_backup_antes_diretoria.py:3089
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_backup_antes_diretoria.py:3097
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_backup_antes_diretoria.py:3345
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_backup_antes_diretoria.py:3351
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_backup_antes_diretoria.py:3355
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_backup_antes_diretoria.py:3371
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_backup_antes_diretoria.py:3379
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/forms.py:467
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/forms.py:516
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/forms.py:771
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/forms.py:779
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/forms.py:1364
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/forms.py:1423
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/forms.py:1742
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/forms.py:1857
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/forms.py:1978
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/forms.py:2001
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/test_fluxo_alertas_e_filas.py:30
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/test_views_smoke.py:24
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/uuu.py:505
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/uuu.py:760
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/uuu.py:768
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/uuu.py:1353
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/uuu.py:1412
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/uuu.py:1731
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/uuu.py:1894
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/uuu.py:2032
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/uuu.py:2062
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/uuu.py:2085
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views.py:3671
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views.py:3679
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views.py:3927
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views.py:3933
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views.py:3937
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views.py:3953
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views.py:3961
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_backup_antes_diretoria.py:3089
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_backup_antes_diretoria.py:3097
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_backup_antes_diretoria.py:3345
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_backup_antes_diretoria.py:3351
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_backup_antes_diretoria.py:3355
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_backup_antes_diretoria.py:3371
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_backup_antes_diretoria.py:3379
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/sac_transicao_unificada - Copia.py:40
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:77
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:90
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:104
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:216
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:240
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:440
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:480
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:585
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:904
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] _backup_patch_assistencia_tecnica_parte_1_2_20260426_0934/core/views_modular/views_assistencia_tecnica.py:126
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/alertas_sla.py:58
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/comunicacao_cliente.py:51
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/comunicacao_cliente.py:126
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/dashboard_sla.py:106
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/dashboard_sla.py:110
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/destinatarios_sac.py:34
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/fila_setorial.py:164
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/fluxo_comercial.py:36
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/fluxo_licitacao.py:81
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/historico_padronizado.py:37
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/monitoramento_sac.py:200
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/sac_auditoria.py:35
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/sac_bridge.py:160
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/sac_dados_oficiais.py:21
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/sac_dados_oficiais.py:35
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/sac_dados_padrao.py:37
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/sac_dados_padrao.py:53
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/sac_dados_padrao.py:68
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/sac_transicao_unificada.py:102
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/sac_transicao_unificada.py:108
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/sac_visual.py:75
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/sac_visual.py:86
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/sac_visual.py:184
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/sac_visual.py:233
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/services/sac_visual.py:237
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_modular/views_assistencia_tecnica.py:112
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_modular/views_assistencia_tecnica.py:122
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_modular/views_assistencia_tecnica.py:191
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_modular/views_assistencia_tecnica.py:347
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_modular/views_diretoria.py:41
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_modular/views_diretoria.py:69
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_modular/views_financeiro.py:124
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_modular/views_financeiro.py:166
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_modular/views_financeiro.py:242
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_modular/views_gestao.py:53
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_modular/views_gestao.py:85
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_modular/views_gestao.py:127
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_modular/views_gestao.py:211
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_modular/views_logistica.py:139
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_modular/views_logistica.py:195
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/views_modular/views_logistica.py:234
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/management/commands/auditar_dados_sac.py:12
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/management/commands/auditar_dados_sac.py:25
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/management/commands/auditar_dados_sac.py:35
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/management/commands/auditar_dados_sac.py:116
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/management/commands/blindar_fluxo.py:7
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core_/management/commands/corrigir_banco.py:78
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/alertas_sla.py:58
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/comunicacao_cliente.py:51
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/comunicacao_cliente.py:126
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/dashboard_sla.py:106
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/dashboard_sla.py:110
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/destinatarios_sac.py:34
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/fila_setorial.py:164
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/fluxo_comercial.py:36
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/fluxo_licitacao.py:81
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/historico_padronizado.py:37
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/monitoramento_sac.py:200
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/sac_auditoria.py:35
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/sac_bridge.py:160
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/sac_dados_oficiais.py:21
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/sac_dados_oficiais.py:35
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/sac_dados_padrao.py:37
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/sac_dados_padrao.py:53
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/sac_dados_padrao.py:68
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/sac_transicao_unificada.py:102
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/sac_transicao_unificada.py:108
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/sac_visual.py:75
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/sac_visual.py:86
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/sac_visual.py:184
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/sac_visual.py:233
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/services/sac_visual.py:237
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_modular/views_assistencia_tecnica.py:112
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_modular/views_assistencia_tecnica.py:122
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_modular/views_assistencia_tecnica.py:191
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_modular/views_assistencia_tecnica.py:347
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_modular/views_diretoria.py:41
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_modular/views_diretoria.py:69
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_modular/views_financeiro.py:124
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_modular/views_financeiro.py:166
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_modular/views_financeiro.py:242
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_modular/views_gestao.py:53
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_modular/views_gestao.py:85
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_modular/views_gestao.py:127
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_modular/views_gestao.py:211
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_modular/views_logistica.py:139
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_modular/views_logistica.py:195
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/views_modular/views_logistica.py:234
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/management/commands/auditar_blindagem_sac.py:88
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/management/commands/auditar_blindagem_sac.py:170
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/management/commands/auditar_blindagem_sac.py:189
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/management/commands/auditar_blindagem_sac.py:206
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/management/commands/auditar_dados_sac.py:12
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/management/commands/auditar_dados_sac.py:25
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/management/commands/auditar_dados_sac.py:35
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/management/commands/auditar_dados_sac.py:116
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/management/commands/auditar_integridade_sac.py:178
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/management/commands/auditar_integridade_sac.py:240
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/management/commands/auditar_integridade_sac.py:291
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/management/commands/auditar_integridade_sac.py:309
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/management/commands/auditar_riscos_futuros_sac.py:105
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/management/commands/auditar_riscos_futuros_sac.py:113
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/management/commands/blindar_fluxo.py:7
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/management/commands/corrigir_banco.py:78
+  except Exception generico encontrado.
+  Detalhe: Pode esconder erro real se nao houver log/diagnostico.
+
+[MEDIO] core/forms.py
+  Termo de fluxo hardcoded muitas vezes: 'Logística' (8 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/forms.py
+  Termo de fluxo hardcoded muitas vezes: 'Logistica' (6 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/forms.py
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (26 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/test_fluxo_alertas_e_filas.py
+  Termo de fluxo hardcoded muitas vezes: 'Diretoria' (5 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/test_fluxo_alertas_e_filas.py
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (5 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/test_fluxo_alertas_telas_criticas.py
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (5 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/test_logistica_completa.py
+  Termo de fluxo hardcoded muitas vezes: 'Logística' (6 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/uuu.py
+  Termo de fluxo hardcoded muitas vezes: 'Logística' (9 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/uuu.py
+  Termo de fluxo hardcoded muitas vezes: 'Logistica' (7 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/uuu.py
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (27 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/views.py
+  Termo de fluxo hardcoded muitas vezes: 'Concluído' (13 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/views.py
+  Termo de fluxo hardcoded muitas vezes: 'Concluido' (8 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/views.py
+  Termo de fluxo hardcoded muitas vezes: 'Em Análise' (7 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/views.py
+  Termo de fluxo hardcoded muitas vezes: 'Diretoria' (20 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/views.py
+  Termo de fluxo hardcoded muitas vezes: 'Logística' (8 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/views.py
+  Termo de fluxo hardcoded muitas vezes: 'Logistica' (14 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/views.py
+  Termo de fluxo hardcoded muitas vezes: 'Assessoria Cientifica' (9 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/views.py
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (34 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/views.py
+  Termo de fluxo hardcoded muitas vezes: 'Emissão do Pedido' (6 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/views_backup_antes_diretoria.py
+  Termo de fluxo hardcoded muitas vezes: 'Concluído' (11 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/views_backup_antes_diretoria.py
+  Termo de fluxo hardcoded muitas vezes: 'Concluido' (8 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/views_backup_antes_diretoria.py
+  Termo de fluxo hardcoded muitas vezes: 'Em Análise' (7 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/views_backup_antes_diretoria.py
+  Termo de fluxo hardcoded muitas vezes: 'Diretoria' (19 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/views_backup_antes_diretoria.py
+  Termo de fluxo hardcoded muitas vezes: 'Logística' (7 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/views_backup_antes_diretoria.py
+  Termo de fluxo hardcoded muitas vezes: 'Logistica' (14 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/views_backup_antes_diretoria.py
+  Termo de fluxo hardcoded muitas vezes: 'Assessoria Cientifica' (7 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/views_backup_antes_diretoria.py
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (26 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/views_backup_antes_diretoria.py
+  Termo de fluxo hardcoded muitas vezes: 'Emissão do Pedido' (7 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/views_backup_antes_diretoria.py
+  Termo de fluxo hardcoded muitas vezes: 'Emissao do Pedido' (6 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/forms.py
+  Termo de fluxo hardcoded muitas vezes: 'Logística' (8 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/forms.py
+  Termo de fluxo hardcoded muitas vezes: 'Logistica' (6 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/forms.py
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (26 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/test_fluxo_alertas_e_filas.py
+  Termo de fluxo hardcoded muitas vezes: 'Diretoria' (5 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/test_fluxo_alertas_e_filas.py
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (5 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/test_fluxo_alertas_telas_criticas.py
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (5 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/test_logistica_completa.py
+  Termo de fluxo hardcoded muitas vezes: 'Logística' (6 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/uuu.py
+  Termo de fluxo hardcoded muitas vezes: 'Logística' (9 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/uuu.py
+  Termo de fluxo hardcoded muitas vezes: 'Logistica' (7 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/uuu.py
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (27 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/views.py
+  Termo de fluxo hardcoded muitas vezes: 'Concluído' (13 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/views.py
+  Termo de fluxo hardcoded muitas vezes: 'Concluido' (8 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/views.py
+  Termo de fluxo hardcoded muitas vezes: 'Em Análise' (7 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/views.py
+  Termo de fluxo hardcoded muitas vezes: 'Diretoria' (20 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/views.py
+  Termo de fluxo hardcoded muitas vezes: 'Logística' (8 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/views.py
+  Termo de fluxo hardcoded muitas vezes: 'Logistica' (14 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/views.py
+  Termo de fluxo hardcoded muitas vezes: 'Assessoria Cientifica' (9 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/views.py
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (34 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/views.py
+  Termo de fluxo hardcoded muitas vezes: 'Emissão do Pedido' (6 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/views_backup_antes_diretoria.py
+  Termo de fluxo hardcoded muitas vezes: 'Concluído' (11 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/views_backup_antes_diretoria.py
+  Termo de fluxo hardcoded muitas vezes: 'Concluido' (8 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/views_backup_antes_diretoria.py
+  Termo de fluxo hardcoded muitas vezes: 'Em Análise' (7 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/views_backup_antes_diretoria.py
+  Termo de fluxo hardcoded muitas vezes: 'Diretoria' (19 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/views_backup_antes_diretoria.py
+  Termo de fluxo hardcoded muitas vezes: 'Logística' (7 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/views_backup_antes_diretoria.py
+  Termo de fluxo hardcoded muitas vezes: 'Logistica' (14 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/views_backup_antes_diretoria.py
+  Termo de fluxo hardcoded muitas vezes: 'Assessoria Cientifica' (7 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/views_backup_antes_diretoria.py
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (26 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/views_backup_antes_diretoria.py
+  Termo de fluxo hardcoded muitas vezes: 'Emissão do Pedido' (7 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/views_backup_antes_diretoria.py
+  Termo de fluxo hardcoded muitas vezes: 'Emissao do Pedido' (6 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/forms.py
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (7 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py
+  Termo de fluxo hardcoded muitas vezes: 'Concluído' (6 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py
+  Termo de fluxo hardcoded muitas vezes: 'Diretoria' (8 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py
+  Termo de fluxo hardcoded muitas vezes: 'Logistica' (11 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py
+  Termo de fluxo hardcoded muitas vezes: 'Assessoria Cientifica' (7 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/migrations/0012_acaoemespera_setor_destino.py
+  Termo de fluxo hardcoded muitas vezes: 'Logistica' (5 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/migrations/0012_acaoemespera_setor_destino.py
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (10 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/views_modular/views_assistencia_tecnica.py
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (5 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/views_modular/views_diretoria.py
+  Termo de fluxo hardcoded muitas vezes: 'Diretoria' (6 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/management/commands/blindar_fluxo.py
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (5 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/management/commands/cadastrar_status_sac.py
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (6 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/migrations/0012_acaoemespera_setor_destino.py
+  Termo de fluxo hardcoded muitas vezes: 'Logistica' (5 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/migrations/0012_acaoemespera_setor_destino.py
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (10 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/views_modular/views_assistencia_tecnica.py
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (5 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/views_modular/views_diretoria.py
+  Termo de fluxo hardcoded muitas vezes: 'Diretoria' (6 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/management/commands/blindar_fluxo.py
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (5 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/management/commands/cadastrar_status_sac.py
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (6 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] _QUARENTENA_ESTABILIZACAO/templates_copia/gestao_logistica - Copia.html
+  Termo de fluxo hardcoded muitas vezes: 'Logística' (6 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] _hotfix_20260413/core/templates/core/analise_diretoria.html
+  Termo de fluxo hardcoded muitas vezes: 'Diretoria' (6 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/templates/core/abrir_sac.html
+  Termo de fluxo hardcoded muitas vezes: 'Diretoria' (12 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/templates/core/analise_diretoria.html
+  Termo de fluxo hardcoded muitas vezes: 'Diretoria' (15 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/templates/core/analise_gestao_sac.html
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (5 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/templates/core/analise_tecnica_sac.html
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (6 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/templates/core/assessoria_cientifica.html
+  Termo de fluxo hardcoded muitas vezes: 'Assessoria Científica' (5 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/templates/core/gestao_assistencia_tecnica.html
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (5 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/templates/core/gestao_logistica.html
+  Termo de fluxo hardcoded muitas vezes: 'Logística' (6 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core_/templates/core/gestao_logistica.html
+  Termo de fluxo hardcoded muitas vezes: 'Logistica' (5 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/templates/core/abrir_sac.html
+  Termo de fluxo hardcoded muitas vezes: 'Diretoria' (12 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/templates/core/analise_diretoria.html
+  Termo de fluxo hardcoded muitas vezes: 'Diretoria' (15 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/templates/core/analise_gestao_sac.html
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (5 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/templates/core/analise_tecnica_sac.html
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (6 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/templates/core/assessoria_cientifica.html
+  Termo de fluxo hardcoded muitas vezes: 'Assessoria Científica' (5 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/templates/core/gestao_assistencia_tecnica.html
+  Termo de fluxo hardcoded muitas vezes: 'Aguardando' (5 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/templates/core/gestao_logistica.html
+  Termo de fluxo hardcoded muitas vezes: 'Logística' (6 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[MEDIO] core/templates/core/gestao_logistica.html
+  Termo de fluxo hardcoded muitas vezes: 'Logistica' (5 ocorrencias).
+  Detalhe: Futuro ideal: usar codigos/cadastro central e nome apenas para exibicao.
+
+[BAIXO] changelist_view
+  Funcao com mesmo nome em 6 locais.
+  Detalhe: core/admin.py:106; core/admin.py:132; core/admin.py:167; core_/admin.py:106; core_/admin.py:132; core_/admin.py:167
+
+[BAIXO] clean
+  Funcao com mesmo nome em 37 locais.
+  Detalhe: core/forms.py:266; core/forms.py:871; core/forms.py:911; core/forms.py:927; core/forms.py:1218; core/forms.py:1588; core/forms.py:1951; core/models.py:807; core/uuu.py:266; core/uuu.py:860
+
+[BAIXO] nome
+  Funcao com mesmo nome em 6 locais.
+  Detalhe: core/models.py:18; core/models.py:22; core_/models.py:18; core_/models.py:22; _hotfix_20260413/core/models.py:16; _hotfix_20260413/core/models.py:20
+
+[BAIXO] save
+  Funcao com mesmo nome em 18 locais.
+  Detalhe: core/models.py:46; core/models.py:80; core/models.py:125; core/models.py:183; core/models.py:268; core/models.py:327; core/models.py:848; core_/models.py:46; core_/models.py:80; core_/models.py:125
+
+[BAIXO] status_atual_nome
+  Funcao com mesmo nome em 3 locais.
+  Detalhe: core/models.py:537; core_/models.py:537; _hotfix_20260413/core/models.py:461
+
+[BAIXO] setUp
+  Funcao com mesmo nome em 24 locais.
+  Detalhe: core/test_alerta_sac_parado.py:12; core/test_auditoria_fluxo.py:11; core/test_contexto_fila.py:9; core/test_fluxo_alertas_e_filas.py:40; core/test_fluxo_alertas_e_filas.py:253; core/test_fluxo_alertas_telas_criticas.py:33; core/test_logistica_completa.py:22; core/test_monitoramento_sac.py:11; core/test_services.py:23; core/test_transicao_nf_pendente.py:9
+
+[BAIXO] normalizar_texto
+  Funcao com mesmo nome em 7 locais.
+  Detalhe: core/views.py:172; core/views_backup_antes_diretoria.py:123; core_/views.py:172; core_/views_backup_antes_diretoria.py:123; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:62; core_/services/vendedor_service.py:6; core/services/vendedor_service.py:6
+
+[BAIXO] normalizar_codigo_excel
+  Funcao com mesmo nome em 8 locais.
+  Detalhe: core/views.py:179; core/views_backup_antes_diretoria.py:130; core_/views.py:179; core_/views_backup_antes_diretoria.py:130; core_/services/vendedor_service.py:10; core_/management/commands/corrigir_clientes_duplicados.py:7; core/services/vendedor_service.py:10; core/management/commands/corrigir_clientes_duplicados.py:7
+
+[BAIXO] atualizar_cadastro_vendedor
+  Funcao com mesmo nome em 6 locais.
+  Detalhe: core/views.py:198; core/views_backup_antes_diretoria.py:149; core_/views.py:198; core_/views_backup_antes_diretoria.py:149; core_/services/vendedor_service.py:25; core/services/vendedor_service.py:25
+
+[BAIXO] normalizar_numero_nf
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:254; core/views_backup_antes_diretoria.py:205; core_/views.py:254; core_/views_backup_antes_diretoria.py:205; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:69
+
+[BAIXO] normalizar_data_excel
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:267; core/views_backup_antes_diretoria.py:218; core_/views.py:267; core_/views_backup_antes_diretoria.py:218; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:82
+
+[BAIXO] normalizar_decimal
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:279; core/views_backup_antes_diretoria.py:230; core_/views.py:279; core_/views_backup_antes_diretoria.py:230; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:94
+
+[BAIXO] dividir_saidas
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:314; core/views_backup_antes_diretoria.py:265; core_/views.py:314; core_/views_backup_antes_diretoria.py:265; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:129
+
+[BAIXO] proximo_numero_sac
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:463; core/views_backup_antes_diretoria.py:404; core_/views.py:453; core_/views_backup_antes_diretoria.py:404; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:197
+
+[BAIXO] executar_correcao_banco
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:473; core/views_backup_antes_diretoria.py:414; core_/views.py:463; core_/views_backup_antes_diretoria.py:414; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:207
+
+[BAIXO] importar_notas_excel
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:494; core/views_backup_antes_diretoria.py:435; core_/views.py:484; core_/views_backup_antes_diretoria.py:435; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:228
+
+[BAIXO] importar_rastreios_excel
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:749; core/views_backup_antes_diretoria.py:690; core_/views.py:739; core_/views_backup_antes_diretoria.py:690; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:468
+
+[BAIXO] importar_tabela_pecas_excel
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:857; core/views_backup_antes_diretoria.py:798; core_/views.py:847; core_/views_backup_antes_diretoria.py:798; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:576
+
+[BAIXO] salvar_contato_cliente
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:911; core/views_backup_antes_diretoria.py:852; core_/views.py:901; core_/views_backup_antes_diretoria.py:852; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:630
+
+[BAIXO] obter_status_por_nome
+  Funcao com mesmo nome em 7 locais.
+  Detalhe: core/views.py:936; core/views_backup_antes_diretoria.py:877; core_/views.py:926; core_/views_backup_antes_diretoria.py:877; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:655; core_/services/sac_bridge.py:24; core/services/sac_bridge.py:24
+
+[BAIXO] buscar_sac_em_andamento_por_item_serial
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:969; core/views_backup_antes_diretoria.py:888; core_/views.py:959; core_/views_backup_antes_diretoria.py:888; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:666
+
+[BAIXO] montar_info_reincidencia
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:991; core/views_backup_antes_diretoria.py:910; core_/views.py:981; core_/views_backup_antes_diretoria.py:910; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:688
+
+[BAIXO] obter_setor_por_nome
+  Funcao com mesmo nome em 9 locais.
+  Detalhe: core/views.py:1015; core/views_backup_antes_diretoria.py:934; core_/views.py:1005; core_/views_backup_antes_diretoria.py:934; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:712; core_/services/sac_bridge.py:20; core_/services/sac_visual.py:18; core/services/sac_bridge.py:20; core/services/sac_visual.py:18
+
+[BAIXO] obter_setor_comercial_padrao
+  Funcao com mesmo nome em 6 locais.
+  Detalhe: core/views.py:1019; core/views_backup_antes_diretoria.py:938; core_/views.py:1009; core_/views_backup_antes_diretoria.py:938; core_/services/sac_visual.py:26; core/services/sac_visual.py:26
+
+[BAIXO] resolver_setor_contexto_comercial
+  Funcao com mesmo nome em 6 locais.
+  Detalhe: core/views.py:1027; core/views_backup_antes_diretoria.py:946; core_/views.py:1017; core_/views_backup_antes_diretoria.py:946; core_/services/sac_visual.py:53; core/services/sac_visual.py:53
+
+[BAIXO] determinar_setor_por_status
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:1044; core/views_backup_antes_diretoria.py:963; core_/views.py:1034; core_/views_backup_antes_diretoria.py:963; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:716
+
+[BAIXO] registrar_historico_sac
+  Funcao com mesmo nome em 7 locais.
+  Detalhe: core/views.py:1089; core/views_backup_antes_diretoria.py:1008; core_/views.py:1079; core_/views_backup_antes_diretoria.py:1008; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:761; core_/services/historico_sac.py:8; core/services/historico_sac.py:8
+
+[BAIXO] montar_observacao_analise
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:1105; core/views_backup_antes_diretoria.py:1024; core_/views.py:1095; core_/views_backup_antes_diretoria.py:1024; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:777
+
+[BAIXO] extrair_campos_observacao_analise
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:1115; core/views_backup_antes_diretoria.py:1034; core_/views.py:1105; core_/views_backup_antes_diretoria.py:1034; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:787
+
+[BAIXO] montar_observacao_orcamento_externo
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:1149; core/views_backup_antes_diretoria.py:1068; core_/views.py:1139; core_/views_backup_antes_diretoria.py:1068; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:821
+
+[BAIXO] montar_orcamento_inicial
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:1171; core/views_backup_antes_diretoria.py:1090; core_/views.py:1161; core_/views_backup_antes_diretoria.py:1090; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:843
+
+[BAIXO] montar_opcoes_pecas
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:1194; core/views_backup_antes_diretoria.py:1113; core_/views.py:1184; core_/views_backup_antes_diretoria.py:1113; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:866
+
+[BAIXO] status_eh_orcamento_externo
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:1198; core/views_backup_antes_diretoria.py:1117; core_/views.py:1188; core_/views_backup_antes_diretoria.py:1117; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:870
+
+[BAIXO] abrir_sac
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:1206; core/views_backup_antes_diretoria.py:1125; core_/views.py:1196; core_/views_backup_antes_diretoria.py:1125; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:878
+
+[BAIXO] analise_tecnica_sac
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:1702; core/views_backup_antes_diretoria.py:1444; core_/views.py:1692; core_/views_backup_antes_diretoria.py:1444; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:1118
+
+[BAIXO] buscar_serial_lote_sac
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:2401; core/views_backup_antes_diretoria.py:1661; core_/views.py:2391; core_/views_backup_antes_diretoria.py:1661; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:1346
+
+[BAIXO] buscar_serial_api
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:2457; core/views_backup_antes_diretoria.py:1717; core_/views.py:2447; core_/views_backup_antes_diretoria.py:1717; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:1402
+
+[BAIXO] buscar_clientes
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:2462; core/views_backup_antes_diretoria.py:1722; core_/views.py:2452; core_/views_backup_antes_diretoria.py:1722; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:1407
+
+[BAIXO] listar_contatos_cliente
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:2493; core/views_backup_antes_diretoria.py:1753; core_/views.py:2483; core_/views_backup_antes_diretoria.py:1753; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:1438
+
+[BAIXO] buscar_vendedor_por_nota
+  Funcao com mesmo nome em 4 locais.
+  Detalhe: core/views.py:2517; core/views_backup_antes_diretoria.py:1777; core_/views.py:2507; core_/views_backup_antes_diretoria.py:1777
+
+[BAIXO] listar_notas_cliente
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:2547; core/views_backup_antes_diretoria.py:1807; core_/views.py:2537; core_/views_backup_antes_diretoria.py:1807; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:1461
+
+[BAIXO] listar_itens_nota
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:2573; core/views_backup_antes_diretoria.py:1830; core_/views.py:2563; core_/views_backup_antes_diretoria.py:1830; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:1484
+
+[BAIXO] listar_rastreios_item
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:2613; core/views_backup_antes_diretoria.py:1870; core_/views.py:2603; core_/views_backup_antes_diretoria.py:1870; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:1516
+
+[BAIXO] buscar_tipo_ocorrencia
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:2667; core/views_backup_antes_diretoria.py:1924; core_/views.py:2657; core_/views_backup_antes_diretoria.py:1924; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:1570
+
+[BAIXO] historico_item_rastreio
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:2687; core/views_backup_antes_diretoria.py:1944; core_/views.py:2677; core_/views_backup_antes_diretoria.py:1944; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:1590
+
+[BAIXO] proximo_numero_sac_api
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:2715; core/views_backup_antes_diretoria.py:1972; core_/views.py:2705; core_/views_backup_antes_diretoria.py:1972; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:1618
+
+[BAIXO] montar_grafico_tempo_status_sac
+  Funcao com mesmo nome em 6 locais.
+  Detalhe: core/views.py:2788; core/views_backup_antes_diretoria.py:2187; core_/views.py:2778; core_/views_backup_antes_diretoria.py:2187; core_/services/sac_visual.py:125; core/services/sac_visual.py:125
+
+[BAIXO] sac_eh_comercial
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:3090; core/views_backup_antes_diretoria.py:2489; core_/views.py:3080; core_/views_backup_antes_diretoria.py:2489; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:1823
+
+[BAIXO] montar_contexto_itens_sac
+  Funcao com mesmo nome em 7 locais.
+  Detalhe: core/views.py:3153; core/views_backup_antes_diretoria.py:2552; core_/views.py:3143; core_/views_backup_antes_diretoria.py:2552; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:1871; core_/services/sac_visual.py:226; core/services/sac_visual.py:226
+
+[BAIXO] analise_comercial_sac
+  Funcao com mesmo nome em 7 locais.
+  Detalhe: core/views.py:3213; core/views_backup_antes_diretoria.py:2599; core_/views.py:3203; core_/views_backup_antes_diretoria.py:2599; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:1918; core_/views_modular/views_comercial.py:35; core/views_modular/views_comercial.py:35
+
+[BAIXO] painel_navegacao
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:3400; core/views_backup_antes_diretoria.py:2801; core_/views.py:3390; core_/views_backup_antes_diretoria.py:2801; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:2084
+
+[BAIXO] gestao_sac
+  Funcao com mesmo nome em 7 locais.
+  Detalhe: core/views.py:3445; core/views_backup_antes_diretoria.py:2853; core_/views.py:3435; core_/views_backup_antes_diretoria.py:2853; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:2089; core_/views_modular/views_gestao.py:274; core/views_modular/views_gestao.py:274
+
+[BAIXO] assessoria_cientifica_lista
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:3580; core/views_backup_antes_diretoria.py:2988; core_/views.py:3570; core_/views_backup_antes_diretoria.py:2988; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:2215
+
+[BAIXO] pesquisa_sacs
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: core/views.py:3586; core/views_backup_antes_diretoria.py:2994; core_/views.py:3576; core_/views_backup_antes_diretoria.py:2994; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:2221
+
+[BAIXO] analise_diretoria
+  Funcao com mesmo nome em 7 locais.
+  Detalhe: core/views.py:3714; core/views_backup_antes_diretoria.py:3122; core_/views.py:3704; core_/views_backup_antes_diretoria.py:3122; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:2278; core_/views_modular/views_diretoria.py:103; core/views_modular/views_diretoria.py:103
+
+[BAIXO] assessoria_cientifica
+  Funcao com mesmo nome em 7 locais.
+  Detalhe: core/views.py:3874; core/views_backup_antes_diretoria.py:3282; core_/views.py:3864; core_/views_backup_antes_diretoria.py:3282; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:2378; core_/views_modular/views_assessoria.py:19; core/views_modular/views_assessoria.py:19
+
+[BAIXO] gestao_logistica
+  Funcao com mesmo nome em 7 locais.
+  Detalhe: core/views.py:4080; core/views_backup_antes_diretoria.py:3488; core_/views.py:4070; core_/views_backup_antes_diretoria.py:3488; _QUARENTENA_ESTABILIZACAO/raiz_duplicados/views.py:2420; core_/views_modular/views_logistica.py:383; core/views_modular/views_logistica.py:383
+
+[BAIXO] login_interno
+  Funcao com mesmo nome em 4 locais.
+  Detalhe: core/views.py:4189; core/views_backup_antes_diretoria.py:3597; core_/views.py:4179; core_/views_backup_antes_diretoria.py:3597
+
+[BAIXO] logout_interno
+  Funcao com mesmo nome em 4 locais.
+  Detalhe: core/views.py:4210; core/views_backup_antes_diretoria.py:3618; core_/views.py:4200; core_/views_backup_antes_diretoria.py:3618
+
+[BAIXO] gestao_licitacao
+  Funcao com mesmo nome em 6 locais.
+  Detalhe: core/views.py:4434; core/views_backup_antes_diretoria.py:3830; core_/views.py:4424; core_/views_backup_antes_diretoria.py:3830; core_/views_modular/views_licitacao.py:30; core/views_modular/views_licitacao.py:30
+
+[BAIXO] add
+  Funcao com mesmo nome em 4 locais.
+  Detalhe: core/views.py:3983; core/views_backup_antes_diretoria.py:3391; core_/views.py:3973; core_/views_backup_antes_diretoria.py:3391
+
+[BAIXO] obter_setor_licitacao_padrao
+  Funcao com mesmo nome em 4 locais.
+  Detalhe: core/views_backup_antes_diretoria.py:2120; core_/views_backup_antes_diretoria.py:2120; core_/services/sac_visual.py:30; core/services/sac_visual.py:30
+
+[BAIXO] resolver_setor_contexto_licitacao
+  Funcao com mesmo nome em 4 locais.
+  Detalhe: core/views_backup_antes_diretoria.py:2128; core_/views_backup_antes_diretoria.py:2128; core_/services/sac_visual.py:57; core/services/sac_visual.py:57
+
+[BAIXO] validar_parametros_transicao
+  Funcao com mesmo nome em 3 locais.
+  Detalhe: _QUARENTENA_ESTABILIZACAO/raiz_duplicados/sac_transicao_unificada - Copia.py:135; core_/services/sac_transicao_unificada.py:160; core/services/sac_transicao_unificada.py:160
+
+[BAIXO] aplicar_transicao_sac
+  Funcao com mesmo nome em 3 locais.
+  Detalhe: _QUARENTENA_ESTABILIZACAO/raiz_duplicados/sac_transicao_unificada - Copia.py:160; core_/services/sac_transicao_unificada.py:181; core/services/sac_transicao_unificada.py:181
+
+[BAIXO] acao_permite_selecao_manual_setor
+  Funcao com mesmo nome em 3 locais.
+  Detalhe: _QUARENTENA_ESTABILIZACAO/raiz_duplicados/sac_transicao_unificada - Copia.py:41; core_/services/fluxo_sac.py:24; core/services/fluxo_sac.py:24
+
+[BAIXO] obter_setor_destino_padrao
+  Funcao com mesmo nome em 3 locais.
+  Detalhe: _QUARENTENA_ESTABILIZACAO/raiz_duplicados/sac_transicao_unificada - Copia.py:44; core_/services/fluxo_sac.py:30; core/services/fluxo_sac.py:30
+
+[BAIXO] validar_transicao_basica
+  Funcao com mesmo nome em 3 locais.
+  Detalhe: _QUARENTENA_ESTABILIZACAO/raiz_duplicados/sac_transicao_unificada - Copia.py:47; core_/services/fluxo_sac.py:36; core/services/fluxo_sac.py:36
+
+[BAIXO] texto_normalizado
+  Funcao com mesmo nome em 5 locais.
+  Detalhe: _QUARENTENA_ESTABILIZACAO/raiz_duplicados/services_raiz/fluxo_sac.py:1; core_/services/sac_bridge.py:47; core_/services/sac_visual.py:14; core/services/sac_bridge.py:47; core/services/sac_visual.py:14
+
+[BAIXO] gestao_assistencia_tecnica
+  Funcao com mesmo nome em 3 locais.
+  Detalhe: _backup_patch_assistencia_tecnica_parte_1_2_20260426_0934/core/views_modular/views_assistencia_tecnica.py:120; core_/views_modular/views_assistencia_tecnica.py:341; core/views_modular/views_assistencia_tecnica.py:341
+
+[BAIXO] handle
+  Funcao com mesmo nome em 36 locais.
+  Detalhe: core_/management/cadastrar_empresas.py:8; core_/management/commands/alertar_sac_parado.py:13; core_/management/commands/auditar_dados_sac.py:62; core_/management/commands/auditar_fluxo_sac.py:12; core_/management/commands/auditar_sac.py:21; core_/management/commands/blindar_fluxo.py:118; core_/management/commands/cadastrar_empresas.py:8; core_/management/commands/cadastrar_fluxo_sac_base.py:9; core_/management/commands/cadastrar_setores.py:8; core_/management/commands/cadastrar_status_sac.py:8
+
+[BAIXO] popular_codigos_acaoemespera
+  Funcao com mesmo nome em 4 locais.
+  Detalhe: core_/migrations/0032_travar_codigo_acaoemespera.py:13; core_/migrations/0035_endurecer_codigo_acaoemespera.py:13; core/migrations/0032_travar_codigo_acaoemespera.py:13; core/migrations/0035_endurecer_codigo_acaoemespera.py:13
+
+[BAIXO] noop
+  Funcao com mesmo nome em 4 locais.
+  Detalhe: core_/migrations/0032_travar_codigo_acaoemespera.py:31; core_/migrations/0033_travar_codigo_statussac.py:30; core/migrations/0032_travar_codigo_acaoemespera.py:31; core/migrations/0033_travar_codigo_statussac.py:30
+
+[BAIXO] resolver_fluxo_fixo_licitacao
+  Funcao com mesmo nome em 4 locais.
+  Detalhe: core_/services/fluxo_licitacao.py:128; core_/services/sac_bridge.py:186; core/services/fluxo_licitacao.py:128; core/services/sac_bridge.py:186
+
+[BAIXO] extrair_dados_analise_licitacao
+  Funcao com mesmo nome em 4 locais.
+  Detalhe: core_/services/fluxo_licitacao.py:139; core_/services/sac_bridge.py:190; core/services/fluxo_licitacao.py:139; core/services/sac_bridge.py:190
+
+[BAIXO] montar_contexto_analise_licitacao
+  Funcao com mesmo nome em 4 locais.
+  Detalhe: core_/services/fluxo_licitacao.py:181; core_/services/sac_bridge.py:194; core/services/fluxo_licitacao.py:181; core/services/sac_bridge.py:194
+
+[BAIXO] obter_setor_por_codigo
+  Funcao com mesmo nome em 4 locais.
+  Detalhe: core_/services/sac_bridge.py:43; core_/services/sac_visual.py:22; core/services/sac_bridge.py:43; core/services/sac_visual.py:22
+
+[BAIXO] add_arguments
+  Funcao com mesmo nome em 13 locais.
+  Detalhe: core_/management/commands/alertar_sac_parado.py:9; core_/management/commands/auditar_dados_sac.py:49; core_/management/commands/auditar_fluxo_sac.py:9; core_/management/commands/blindar_fluxo.py:22; core_/management/commands/processar_alertas_sla.py:11; core/management/commands/alertar_sac_parado.py:9; core/management/commands/auditar_blindagem_sac.py:38; core/management/commands/auditar_dados_sac.py:49; core/management/commands/auditar_fluxo_sac.py:9; core/management/commands/auditar_integridade_sac.py:57
+
+[ALTO] core_/templates/admin/core/notafiscal/change_list.html
+  Template referenciado nao encontrado: admin/change_list.html
+  Detalhe: Pode quebrar renderizacao da tela.
+
+[ALTO] core_/templates/admin/core/pecatabelapreco/change_form.html
+  Template referenciado nao encontrado: admin/change_form.html
+  Detalhe: Pode quebrar renderizacao da tela.
+
+[ALTO] core_/templates/admin/core/pecatabelapreco/change_list.html
+  Template referenciado nao encontrado: admin/change_list.html
+  Detalhe: Pode quebrar renderizacao da tela.
+
+[ALTO] core_/templates/admin/core/rastreionotaitem/change_list.html
+  Template referenciado nao encontrado: admin/change_list.html
+  Detalhe: Pode quebrar renderizacao da tela.
+
+[ALTO] core/templates/admin/core/notafiscal/change_list.html
+  Template referenciado nao encontrado: admin/change_list.html
+  Detalhe: Pode quebrar renderizacao da tela.
+
+[ALTO] core/templates/admin/core/pecatabelapreco/change_form.html
+  Template referenciado nao encontrado: admin/change_form.html
+  Detalhe: Pode quebrar renderizacao da tela.
+
+[ALTO] core/templates/admin/core/pecatabelapreco/change_list.html
+  Template referenciado nao encontrado: admin/change_list.html
+  Detalhe: Pode quebrar renderizacao da tela.
+
+[ALTO] core/templates/admin/core/rastreionotaitem/change_list.html
+  Template referenciado nao encontrado: admin/change_list.html
+  Detalhe: Pode quebrar renderizacao da tela.
+
+[ALTO] core/migrations
+  Numeracao de migrations com lacunas: [28]
+  Detalhe: Pode ser normal, mas merece conferencia antes de migrate.
+
+[ALTO] config/settings.py
+  Senha padrao ou sensivel encontrada no settings.
+  Detalhe: Risco de seguranca em producao.

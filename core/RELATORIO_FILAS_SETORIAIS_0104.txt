@@ -1,0 +1,5 @@
+_sac_aguardando_acao_assessoria_queryset: ENCONTRADA
+_sac_aguarda_acao_comercial_queryset: ENCONTRADA
+_sac_aguardando_acao_gestao_queryset: ENCONTRADA
+_sac_aguardando_acao_logistica_queryset: ENCONTRADA
+_sac_aguardando_acao_diretoria_queryset: NÃO ENCONTRADA

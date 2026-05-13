@@ -1,0 +1,26 @@
+<div class="subcard fluxo-padronizado-box">
+    <style>
+        .fluxo-padronizado-box{border:1px solid #dbe8f3;border-radius:18px;padding:16px;background:#f8fbfe;margin-bottom:16px}
+        .fluxo-padronizado-box .fluxo-padronizado-titulo{margin:0 0 14px;color:#0d3b66;font-size:18px;font-weight:800}
+        .fluxo-padronizado-box .fluxo-padronizado-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+        @media (max-width: 900px){.fluxo-padronizado-box .fluxo-padronizado-grid{grid-template-columns:1fr}}
+    </style>
+    <h3 class="fluxo-padronizado-titulo">{{ fluxo_titulo|default:'Fluxo que será aplicado' }}</h3>
+    <div class="fluxo-padronizado-grid">
+        <div class="field">
+            <label for="{{ status_field.id_for_label }}">{{ status_label|default:status_field.label }}</label>
+            {{ status_field }}
+            {% if status_field.errors %}<div class="field-errors">{{ status_field.errors }}</div>{% endif %}
+        </div>
+        <div class="field">
+            <label for="{{ acao_field.id_for_label }}">{{ acao_label|default:acao_field.label }}</label>
+            {{ acao_field }}
+            {% if acao_field.errors %}<div class="field-errors">{{ acao_field.errors }}</div>{% endif %}
+        </div>
+        <div class="field">
+            <label for="{{ setor_field.id_for_label }}">{{ setor_label|default:setor_field.label }}</label>
+            {{ setor_field }}
+            {% if setor_field.errors %}<div class="field-errors">{{ setor_field.errors }}</div>{% endif %}
+        </div>
+    </div>
+</div>

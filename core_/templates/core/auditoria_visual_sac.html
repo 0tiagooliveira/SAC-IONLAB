@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Auditoria visual do SAC</title>
+  <style>
+    body{font-family:Arial,sans-serif;background:#f5f8fc;color:#17324d;margin:0}
+    .page{max-width:1400px;margin:0 auto;padding:24px}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px}
+    .btn{display:inline-block;background:#0d3b66;color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:700}
+    .box{background:#fff;border:1px solid #dbe6f0;border-radius:18px;padding:18px;box-shadow:0 8px 20px rgba(0,0,0,.05);margin-bottom:18px}
+    .timeline{display:grid;gap:14px}
+    .item{background:#fff;border:1px solid #e2ebf5;border-radius:16px;padding:14px}
+    .meta{font-size:13px;color:#64748b;margin-bottom:8px}
+    pre{white-space:pre-wrap;font-family:Consolas,monospace;font-size:12px;background:#f7fbff;border:1px solid #e3eef8;border-radius:12px;padding:10px}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="top">
+      <div>
+        <h1>Auditoria visual do SAC {{ numero_sac }}</h1>
+        <div>{{ sac.titulo|default:'-' }}</div>
+      </div>
+      <div>
+        <a class="btn" href="/sac/dashboard/">Voltar ao dashboard</a>
+      </div>
+    </div>
+
+    <div class="box">
+      <strong>Cliente:</strong> {{ sac.cliente }}<br>
+      <strong>Setor atual:</strong> {{ sac.setor_atual|default:'-' }}<br>
+      <strong>Status atual:</strong> {{ sac.status_atual|default:'-' }}
+    </div>
+
+    <div class="box">
+      <h2>Histórico visual</h2>
+      <div class="timeline">
+      {% for item in historicos %}
+        <div class="item">
+          <div class="meta">{{ item.data_evento_fmt }} · {{ item.usuario }}</div>
+          <div><strong>Ação:</strong> {{ item.acao_executada }}</div>
+          <div><strong>Status:</strong> {{ item.status_anterior }} → {{ item.status_novo }}</div>
+          <div><strong>Setor:</strong> {{ item.setor_origem }} → {{ item.setor_destino }}</div>
+          <div><strong>Observação:</strong></div>
+          <pre>{{ item.observacao }}</pre>
+          {% if item.arquivo_url %}<div><a href="{{ item.arquivo_url }}" target="_blank">Abrir anexo</a></div>{% endif %}
+        </div>
+      {% empty %}
+        <div class="item">Nenhum histórico encontrado.</div>
+      {% endfor %}
+      </div>
+    </div>
+
+    <div class="box">
+      <h2>Log técnico interno</h2>
+      <div class="timeline">
+      {% for log in logs_tecnicos %}
+        <div class="item"><pre>{{ log|pprint }}</pre></div>
+      {% empty %}
+        <div class="item">Nenhum log técnico encontrado para este SAC.</div>
+      {% endfor %}
+      </div>
+    </div>
+  </div>
+</body>
+</html>

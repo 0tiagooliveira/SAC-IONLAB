@@ -1,0 +1,318 @@
+AUDITORIA DE BLINDAGEM PREVENTIVA DO SAC
+Data: 01/05/2026 09:46:20
+Projeto: C:\Ionlab\SAC\programa\SAC_Intranet_oficial
+Modo: SOMENTE LEITURA - nenhuma regra, banco ou arquivo existente foi alterado
+
+RESUMO
+ALTO : 36
+MEDIO: 97
+BAIXO: 32
+
+[ALTO] 36 achado(s)
+1. core\forms.py - except com pass na linha 467.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+2. core\forms.py - except com pass na linha 771.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+3. core\forms.py - except com pass na linha 779.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+4. core\forms.py - except com pass na linha 1423.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+5. core\forms.py - except com pass na linha 1799.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+6. core\forms.py - except com pass na linha 2001.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+7. core\uuu.py - except com pass na linha 760.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+8. core\uuu.py - except com pass na linha 768.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+9. core\uuu.py - except com pass na linha 1412.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+10. core\uuu.py - except com pass na linha 1826.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+11. core\uuu.py - except com pass na linha 2085.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+12. core\views.py - except com pass na linha 188.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+13. core\views.py - except com pass na linha 2847.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+14. core\views.py - except com pass na linha 3122.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+15. core\views.py - except com pass na linha 3937.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+16. core\views.py - except com pass na linha 3943.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+17. core\views.py - except com pass na linha 3963.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+18. core\views.py - except com pass na linha 3971.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+19. core\views_backup_antes_diretoria.py - except com pass na linha 139.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+20. core\views_backup_antes_diretoria.py - except com pass na linha 2246.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+21. core\views_backup_antes_diretoria.py - except com pass na linha 2521.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+22. core\views_backup_antes_diretoria.py - except com pass na linha 3345.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+23. core\views_backup_antes_diretoria.py - except com pass na linha 3351.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+24. core\views_backup_antes_diretoria.py - except com pass na linha 3371.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+25. core\views_backup_antes_diretoria.py - except com pass na linha 3379.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+26. core\services\fluxo_comercial.py - except com pass na linha 52.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+27. core\services\sac_dados_oficiais.py - except com pass na linha 21.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+28. core\services\sac_dados_oficiais.py - except com pass na linha 35.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+29. core\services\sac_dados_padrao.py - except com pass na linha 37.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+30. core\services\sac_dados_padrao.py - except com pass na linha 53.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+31. core\services\sac_visual.py - except com pass na linha 75.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+32. core\services\sac_visual.py - except com pass na linha 212.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+33. core\services\vendedor_service.py - except com pass na linha 18.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+34. core\views_modular\views_diretoria.py - except com pass na linha 69.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+35. core\management\commands\auditar_dados_sac.py - except com pass na linha 25.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+36. core\management\commands\corrigir_clientes_duplicados.py - except com pass na linha 17.
+   Detalhe: Erro pode ficar invisivel para o usuario e para manutencao.
+
+[MEDIO] 97 achado(s)
+1. core\forms.py - Arquivo muito grande (2193 linhas).
+   Detalhe: Risco de regressao em alteracoes futuras.
+2. core\forms.py - Tratamento generico de excecao na linha 467.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+3. core\forms.py - Tratamento generico de excecao na linha 516.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+4. core\forms.py - Tratamento generico de excecao na linha 771.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+5. core\forms.py - Tratamento generico de excecao na linha 779.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+6. core\forms.py - Tratamento generico de excecao na linha 1423.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+7. core\forms.py - Tratamento generico de excecao na linha 1857.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+8. core\forms.py - Tratamento generico de excecao na linha 1364.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+9. core\forms.py - Tratamento generico de excecao na linha 1742.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+10. core\forms.py - Tratamento generico de excecao na linha 1978.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+11. core\forms.py - Tratamento generico de excecao na linha 2001.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+12. core\test_fluxo_alertas_e_filas.py - Tratamento generico de excecao na linha 30.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+13. core\test_views_smoke.py - Tratamento generico de excecao na linha 24.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+14. core\uuu.py - Arquivo muito grande (2277 linhas).
+   Detalhe: Risco de regressao em alteracoes futuras.
+15. core\uuu.py - Tratamento generico de excecao na linha 505.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+16. core\uuu.py - Tratamento generico de excecao na linha 760.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+17. core\uuu.py - Tratamento generico de excecao na linha 768.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+18. core\uuu.py - Tratamento generico de excecao na linha 1412.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+19. core\uuu.py - Tratamento generico de excecao na linha 1894.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+20. core\uuu.py - Tratamento generico de excecao na linha 1353.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+21. core\uuu.py - Tratamento generico de excecao na linha 1731.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+22. core\uuu.py - Tratamento generico de excecao na linha 2032.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+23. core\uuu.py - Tratamento generico de excecao na linha 2062.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+24. core\uuu.py - Tratamento generico de excecao na linha 2085.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+25. core\views.py - Arquivo muito grande (4651 linhas).
+   Detalhe: Risco de regressao em alteracoes futuras.
+26. core\views.py - Tratamento generico de excecao na linha 3681.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+27. core\views.py - Tratamento generico de excecao na linha 3689.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+28. core\views.py - Tratamento generico de excecao na linha 3937.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+29. core\views.py - Tratamento generico de excecao na linha 3943.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+30. core\views.py - Tratamento generico de excecao na linha 3947.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+31. core\views.py - Tratamento generico de excecao na linha 3963.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+32. core\views.py - Tratamento generico de excecao na linha 3971.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+33. core\views_backup_antes_diretoria.py - Arquivo muito grande (4032 linhas).
+   Detalhe: Risco de regressao em alteracoes futuras.
+34. core\views_backup_antes_diretoria.py - Tratamento generico de excecao na linha 3089.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+35. core\views_backup_antes_diretoria.py - Tratamento generico de excecao na linha 3097.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+36. core\views_backup_antes_diretoria.py - Tratamento generico de excecao na linha 3345.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+37. core\views_backup_antes_diretoria.py - Tratamento generico de excecao na linha 3351.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+38. core\views_backup_antes_diretoria.py - Tratamento generico de excecao na linha 3355.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+39. core\views_backup_antes_diretoria.py - Tratamento generico de excecao na linha 3371.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+40. core\views_backup_antes_diretoria.py - Tratamento generico de excecao na linha 3379.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+41. core\services\alertas_sla.py - Tratamento generico de excecao na linha 58.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+42. core\services\comunicacao_cliente.py - Tratamento generico de excecao na linha 51.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+43. core\services\comunicacao_cliente.py - Tratamento generico de excecao na linha 126.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+44. core\services\dashboard_sla.py - Tratamento generico de excecao na linha 110.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+45. core\services\dashboard_sla.py - Tratamento generico de excecao na linha 106.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+46. core\services\destinatarios_sac.py - Tratamento generico de excecao na linha 34.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+47. core\services\fila_setorial.py - Tratamento generico de excecao na linha 164.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+48. core\services\fluxo_comercial.py - Tratamento generico de excecao na linha 36.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+49. core\services\fluxo_licitacao.py - Tratamento generico de excecao na linha 81.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+50. core\services\historico_padronizado.py - Tratamento generico de excecao na linha 37.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+51. core\services\monitoramento_sac.py - Tratamento generico de excecao na linha 200.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+52. core\services\sac_auditoria.py - Tratamento generico de excecao na linha 35.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+53. core\services\sac_bridge.py - Tratamento generico de excecao na linha 160.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+54. core\services\sac_dados_oficiais.py - Tratamento generico de excecao na linha 21.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+55. core\services\sac_dados_oficiais.py - Tratamento generico de excecao na linha 35.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+56. core\services\sac_dados_padrao.py - Tratamento generico de excecao na linha 37.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+57. core\services\sac_dados_padrao.py - Tratamento generico de excecao na linha 53.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+58. core\services\sac_dados_padrao.py - Tratamento generico de excecao na linha 68.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+59. core\services\sac_transicao_unificada.py - Tratamento generico de excecao na linha 102.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+60. core\services\sac_transicao_unificada.py - Tratamento generico de excecao na linha 108.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+61. core\services\sac_visual.py - Tratamento generico de excecao na linha 75.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+62. core\services\sac_visual.py - Tratamento generico de excecao na linha 184.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+63. core\services\sac_visual.py - Tratamento generico de excecao na linha 86.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+64. core\services\sac_visual.py - Tratamento generico de excecao na linha 233.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+65. core\services\sac_visual.py - Tratamento generico de excecao na linha 237.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+66. core\views_modular\views_assistencia_tecnica.py - Tratamento generico de excecao na linha 112.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+67. core\views_modular\views_assistencia_tecnica.py - Tratamento generico de excecao na linha 191.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+68. core\views_modular\views_assistencia_tecnica.py - Tratamento generico de excecao na linha 347.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+69. core\views_modular\views_assistencia_tecnica.py - Tratamento generico de excecao na linha 122.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+70. core\views_modular\views_diretoria.py - Tratamento generico de excecao na linha 41.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+71. core\views_modular\views_diretoria.py - Tratamento generico de excecao na linha 69.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+72. core\views_modular\views_financeiro.py - Tratamento generico de excecao na linha 124.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+73. core\views_modular\views_financeiro.py - Tratamento generico de excecao na linha 166.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+74. core\views_modular\views_financeiro.py - Tratamento generico de excecao na linha 242.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+75. core\views_modular\views_gestao.py - Tratamento generico de excecao na linha 53.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+76. core\views_modular\views_gestao.py - Tratamento generico de excecao na linha 85.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+77. core\views_modular\views_gestao.py - Tratamento generico de excecao na linha 127.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+78. core\views_modular\views_gestao.py - Tratamento generico de excecao na linha 211.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+79. core\views_modular\views_logistica.py - Tratamento generico de excecao na linha 139.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+80. core\views_modular\views_logistica.py - Tratamento generico de excecao na linha 195.
+   Detalhe: Pode esconder erro real se nao houver log claro.
+   ... mais 17 achado(s) ocultos pelo limite.
+
+[BAIXO] 32 achado(s)
+1. core\forms.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Aguardando, Assessoria Científica, Concluído, Diretoria, Em Análise, Emissão do Pedido, Fluxo não configurado, Logística. Informativo: nao alterar regra sem validar banco.
+2. core\test_auditoria_fluxo.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Concluído. Informativo: nao alterar regra sem validar banco.
+3. core\test_fluxo_alertas_e_filas.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Aguardando, Concluído, Diretoria, Emissão do Pedido, Fluxo não configurado. Informativo: nao alterar regra sem validar banco.
+4. core\test_fluxo_alertas_telas_criticas.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Aguardando, Diretoria, Emissão do Pedido, Fluxo não configurado, Logística. Informativo: nao alterar regra sem validar banco.
+5. core\test_logistica_completa.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Assessoria Científica, Em Análise, Logística. Informativo: nao alterar regra sem validar banco.
+6. core\test_modelos_codigo.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Aguardando, Assessoria Científica, Concluído. Informativo: nao alterar regra sem validar banco.
+7. core\test_services.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Aguardando, Concluído. Informativo: nao alterar regra sem validar banco.
+8. core\test_transicao_nf_pendente.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Concluído. Informativo: nao alterar regra sem validar banco.
+9. core\uuu.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Aguardando, Assessoria Científica, Concluído, Diretoria, Em Análise, Emissão do Pedido, Fluxo não configurado, Logística. Informativo: nao alterar regra sem validar banco.
+10. core\views.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Aguardando, Assessoria Cientifica, Assessoria Científica, Concluído, Diretoria, Em Análise, Emissão do Pedido, Logística. Informativo: nao alterar regra sem validar banco.
+11. core\views_backup_antes_diretoria.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Aguardando, Assessoria Cientifica, Assessoria Científica, Concluído, Diretoria, Em Análise, Emissão do Pedido, Logística. Informativo: nao alterar regra sem validar banco.
+12. core\migrations\0012_acaoemespera_setor_destino.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Aguardando, Assessoria Cientifica, Emissão do Pedido. Informativo: nao alterar regra sem validar banco.
+13. core\services\fila_setorial.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Assessoria Científica, Diretoria, Logística. Informativo: nao alterar regra sem validar banco.
+14. core\services\fluxo_comercial.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Aguardando, Concluído, Diretoria, Em Análise, Emissão do Pedido. Informativo: nao alterar regra sem validar banco.
+15. core\services\fluxo_formularios.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Aguardando, Assessoria Cientifica, Assessoria Científica, Em Análise, Logística. Informativo: nao alterar regra sem validar banco.
+16. core\services\fluxo_licitacao.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Aguardando, Em Análise, Emissão do Pedido. Informativo: nao alterar regra sem validar banco.
+17. core\services\fluxo_sac.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Fluxo não configurado. Informativo: nao alterar regra sem validar banco.
+18. core\services\sac_bridge.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Assessoria Cientifica, Assessoria Científica, Diretoria, Em Análise, Logística. Informativo: nao alterar regra sem validar banco.
+19. core\views_modular\views_assistencia_tecnica.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Aguardando, Fluxo não configurado. Informativo: nao alterar regra sem validar banco.
+20. core\views_modular\views_diretoria.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Concluído, Diretoria, Em Análise. Informativo: nao alterar regra sem validar banco.
+21. core\views_modular\views_financeiro.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Aguardando, Em Análise, Emissão do Pedido. Informativo: nao alterar regra sem validar banco.
+22. core\views_modular\views_gestao.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Aguardando, Em Análise, Emissão do Pedido, Fluxo não configurado, Logística. Informativo: nao alterar regra sem validar banco.
+23. core\views_modular\views_logistica.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Assessoria Cientifica, Assessoria Científica, Concluído, Logística. Informativo: nao alterar regra sem validar banco.
+24. core\management\commands\auditar_blindagem_sac.py - Arquivo possui TODO/FIXME.
+   Detalhe: Revisar pendencias antes de novas alteracoes.
+25. core\management\commands\auditar_blindagem_sac.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Aguardando, Assessoria Cientifica, Assessoria Científica, Concluído, Diretoria, Em Análise, Emissão do Pedido, Fluxo não configurado, Logística. Informativo: nao alterar regra sem validar banco.
+26. core\management\commands\auditar_integridade_sac.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Aguardando, Concluído, Diretoria, Em Análise, Logística. Informativo: nao alterar regra sem validar banco.
+27. core\management\commands\blindar_fluxo.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Aguardando. Informativo: nao alterar regra sem validar banco.
+28. core\management\commands\cadastrar_fluxo_sac_base.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Aguardando, Concluído, Diretoria. Informativo: nao alterar regra sem validar banco.
+29. core\management\commands\cadastrar_setores.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Diretoria, Logística. Informativo: nao alterar regra sem validar banco.
+30. core\management\commands\cadastrar_status_sac.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Aguardando, Concluído, Logística. Informativo: nao alterar regra sem validar banco.
+31. core\management\commands\corrigir_banco.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Assessoria Cientifica. Informativo: nao alterar regra sem validar banco.
+32. core\management\commands\garantir_fluxo_assistencia_tecnica.py - Textos de fluxo/status/setor encontrados no codigo.
+   Detalhe: Aguardando. Informativo: nao alterar regra sem validar banco.
+
+ORIENTACAO
+- Achados ALTO devem ser revisados antes de novas mudancas grandes.
+- Achados MEDIO indicam risco de manutencao/regressao.
+- Achados BAIXO sao informativos e nao exigem alteracao imediata.
+- Este comando nao substitui homologacao manual das telas do SAC.

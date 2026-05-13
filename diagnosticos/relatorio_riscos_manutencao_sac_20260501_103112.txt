@@ -1,0 +1,980 @@
+RELATORIO DE RISCOS DE MANUTENCAO DO SAC
+Gerado em: 01/05/2026 10:31:12
+Projeto: C:\Ionlab\SAC\programa\SAC_Intranet_oficial
+Modo: somente leitura - nao altera regras, banco ou arquivos
+==============================================================================
+1) ARQUIVOS GRANDES / RISCO DE REGRESSAO
+ATENCAO - core\views.py tem 4651 linhas.
+ATENCAO - core_\views.py tem 4641 linhas.
+ATENCAO - core_\views_backup_antes_diretoria.py tem 4032 linhas.
+ATENCAO - core\views_backup_antes_diretoria.py tem 4032 linhas.
+ATENCAO - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py tem 2471 linhas.
+ATENCAO - core_\uuu.py tem 2277 linhas.
+ATENCAO - core\uuu.py tem 2277 linhas.
+ATENCAO - core_\forms.py tem 2193 linhas.
+ATENCAO - core\forms.py tem 2193 linhas.
+ATENCAO - core\templates\core\abrir_sac.html tem 1699 linhas.
+ATENCAO - core\templates\core\analise_tecnica_sac.html tem 1292 linhas.
+ATENCAO - core_\models.py tem 854 linhas.
+ATENCAO - core\models.py tem 854 linhas.
+ATENCAO - core\templates\core\gestao_logistica.html tem 817 linhas.
+ATENCAO - _hotfix_20260413\core\models.py tem 751 linhas.
+ATENCAO - core\templates\core\painel_navegacao.html tem 647 linhas.
+ATENCAO - core_\views_modular\views_logistica.py tem 584 linhas.
+ATENCAO - core\views_modular\views_logistica.py tem 584 linhas.
+ATENCAO - core_\views_modular\views_gestao.py tem 575 linhas.
+ATENCAO - core\views_modular\views_gestao.py tem 575 linhas.
+ATENCAO - core\templates\core\analise_gestao_sac.html tem 569 linhas.
+ATENCAO - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\forms.py tem 557 linhas.
+ATENCAO - core\templates\core\gestao_licitacao.html tem 531 linhas.
+ATENCAO - core_\views_modular\views_assistencia_tecnica.py tem 500 linhas.
+ATENCAO - core\views_modular\views_assistencia_tecnica.py tem 500 linhas.
+ATENCAO - core\templates\core\base.html tem 436 linhas.
+ATENCAO - core\management\commands\auditar_integridade_sac.py tem 401 linhas.
+Recomendacao: ao corrigir esses arquivos, aplicar patch pequeno e testar a tela afetada.
+==============================================================================
+2) ARQUIVOS/Pastas QUE PODEM CONFUNDIR MANUTENCAO
+INFO - core\forms.py.bkp
+INFO - core_\forms.py.bkp
+INFO - core_\views_modular\views_logistica.py.bkp
+INFO - core_\templates\core\gestao_logistica.html.bkp
+INFO - core\views_modular\views_logistica.py.bkp
+INFO - core\templates\core\gestao_logistica.html.bkp
+INFO - backup_patch_20260501\core\forms.py.bkp
+INFO - backup_patch_20260501\core\views_modular\views_logistica.py.bkp
+INFO - backup_patch_20260501\core\templates\core\gestao_logistica.html.bkp
+INFO - core_\__pycache__\admin.cpython-314.pyc
+INFO - core_\__pycache__\apps.cpython-314.pyc
+INFO - core_\__pycache__\context_processors.cpython-314.pyc
+INFO - core_\__pycache__\forms.cpython-314.pyc
+INFO - core_\__pycache__\models.cpython-314.pyc
+INFO - core_\__pycache__\views.cpython-313.pyc
+INFO - core_\__pycache__\views.cpython-314.pyc
+INFO - core_\__pycache__\__init__.cpython-314.pyc
+INFO - core_\views_modular\__pycache__\views_assessoria.cpython-314.pyc
+INFO - core_\views_modular\__pycache__\views_assistencia_tecnica.cpython-313.pyc
+INFO - core_\views_modular\__pycache__\views_assistencia_tecnica.cpython-314.pyc
+INFO - core_\views_modular\__pycache__\views_comercial.cpython-314.pyc
+INFO - core_\views_modular\__pycache__\views_dashboard_sla.cpython-314.pyc
+INFO - core_\views_modular\__pycache__\views_diretoria.cpython-314.pyc
+INFO - core_\views_modular\__pycache__\views_financeiro.cpython-314.pyc
+INFO - core_\views_modular\__pycache__\views_gestao.cpython-314.pyc
+INFO - core_\views_modular\__pycache__\views_licitacao.cpython-314.pyc
+INFO - core_\views_modular\__pycache__\views_logistica.cpython-314.pyc
+INFO - core_\views_modular\__pycache__\__init__.cpython-314.pyc
+INFO - core_\services\__pycache__\alertas_sla.cpython-314.pyc
+INFO - core_\services\__pycache__\comunicacao_cliente.cpython-314.pyc
+INFO - core_\services\__pycache__\dashboard_sla.cpython-314.pyc
+INFO - core_\services\__pycache__\destinatarios_sac.cpython-314.pyc
+INFO - core_\services\__pycache__\fila_setorial.cpython-314.pyc
+INFO - core_\services\__pycache__\fluxo_comercial.cpython-314.pyc
+INFO - core_\services\__pycache__\fluxo_formularios.cpython-314.pyc
+INFO - core_\services\__pycache__\fluxo_licitacao.cpython-314.pyc
+INFO - core_\services\__pycache__\fluxo_sac.cpython-314.pyc
+INFO - core_\services\__pycache__\historico_padronizado.cpython-314.pyc
+INFO - core_\services\__pycache__\historico_sac.cpython-314.pyc
+INFO - core_\services\__pycache__\monitoramento_sac.cpython-314.pyc
+INFO - core_\services\__pycache__\regras_sac.cpython-314.pyc
+INFO - core_\services\__pycache__\sac_auditoria.cpython-314.pyc
+INFO - core_\services\__pycache__\sac_bridge.cpython-314.pyc
+INFO - core_\services\__pycache__\sac_dados_oficiais.cpython-314.pyc
+INFO - core_\services\__pycache__\sac_dados_padrao.cpython-314.pyc
+INFO - core_\services\__pycache__\sac_transicao_unificada.cpython-314.pyc
+INFO - core_\services\__pycache__\sac_visual.cpython-314.pyc
+INFO - core_\services\__pycache__\sla_inteligente.cpython-314.pyc
+INFO - core_\services\__pycache__\__init__.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0001_initial.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0002_acaoemespera_alter_tipoocorrencia_options_and_more.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0003_pacotes_1_e_2_base.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0004_sac_endereco_usuario_contato.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0005_sacitem_unicidade_por_sac.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0006_remove_sacitem_uq_sacitem_item_rastreio_and_more.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0007_fix_sacitem_constraint.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0008_fix_sacitem_constraint_final.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0009_add_endereco_usuario_contato.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0010_orcamento_tecnico_externo.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0011_sacanalisecomercial.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0012_acaoemespera_setor_destino.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0013_remove_sacitem_uq_sacitem_item_rastreio.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0014_pecatabelapreco_grupo_custo.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0015_remove_sacitem_uq_sacitem_item_rastreio.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0016_sacitem_grupo_item_quebrado_inservivel.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0017_remove_sacitem_uq_sacitem_item_rastreio_and_more.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0018_naturezaoperacao_and_more.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0019_sacitem_natureza_operacao.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0020_fluxoacaosetor.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0021_merge_20260404_1131.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0022_alter_setor_options_and_more.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0023_alter_fluxoacaosetor_options_and_more.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0024_fluxoacaosetor_status_destino.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0025_sacitem_item_pequeno_valor.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0026_vendedor.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0027_vendedor_email.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0029_fix_email_nullable_definitivo.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0030_remove_sacitem_uq_sacitem_item_rastreio_and_more.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0031_setor_acao_codigos.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0032_travar_codigo_acaoemespera.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0033_travar_codigo_statussac.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0034_remove_sacitem_uq_sacitem_item_rastreio_and_more.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0035_endurecer_codigo_acaoemespera.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0036_sachistorico_arquivo.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0037_remove_sachistorico_arquivo_tecnicoexterno_arquivo.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0037_sachistorico_arquivo_fix.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0038_merge_20260419_1322.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0039_blindar_fluxoacao_constraints.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0040_permitir_multiplos_fluxos_por_setor.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0040_tempo_uso_oficial_sac.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0041_sac_data_agendamento_gestao.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0042_merge_tempo_uso_agendamento.cpython-314.pyc
+INFO - core_\migrations\__pycache__\0042_sac_tempo_uso_oficial.cpython-314.pyc
+INFO - core_\migrations\__pycache__\__init__.cpython-314.pyc
+INFO - core_\management\__pycache__\__init__.cpython-314.pyc
+INFO - core_\management\commands\__pycache__\auditar_dados_sac.cpython-314.pyc
+INFO - core_\management\commands\__pycache__\blindar_fluxo.cpython-314.pyc
+INFO - core_\management\commands\__pycache__\garantir_fluxo_assistencia_tecnica.cpython-313.pyc
+INFO - core_\management\commands\__pycache__\garantir_fluxo_assistencia_tecnica.cpython-314.pyc
+INFO - core_\management\commands\__pycache__\processar_alertas_sla.cpython-314.pyc
+Recomendacao: nao apagar automaticamente. Apenas manter fora do caminho de imports e templates.
+==============================================================================
+3) NOMES DE FUNCOES/CLASSES REPETIDOS EM ARQUIVOS DIFERENTES
+ATENCAO - 'Migration' aparece em 86 pontos:
+  - core_\migrations\0001_initial.py:8 (ClassDef)
+  - core_\migrations\0002_acaoemespera_alter_tipoocorrencia_options_and_more.py:7 (ClassDef)
+  - core_\migrations\0003_pacotes_1_e_2_base.py:9 (ClassDef)
+  - core_\migrations\0004_sac_endereco_usuario_contato.py:4 (ClassDef)
+  - core_\migrations\0005_sacitem_unicidade_por_sac.py:4 (ClassDef)
+  - core_\migrations\0006_remove_sacitem_uq_sacitem_item_rastreio_and_more.py:51 (ClassDef)
+  - core_\migrations\0007_fix_sacitem_constraint.py:4 (ClassDef)
+  - core_\migrations\0008_fix_sacitem_constraint_final.py:4 (ClassDef)
+ATENCAO - 'Meta' aparece em 77 pontos:
+  - core\forms.py:419 (ClassDef)
+  - core\models.py:14 (ClassDef)
+  - core\models.py:68 (ClassDef)
+  - core\models.py:103 (ClassDef)
+  - core\models.py:115 (ClassDef)
+  - core\models.py:148 (ClassDef)
+  - core\models.py:174 (ClassDef)
+  - core\models.py:207 (ClassDef)
+ATENCAO - '__str__' aparece em 72 pontos:
+  - core\models.py:25 (FunctionDef)
+  - core\models.py:52 (FunctionDef)
+  - core\models.py:89 (FunctionDef)
+  - core\models.py:106 (FunctionDef)
+  - core\models.py:131 (FunctionDef)
+  - core\models.py:153 (FunctionDef)
+  - core\models.py:193 (FunctionDef)
+  - core\models.py:210 (FunctionDef)
+ATENCAO - 'Command' aparece em 40 pontos:
+  - core_\management\cadastrar_empresas.py:5 (ClassDef)
+  - core_\management\commands\alertar_sac_parado.py:6 (ClassDef)
+  - core_\management\commands\auditar_dados_sac.py:46 (ClassDef)
+  - core_\management\commands\auditar_fluxo_sac.py:6 (ClassDef)
+  - core_\management\commands\auditar_sac.py:18 (ClassDef)
+  - core_\management\commands\blindar_fluxo.py:19 (ClassDef)
+  - core_\management\commands\cadastrar_empresas.py:5 (ClassDef)
+  - core_\management\commands\cadastrar_fluxo_sac_base.py:6 (ClassDef)
+ATENCAO - 'handle' aparece em 40 pontos:
+  - core_\management\cadastrar_empresas.py:8 (FunctionDef)
+  - core_\management\commands\alertar_sac_parado.py:13 (FunctionDef)
+  - core_\management\commands\auditar_dados_sac.py:62 (FunctionDef)
+  - core_\management\commands\auditar_fluxo_sac.py:12 (FunctionDef)
+  - core_\management\commands\auditar_sac.py:21 (FunctionDef)
+  - core_\management\commands\blindar_fluxo.py:118 (FunctionDef)
+  - core_\management\commands\cadastrar_empresas.py:8 (FunctionDef)
+  - core_\management\commands\cadastrar_fluxo_sac_base.py:9 (FunctionDef)
+ATENCAO - 'clean' aparece em 37 pontos:
+  - core\forms.py:266 (FunctionDef)
+  - core\forms.py:871 (FunctionDef)
+  - core\forms.py:911 (FunctionDef)
+  - core\forms.py:927 (FunctionDef)
+  - core\forms.py:1218 (FunctionDef)
+  - core\forms.py:1588 (FunctionDef)
+  - core\forms.py:1951 (FunctionDef)
+  - core\models.py:807 (FunctionDef)
+ATENCAO - '__init__' aparece em 25 pontos:
+  - core\forms.py:455 (FunctionDef)
+  - core\forms.py:856 (FunctionDef)
+  - core\forms.py:1064 (FunctionDef)
+  - core\forms.py:1351 (FunctionDef)
+  - core\forms.py:1728 (FunctionDef)
+  - core\uuu.py:455 (FunctionDef)
+  - core\uuu.py:845 (FunctionDef)
+  - core\uuu.py:1053 (FunctionDef)
+ATENCAO - 'setUp' aparece em 24 pontos:
+  - core\test_alerta_sac_parado.py:12 (FunctionDef)
+  - core\test_auditoria_fluxo.py:11 (FunctionDef)
+  - core\test_contexto_fila.py:9 (FunctionDef)
+  - core\test_fluxo_alertas_e_filas.py:40 (FunctionDef)
+  - core\test_fluxo_alertas_e_filas.py:253 (FunctionDef)
+  - core\test_fluxo_alertas_telas_criticas.py:33 (FunctionDef)
+  - core\test_logistica_completa.py:22 (FunctionDef)
+  - core\test_monitoramento_sac.py:11 (FunctionDef)
+ATENCAO - 'save' aparece em 18 pontos:
+  - core\models.py:46 (FunctionDef)
+  - core\models.py:80 (FunctionDef)
+  - core\models.py:125 (FunctionDef)
+  - core\models.py:183 (FunctionDef)
+  - core\models.py:268 (FunctionDef)
+  - core\models.py:327 (FunctionDef)
+  - core\models.py:848 (FunctionDef)
+  - core_\models.py:46 (FunctionDef)
+ATENCAO - 'add_arguments' aparece em 17 pontos:
+  - core_\management\commands\alertar_sac_parado.py:9 (FunctionDef)
+  - core_\management\commands\auditar_dados_sac.py:49 (FunctionDef)
+  - core_\management\commands\auditar_fluxo_sac.py:9 (FunctionDef)
+  - core_\management\commands\blindar_fluxo.py:22 (FunctionDef)
+  - core_\management\commands\processar_alertas_sla.py:11 (FunctionDef)
+  - core\management\commands\alertar_sac_parado.py:9 (FunctionDef)
+  - core\management\commands\auditar_blindagem_sac.py:38 (FunctionDef)
+  - core\management\commands\auditar_dados_sac.py:49 (FunctionDef)
+ATENCAO - '_normalizar_codigo' aparece em 14 pontos:
+  - core\models.py:36 (FunctionDef)
+  - core\models.py:74 (FunctionDef)
+  - core\models.py:119 (FunctionDef)
+  - core_\models.py:36 (FunctionDef)
+  - core_\models.py:74 (FunctionDef)
+  - core_\models.py:119 (FunctionDef)
+  - core_\migrations\0031_setor_acao_codigos.py:6 (FunctionDef)
+  - core_\migrations\0032_travar_codigo_acaoemespera.py:6 (FunctionDef)
+ATENCAO - 'obter_setor_por_nome' aparece em 9 pontos:
+  - core\views.py:1015 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:934 (FunctionDef)
+  - core_\views.py:1005 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:934 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:712 (FunctionDef)
+  - core_\services\sac_bridge.py:20 (FunctionDef)
+  - core_\services\sac_visual.py:18 (FunctionDef)
+  - core\services\sac_bridge.py:20 (FunctionDef)
+ATENCAO - '_acao_e_analise_ocorrido_logistica' aparece em 8 pontos:
+  - core\forms.py:1395 (FunctionDef)
+  - core\forms.py:1827 (FunctionDef)
+  - core\uuu.py:1384 (FunctionDef)
+  - core\uuu.py:1856 (FunctionDef)
+  - core_\forms.py:1395 (FunctionDef)
+  - core_\forms.py:1827 (FunctionDef)
+  - core_\uuu.py:1384 (FunctionDef)
+  - core_\uuu.py:1856 (FunctionDef)
+ATENCAO - '_configurar_fluxo_analise_ocorrido_logistica' aparece em 8 pontos:
+  - core\forms.py:1427 (FunctionDef)
+  - core\forms.py:1921 (FunctionDef)
+  - core\uuu.py:1416 (FunctionDef)
+  - core\uuu.py:1976 (FunctionDef)
+  - core_\forms.py:1427 (FunctionDef)
+  - core_\forms.py:1921 (FunctionDef)
+  - core_\uuu.py:1416 (FunctionDef)
+  - core_\uuu.py:1976 (FunctionDef)
+ATENCAO - '_configurar_fluxo_cliente_nao_confirmou' aparece em 8 pontos:
+  - core\forms.py:1440 (FunctionDef)
+  - core\forms.py:1941 (FunctionDef)
+  - core\uuu.py:1429 (FunctionDef)
+  - core\uuu.py:1996 (FunctionDef)
+  - core_\forms.py:1440 (FunctionDef)
+  - core_\forms.py:1941 (FunctionDef)
+  - core_\uuu.py:1429 (FunctionDef)
+  - core_\uuu.py:1996 (FunctionDef)
+ATENCAO - '_criar_sac' aparece em 8 pontos:
+  - core\test_alerta_sac_parado.py:19 (FunctionDef)
+  - core\test_auditoria_fluxo.py:20 (FunctionDef)
+  - core\test_fluxo_alertas_telas_criticas.py:67 (FunctionDef)
+  - core\test_transicao_nf_pendente.py:32 (FunctionDef)
+  - core_\test_alerta_sac_parado.py:19 (FunctionDef)
+  - core_\test_auditoria_fluxo.py:20 (FunctionDef)
+  - core_\test_fluxo_alertas_telas_criticas.py:67 (FunctionDef)
+  - core_\test_transicao_nf_pendente.py:32 (FunctionDef)
+ATENCAO - '_resolver_acao_sac_analise_ocorrido' aparece em 8 pontos:
+  - core\views.py:4239 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:3644 (FunctionDef)
+  - core_\views.py:4229 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:3644 (FunctionDef)
+  - core_\services\fluxo_licitacao.py:29 (FunctionDef)
+  - core_\services\sac_bridge.py:182 (FunctionDef)
+  - core\services\fluxo_licitacao.py:29 (FunctionDef)
+  - core\services\sac_bridge.py:182 (FunctionDef)
+ATENCAO - '_resolver_acao_sac_pedido_retorno' aparece em 8 pontos:
+  - core\views.py:4255 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:3657 (FunctionDef)
+  - core_\views.py:4245 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:3657 (FunctionDef)
+  - core_\services\fluxo_licitacao.py:43 (FunctionDef)
+  - core_\services\sac_bridge.py:178 (FunctionDef)
+  - core\services\fluxo_licitacao.py:43 (FunctionDef)
+  - core\services\sac_bridge.py:178 (FunctionDef)
+ATENCAO - '_resolver_setor_sac' aparece em 8 pontos:
+  - core\views.py:4275 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:3674 (FunctionDef)
+  - core_\views.py:4265 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:3674 (FunctionDef)
+  - core_\services\fluxo_licitacao.py:25 (FunctionDef)
+  - core_\services\sac_bridge.py:174 (FunctionDef)
+  - core\services\fluxo_licitacao.py:25 (FunctionDef)
+  - core\services\sac_bridge.py:174 (FunctionDef)
+ATENCAO - '_resolver_status_em_analise' aparece em 8 pontos:
+  - core\views.py:4228 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:3636 (FunctionDef)
+  - core_\views.py:4218 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:3636 (FunctionDef)
+  - core_\services\fluxo_licitacao.py:15 (FunctionDef)
+  - core_\services\sac_bridge.py:170 (FunctionDef)
+  - core\services\fluxo_licitacao.py:15 (FunctionDef)
+  - core\services\sac_bridge.py:170 (FunctionDef)
+ATENCAO - '_texto_normalizado_licitacao' aparece em 8 pontos:
+  - core\views.py:4217 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:3625 (FunctionDef)
+  - core_\views.py:4207 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:3625 (FunctionDef)
+  - core_\services\fluxo_licitacao.py:10 (FunctionDef)
+  - core_\services\sac_bridge.py:166 (FunctionDef)
+  - core\services\fluxo_licitacao.py:10 (FunctionDef)
+  - core\services\sac_bridge.py:166 (FunctionDef)
+ATENCAO - '_tipo_ocorrencia_cliente_nao_confirmou' aparece em 8 pontos:
+  - core\forms.py:1437 (FunctionDef)
+  - core\forms.py:1824 (FunctionDef)
+  - core\uuu.py:1426 (FunctionDef)
+  - core\uuu.py:1853 (FunctionDef)
+  - core_\forms.py:1437 (FunctionDef)
+  - core_\forms.py:1824 (FunctionDef)
+  - core_\uuu.py:1426 (FunctionDef)
+  - core_\uuu.py:1853 (FunctionDef)
+ATENCAO - '_tipo_ocorrencia_normalizado' aparece em 8 pontos:
+  - core\forms.py:1398 (FunctionDef)
+  - core\forms.py:1821 (FunctionDef)
+  - core\uuu.py:1387 (FunctionDef)
+  - core\uuu.py:1850 (FunctionDef)
+  - core_\forms.py:1398 (FunctionDef)
+  - core_\forms.py:1821 (FunctionDef)
+  - core_\uuu.py:1387 (FunctionDef)
+  - core_\uuu.py:1850 (FunctionDef)
+ATENCAO - '_valor_texto' aparece em 8 pontos:
+  - core\views.py:76 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:70 (FunctionDef)
+  - core_\views.py:76 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:70 (FunctionDef)
+  - core_\services\historico_padronizado.py:10 (FunctionDef)
+  - core_\services\sac_dados_oficiais.py:6 (FunctionDef)
+  - core\services\historico_padronizado.py:10 (FunctionDef)
+  - core\services\sac_dados_oficiais.py:6 (FunctionDef)
+ATENCAO - 'normalizar_codigo_excel' aparece em 8 pontos:
+  - core\views.py:179 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:130 (FunctionDef)
+  - core_\views.py:179 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:130 (FunctionDef)
+  - core_\services\vendedor_service.py:10 (FunctionDef)
+  - core_\management\commands\corrigir_clientes_duplicados.py:7 (FunctionDef)
+  - core\services\vendedor_service.py:10 (FunctionDef)
+  - core\management\commands\corrigir_clientes_duplicados.py:7 (FunctionDef)
+ATENCAO - '_formatar_tempo_espera' aparece em 7 pontos:
+  - core\views.py:2765 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:2164 (FunctionDef)
+  - core_\views.py:2755 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:2164 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1657 (FunctionDef)
+  - core_\services\sac_dados_padrao.py:9 (FunctionDef)
+  - core\services\sac_dados_padrao.py:9 (FunctionDef)
+ATENCAO - '_nome' aparece em 7 pontos:
+  - _backup_patch_assistencia_tecnica_parte_1_2_20260426_0934\core\views_modular\views_assistencia_tecnica.py:38 (FunctionDef)
+  - core_\services\monitoramento_sac.py:26 (FunctionDef)
+  - core_\views_modular\views_assistencia_tecnica.py:42 (FunctionDef)
+  - core_\views_modular\views_financeiro.py:36 (FunctionDef)
+  - core\services\monitoramento_sac.py:26 (FunctionDef)
+  - core\views_modular\views_assistencia_tecnica.py:42 (FunctionDef)
+  - core\views_modular\views_financeiro.py:36 (FunctionDef)
+ATENCAO - '_sac_aguardando_acao_assessoria_queryset' aparece em 7 pontos:
+  - core\views.py:2753 (FunctionDef)
+  - core\views.py:2896 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:2295 (FunctionDef)
+  - core_\views.py:2743 (FunctionDef)
+  - core_\views.py:2886 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:2295 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1705 (FunctionDef)
+ATENCAO - '_sac_aguardando_acao_logistica_queryset' aparece em 7 pontos:
+  - core\views.py:2757 (FunctionDef)
+  - core\views.py:2991 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:2390 (FunctionDef)
+  - core_\views.py:2747 (FunctionDef)
+  - core_\views.py:2981 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:2390 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1781 (FunctionDef)
+ATENCAO - '_texto_normalizado' aparece em 7 pontos:
+  - core\views.py:3100 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:2499 (FunctionDef)
+  - core_\views.py:3090 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:2499 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1833 (FunctionDef)
+  - core_\services\sac_dados_padrao.py:5 (FunctionDef)
+  - core\services\sac_dados_padrao.py:5 (FunctionDef)
+ATENCAO - 'analise_comercial_sac' aparece em 7 pontos:
+  - core\views.py:3213 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:2599 (FunctionDef)
+  - core_\views.py:3203 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:2599 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1918 (FunctionDef)
+  - core_\views_modular\views_comercial.py:35 (FunctionDef)
+  - core\views_modular\views_comercial.py:35 (FunctionDef)
+ATENCAO - 'analise_diretoria' aparece em 7 pontos:
+  - core\views.py:3714 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:3122 (FunctionDef)
+  - core_\views.py:3704 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:3122 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:2278 (FunctionDef)
+  - core_\views_modular\views_diretoria.py:103 (FunctionDef)
+  - core\views_modular\views_diretoria.py:103 (FunctionDef)
+ATENCAO - 'assessoria_cientifica' aparece em 7 pontos:
+  - core\views.py:3874 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:3282 (FunctionDef)
+  - core_\views.py:3864 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:3282 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:2378 (FunctionDef)
+  - core_\views_modular\views_assessoria.py:19 (FunctionDef)
+  - core\views_modular\views_assessoria.py:19 (FunctionDef)
+ATENCAO - 'gestao_logistica' aparece em 7 pontos:
+  - core\views.py:4080 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:3488 (FunctionDef)
+  - core_\views.py:4070 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:3488 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:2420 (FunctionDef)
+  - core_\views_modular\views_logistica.py:383 (FunctionDef)
+  - core\views_modular\views_logistica.py:383 (FunctionDef)
+ATENCAO - 'gestao_sac' aparece em 7 pontos:
+  - core\views.py:3445 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:2853 (FunctionDef)
+  - core_\views.py:3435 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:2853 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:2089 (FunctionDef)
+  - core_\views_modular\views_gestao.py:274 (FunctionDef)
+  - core\views_modular\views_gestao.py:274 (FunctionDef)
+ATENCAO - 'montar_contexto_itens_sac' aparece em 7 pontos:
+  - core\views.py:3153 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:2552 (FunctionDef)
+  - core_\views.py:3143 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:2552 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1871 (FunctionDef)
+  - core_\services\sac_visual.py:226 (FunctionDef)
+  - core\services\sac_visual.py:226 (FunctionDef)
+ATENCAO - 'normalizar_texto' aparece em 7 pontos:
+  - core\views.py:172 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:123 (FunctionDef)
+  - core_\views.py:172 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:123 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:62 (FunctionDef)
+  - core_\services\vendedor_service.py:6 (FunctionDef)
+  - core\services\vendedor_service.py:6 (FunctionDef)
+ATENCAO - 'obter_status_por_nome' aparece em 7 pontos:
+  - core\views.py:936 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:877 (FunctionDef)
+  - core_\views.py:926 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:877 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:655 (FunctionDef)
+  - core_\services\sac_bridge.py:24 (FunctionDef)
+  - core\services\sac_bridge.py:24 (FunctionDef)
+ATENCAO - 'registrar_historico_sac' aparece em 7 pontos:
+  - core\views.py:1089 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:1008 (FunctionDef)
+  - core_\views.py:1079 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:1008 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:761 (FunctionDef)
+  - core_\services\historico_sac.py:8 (FunctionDef)
+  - core\services\historico_sac.py:8 (FunctionDef)
+ATENCAO - '_acao_aguardando_coleta_cliente' aparece em 6 pontos:
+  - core\forms.py:1830 (FunctionDef)
+  - core\uuu.py:1867 (FunctionDef)
+  - core_\forms.py:1830 (FunctionDef)
+  - core_\uuu.py:1867 (FunctionDef)
+  - core_\views_modular\views_logistica.py:144 (FunctionDef)
+  - core\views_modular\views_logistica.py:144 (FunctionDef)
+ATENCAO - '_acao_aguardando_recebimento_fisico_fiscal' aparece em 6 pontos:
+  - core\forms.py:1834 (FunctionDef)
+  - core\uuu.py:1871 (FunctionDef)
+  - core_\forms.py:1834 (FunctionDef)
+  - core_\uuu.py:1871 (FunctionDef)
+  - core_\views_modular\views_logistica.py:158 (FunctionDef)
+  - core\views_modular\views_logistica.py:158 (FunctionDef)
+ATENCAO - '_criar_setor' aparece em 6 pontos:
+  - core\test_fluxo_alertas_e_filas.py:17 (FunctionDef)
+  - core\test_fluxo_alertas_telas_criticas.py:17 (FunctionDef)
+  - core\test_views_smoke.py:12 (FunctionDef)
+  - core_\test_fluxo_alertas_e_filas.py:17 (FunctionDef)
+  - core_\test_fluxo_alertas_telas_criticas.py:17 (FunctionDef)
+  - core_\test_views_smoke.py:12 (FunctionDef)
+ATENCAO - '_formatar_decimal_licitacao' aparece em 6 pontos:
+  - core\views.py:4328 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:3724 (FunctionDef)
+  - core_\views.py:4318 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:3724 (FunctionDef)
+  - core_\services\fluxo_licitacao.py:119 (FunctionDef)
+  - core\services\fluxo_licitacao.py:119 (FunctionDef)
+ATENCAO - '_formatar_decimal_sem_zeros' aparece em 6 pontos:
+  - core\views.py:398 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:339 (FunctionDef)
+  - core_\views.py:388 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:339 (FunctionDef)
+  - core_\services\fluxo_licitacao.py:88 (FunctionDef)
+  - core\services\fluxo_licitacao.py:88 (FunctionDef)
+ATENCAO - '_itens_tipo_ocorrencia_licitacao' aparece em 6 pontos:
+  - core\views.py:4222 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:3630 (FunctionDef)
+  - core_\views.py:4212 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:3630 (FunctionDef)
+  - core_\services\fluxo_licitacao.py:60 (FunctionDef)
+  - core\services\fluxo_licitacao.py:60 (FunctionDef)
+ATENCAO - '_parse_decimal_licitacao' aparece em 6 pontos:
+  - core\views.py:4310 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:3706 (FunctionDef)
+  - core_\views.py:4300 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:3706 (FunctionDef)
+  - core_\services\fluxo_licitacao.py:101 (FunctionDef)
+  - core\services\fluxo_licitacao.py:101 (FunctionDef)
+ATENCAO - '_q_diretoria' aparece em 6 pontos:
+  - core\views.py:3034 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:2433 (FunctionDef)
+  - core_\views.py:3024 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:2433 (FunctionDef)
+  - core_\services\fila_setorial.py:137 (FunctionDef)
+  - core\services\fila_setorial.py:137 (FunctionDef)
+ATENCAO - '_sac_aguardando_acao_diretoria_queryset' aparece em 6 pontos:
+  - core\views.py:2761 (FunctionDef)
+  - core\views.py:3047 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:2446 (FunctionDef)
+  - core_\views.py:2751 (FunctionDef)
+  - core_\views.py:3037 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:2446 (FunctionDef)
+ATENCAO - '_sac_equipamento_por_grupo' aparece em 6 pontos:
+  - core\forms.py:1841 (FunctionDef)
+  - core\uuu.py:1878 (FunctionDef)
+  - core_\forms.py:1841 (FunctionDef)
+  - core_\uuu.py:1878 (FunctionDef)
+  - core_\views_modular\views_logistica.py:123 (FunctionDef)
+  - core\views_modular\views_logistica.py:123 (FunctionDef)
+ATENCAO - '_tem_campo' aparece em 6 pontos:
+  - core\test_fluxo_alertas_e_filas.py:13 (FunctionDef)
+  - core\test_fluxo_alertas_telas_criticas.py:7 (FunctionDef)
+  - core\test_views_smoke.py:8 (FunctionDef)
+  - core_\test_fluxo_alertas_e_filas.py:13 (FunctionDef)
+  - core_\test_fluxo_alertas_telas_criticas.py:7 (FunctionDef)
+  - core_\test_views_smoke.py:8 (FunctionDef)
+ATENCAO - '_valor_unitario_item_nf' aparece em 6 pontos:
+  - core\views.py:437 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:378 (FunctionDef)
+  - core_\views.py:427 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:378 (FunctionDef)
+  - core_\services\fluxo_licitacao.py:66 (FunctionDef)
+  - core\services\fluxo_licitacao.py:66 (FunctionDef)
+ATENCAO - 'atualizar_cadastro_vendedor' aparece em 6 pontos:
+  - core\views.py:198 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:149 (FunctionDef)
+  - core_\views.py:198 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:149 (FunctionDef)
+  - core_\services\vendedor_service.py:25 (FunctionDef)
+  - core\services\vendedor_service.py:25 (FunctionDef)
+ATENCAO - 'changelist_view' aparece em 6 pontos:
+  - core\admin.py:106 (FunctionDef)
+  - core\admin.py:132 (FunctionDef)
+  - core\admin.py:167 (FunctionDef)
+  - core_\admin.py:106 (FunctionDef)
+  - core_\admin.py:132 (FunctionDef)
+  - core_\admin.py:167 (FunctionDef)
+ATENCAO - 'gestao_licitacao' aparece em 6 pontos:
+  - core\views.py:4434 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:3830 (FunctionDef)
+  - core_\views.py:4424 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:3830 (FunctionDef)
+  - core_\views_modular\views_licitacao.py:30 (FunctionDef)
+  - core\views_modular\views_licitacao.py:30 (FunctionDef)
+ATENCAO - 'montar_grafico_tempo_status_sac' aparece em 6 pontos:
+  - core\views.py:2788 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:2187 (FunctionDef)
+  - core_\views.py:2778 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:2187 (FunctionDef)
+  - core_\services\sac_visual.py:125 (FunctionDef)
+  - core\services\sac_visual.py:125 (FunctionDef)
+ATENCAO - 'nome' aparece em 6 pontos:
+  - core\models.py:18 (FunctionDef)
+  - core\models.py:22 (FunctionDef)
+  - core_\models.py:18 (FunctionDef)
+  - core_\models.py:22 (FunctionDef)
+  - _hotfix_20260413\core\models.py:16 (FunctionDef)
+  - _hotfix_20260413\core\models.py:20 (FunctionDef)
+ATENCAO - 'obter_setor_comercial_padrao' aparece em 6 pontos:
+  - core\views.py:1019 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:938 (FunctionDef)
+  - core_\views.py:1009 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:938 (FunctionDef)
+  - core_\services\sac_visual.py:26 (FunctionDef)
+  - core\services\sac_visual.py:26 (FunctionDef)
+ATENCAO - 'resolver_setor_contexto_comercial' aparece em 6 pontos:
+  - core\views.py:1027 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:946 (FunctionDef)
+  - core_\views.py:1017 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:946 (FunctionDef)
+  - core_\services\sac_visual.py:53 (FunctionDef)
+  - core\services\sac_visual.py:53 (FunctionDef)
+ATENCAO - 'AberturaSACForm' aparece em 5 pontos:
+  - core\forms.py:289 (ClassDef)
+  - core\uuu.py:289 (ClassDef)
+  - core_\forms.py:289 (ClassDef)
+  - core_\uuu.py:289 (ClassDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\forms.py:80 (ClassDef)
+ATENCAO - 'AnaliseComercialSACForm' aparece em 5 pontos:
+  - core\forms.py:1005 (ClassDef)
+  - core\uuu.py:994 (ClassDef)
+  - core_\forms.py:1005 (ClassDef)
+  - core_\uuu.py:994 (ClassDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\forms.py:357 (ClassDef)
+ATENCAO - 'AnaliseTecnicaSACForm' aparece em 5 pontos:
+  - core\forms.py:836 (ClassDef)
+  - core\uuu.py:825 (ClassDef)
+  - core_\forms.py:836 (ClassDef)
+  - core_\uuu.py:825 (ClassDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\forms.py:253 (ClassDef)
+ATENCAO - 'GestaoSACPedidoRetornoForm' aparece em 5 pontos:
+  - core\forms.py:1272 (ClassDef)
+  - core\uuu.py:1261 (ClassDef)
+  - core_\forms.py:1272 (ClassDef)
+  - core_\uuu.py:1261 (ClassDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\forms.py:438 (ClassDef)
+ATENCAO - 'ImportarNotasExcelForm' aparece em 5 pontos:
+  - core\forms.py:273 (ClassDef)
+  - core\uuu.py:273 (ClassDef)
+  - core_\forms.py:273 (ClassDef)
+  - core_\uuu.py:273 (ClassDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\forms.py:64 (ClassDef)
+ATENCAO - 'ImportarRastreiosExcelForm' aparece em 5 pontos:
+  - core\forms.py:281 (ClassDef)
+  - core\uuu.py:281 (ClassDef)
+  - core_\forms.py:281 (ClassDef)
+  - core_\uuu.py:281 (ClassDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\forms.py:72 (ClassDef)
+ATENCAO - 'ImportarTabelaPecasExcelForm' aparece em 5 pontos:
+  - core\forms.py:1267 (ClassDef)
+  - core\uuu.py:1256 (ClassDef)
+  - core_\forms.py:1267 (ClassDef)
+  - core_\uuu.py:1256 (ClassDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\forms.py:433 (ClassDef)
+ATENCAO - 'MultipleFileField' aparece em 5 pontos:
+  - core\forms.py:263 (ClassDef)
+  - core\uuu.py:263 (ClassDef)
+  - core_\forms.py:263 (ClassDef)
+  - core_\uuu.py:263 (ClassDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\forms.py:54 (ClassDef)
+ATENCAO - 'MultipleFileInput' aparece em 5 pontos:
+  - core\forms.py:259 (ClassDef)
+  - core\uuu.py:259 (ClassDef)
+  - core_\forms.py:259 (ClassDef)
+  - core_\uuu.py:259 (ClassDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\forms.py:50 (ClassDef)
+ATENCAO - 'OrcamentoPecaForm' aparece em 5 pontos:
+  - core\forms.py:919 (ClassDef)
+  - core\uuu.py:908 (ClassDef)
+  - core_\forms.py:919 (ClassDef)
+  - core_\uuu.py:908 (ClassDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\forms.py:335 (ClassDef)
+ATENCAO - 'OrcamentoTecnicoExternoForm' aparece em 5 pontos:
+  - core\forms.py:894 (ClassDef)
+  - core\uuu.py:883 (ClassDef)
+  - core_\forms.py:894 (ClassDef)
+  - core_\uuu.py:883 (ClassDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\forms.py:310 (ClassDef)
+ATENCAO - '_buscar' aparece em 5 pontos:
+  - _backup_patch_assistencia_tecnica_parte_1_2_20260426_0934\core\views_modular\views_assistencia_tecnica.py:70 (FunctionDef)
+  - core_\views_modular\views_assistencia_tecnica.py:277 (FunctionDef)
+  - core_\views_modular\views_financeiro.py:67 (FunctionDef)
+  - core\views_modular\views_assistencia_tecnica.py:277 (FunctionDef)
+  - core\views_modular\views_financeiro.py:67 (FunctionDef)
+ATENCAO - '_data_nota_sac' aparece em 5 pontos:
+  - core\views.py:3084 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:2483 (FunctionDef)
+  - core_\views.py:3074 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:2483 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1817 (FunctionDef)
+ATENCAO - '_descricao_item_sac' aparece em 5 pontos:
+  - core\views.py:3144 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:2543 (FunctionDef)
+  - core_\views.py:3134 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:2543 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1862 (FunctionDef)
+ATENCAO - '_empresa_sac' aparece em 5 pontos:
+  - core\views.py:2825 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:2224 (FunctionDef)
+  - core_\views.py:2815 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:2224 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1669 (FunctionDef)
+ATENCAO - '_item_pertence_ao_setor' aparece em 5 pontos:
+  - core\views.py:3134 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:2533 (FunctionDef)
+  - core_\views.py:3124 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:2533 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1852 (FunctionDef)
+ATENCAO - '_norm' aparece em 5 pontos:
+  - _backup_patch_assistencia_tecnica_parte_1_2_20260426_0934\core\views_modular\views_assistencia_tecnica.py:33 (FunctionDef)
+  - core_\views_modular\views_assistencia_tecnica.py:37 (FunctionDef)
+  - core_\views_modular\views_financeiro.py:31 (FunctionDef)
+  - core\views_modular\views_assistencia_tecnica.py:37 (FunctionDef)
+  - core\views_modular\views_financeiro.py:31 (FunctionDef)
+ATENCAO - '_normalizar_grupo_sac' aparece em 5 pontos:
+  - core\views.py:361 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:312 (FunctionDef)
+  - core_\views.py:361 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:312 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:177 (FunctionDef)
+ATENCAO - '_normalizar_item_quebrado_inservivel' aparece em 5 pontos:
+  - core\views.py:374 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:325 (FunctionDef)
+  - core_\views.py:374 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:325 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:190 (FunctionDef)
+ATENCAO - '_nota_sac' aparece em 5 pontos:
+  - core\views.py:2833 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:2232 (FunctionDef)
+  - core_\views.py:2823 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:2232 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1677 (FunctionDef)
+ATENCAO - '_q_assessoria_cientifica' aparece em 5 pontos:
+  - core\views.py:2887 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:2286 (FunctionDef)
+  - core_\views.py:2877 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:2286 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1696 (FunctionDef)
+ATENCAO - '_q_gestao_logistica' aparece em 5 pontos:
+  - core\views.py:2975 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:2374 (FunctionDef)
+  - core_\views.py:2965 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:2374 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1767 (FunctionDef)
+ATENCAO - '_sac_aguarda_acao_comercial_queryset' aparece em 5 pontos:
+  - core\views.py:2745 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:2144 (FunctionDef)
+  - core_\views.py:2735 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:2144 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1643 (FunctionDef)
+ATENCAO - '_sac_aguardando_acao_gestao_queryset' aparece em 5 pontos:
+  - core\views.py:2723 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:1980 (FunctionDef)
+  - core_\views.py:2713 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:1980 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1626 (FunctionDef)
+ATENCAO - '_serial_lote_payload' aparece em 5 pontos:
+  - core\views.py:332 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:283 (FunctionDef)
+  - core_\views.py:332 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:283 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:147 (FunctionDef)
+ATENCAO - '_setor_item_nome' aparece em 5 pontos:
+  - core\views.py:3128 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:2527 (FunctionDef)
+  - core_\views.py:3118 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:2527 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1846 (FunctionDef)
+ATENCAO - '_status_nome' aparece em 5 pontos:
+  - core\views.py:963 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:882 (FunctionDef)
+  - core_\views.py:953 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:882 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:660 (FunctionDef)
+ATENCAO - '_texto_nf' aparece em 5 pontos:
+  - core\views.py:324 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:275 (FunctionDef)
+  - core_\views.py:324 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:275 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:139 (FunctionDef)
+ATENCAO - '_valor_unitario_item' aparece em 5 pontos:
+  - core\views.py:3104 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:2503 (FunctionDef)
+  - core_\views.py:3094 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:2503 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1837 (FunctionDef)
+ATENCAO - 'abrir_sac' aparece em 5 pontos:
+  - core\views.py:1206 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:1125 (FunctionDef)
+  - core_\views.py:1196 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:1125 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:878 (FunctionDef)
+ATENCAO - 'analise_tecnica_sac' aparece em 5 pontos:
+  - core\views.py:1702 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:1444 (FunctionDef)
+  - core_\views.py:1692 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:1444 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1118 (FunctionDef)
+ATENCAO - 'assessoria_cientifica_lista' aparece em 5 pontos:
+  - core\views.py:3580 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:2988 (FunctionDef)
+  - core_\views.py:3570 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:2988 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:2215 (FunctionDef)
+ATENCAO - 'buscar_clientes' aparece em 5 pontos:
+  - core\views.py:2462 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:1722 (FunctionDef)
+  - core_\views.py:2452 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:1722 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1407 (FunctionDef)
+ATENCAO - 'buscar_sac_em_andamento_por_item_serial' aparece em 5 pontos:
+  - core\views.py:969 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:888 (FunctionDef)
+  - core_\views.py:959 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:888 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:666 (FunctionDef)
+ATENCAO - 'buscar_serial_api' aparece em 5 pontos:
+  - core\views.py:2457 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:1717 (FunctionDef)
+  - core_\views.py:2447 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:1717 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1402 (FunctionDef)
+ATENCAO - 'buscar_serial_lote_sac' aparece em 5 pontos:
+  - core\views.py:2401 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:1661 (FunctionDef)
+  - core_\views.py:2391 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:1661 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1346 (FunctionDef)
+ATENCAO - 'buscar_tipo_ocorrencia' aparece em 5 pontos:
+  - core\views.py:2667 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:1924 (FunctionDef)
+  - core_\views.py:2657 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:1924 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1570 (FunctionDef)
+ATENCAO - 'determinar_setor_por_status' aparece em 5 pontos:
+  - core\views.py:1044 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:963 (FunctionDef)
+  - core_\views.py:1034 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:963 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:716 (FunctionDef)
+ATENCAO - 'dividir_saidas' aparece em 5 pontos:
+  - core\views.py:314 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:265 (FunctionDef)
+  - core_\views.py:314 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:265 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:129 (FunctionDef)
+ATENCAO - 'executar_correcao_banco' aparece em 5 pontos:
+  - core\views.py:473 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:414 (FunctionDef)
+  - core_\views.py:463 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:414 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:207 (FunctionDef)
+ATENCAO - 'extrair_campos_observacao_analise' aparece em 5 pontos:
+  - core\views.py:1115 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:1034 (FunctionDef)
+  - core_\views.py:1105 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:1034 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:787 (FunctionDef)
+ATENCAO - 'historico_item_rastreio' aparece em 5 pontos:
+  - core\views.py:2687 (FunctionDef)
+  - core\views_backup_antes_diretoria.py:1944 (FunctionDef)
+  - core_\views.py:2677 (FunctionDef)
+  - core_\views_backup_antes_diretoria.py:1944 (FunctionDef)
+  - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:1590 (FunctionDef)
+==============================================================================
+4) EXCEPT GENERICO / ERRO SILENCIOSO
+ATENCAO - core\forms.py:467 -> except Exception:
+ATENCAO - core\forms.py:516 -> except Exception:
+ATENCAO - core\forms.py:771 -> except Exception:
+ATENCAO - core\forms.py:779 -> except Exception:
+ATENCAO - core\forms.py:1364 -> except Exception:
+ATENCAO - core\forms.py:1423 -> except Exception:
+ATENCAO - core\forms.py:1742 -> except Exception:
+ATENCAO - core\forms.py:1857 -> except Exception:
+ATENCAO - core\forms.py:1978 -> except Exception:
+ATENCAO - core\forms.py:2001 -> except Exception:
+ATENCAO - core\test_fluxo_alertas_e_filas.py:30 -> except Exception:
+ATENCAO - core\test_views_smoke.py:24 -> except Exception:
+ATENCAO - core\uuu.py:505 -> except Exception:
+ATENCAO - core\uuu.py:760 -> except Exception:
+ATENCAO - core\uuu.py:768 -> except Exception:
+ATENCAO - core\uuu.py:1353 -> except Exception:
+ATENCAO - core\uuu.py:1412 -> except Exception:
+ATENCAO - core\uuu.py:1731 -> except Exception:
+ATENCAO - core\uuu.py:1894 -> except Exception:
+ATENCAO - core\uuu.py:2032 -> except Exception:
+ATENCAO - core\uuu.py:2062 -> except Exception:
+ATENCAO - core\uuu.py:2085 -> except Exception:
+ATENCAO - core\views.py:3681 -> except Exception:
+ATENCAO - core\views.py:3689 -> except Exception:
+ATENCAO - core\views.py:3937 -> except Exception:
+ATENCAO - core\views.py:3943 -> except Exception:
+ATENCAO - core\views.py:3947 -> except Exception:
+ATENCAO - core\views.py:3963 -> except Exception:
+ATENCAO - core\views.py:3971 -> except Exception:
+ATENCAO - core\views_backup_antes_diretoria.py:3089 -> except Exception:
+ATENCAO - core\views_backup_antes_diretoria.py:3097 -> except Exception:
+ATENCAO - core\views_backup_antes_diretoria.py:3345 -> except Exception:
+ATENCAO - core\views_backup_antes_diretoria.py:3351 -> except Exception:
+ATENCAO - core\views_backup_antes_diretoria.py:3355 -> except Exception:
+ATENCAO - core\views_backup_antes_diretoria.py:3371 -> except Exception:
+ATENCAO - core\views_backup_antes_diretoria.py:3379 -> except Exception:
+ATENCAO - core_\forms.py:467 -> except Exception:
+ATENCAO - core_\forms.py:516 -> except Exception:
+ATENCAO - core_\forms.py:771 -> except Exception:
+ATENCAO - core_\forms.py:779 -> except Exception:
+ATENCAO - core_\forms.py:1364 -> except Exception:
+ATENCAO - core_\forms.py:1423 -> except Exception:
+ATENCAO - core_\forms.py:1742 -> except Exception:
+ATENCAO - core_\forms.py:1857 -> except Exception:
+ATENCAO - core_\forms.py:1978 -> except Exception:
+ATENCAO - core_\forms.py:2001 -> except Exception:
+ATENCAO - core_\test_fluxo_alertas_e_filas.py:30 -> except Exception:
+ATENCAO - core_\test_views_smoke.py:24 -> except Exception:
+ATENCAO - core_\uuu.py:505 -> except Exception:
+ATENCAO - core_\uuu.py:760 -> except Exception:
+ATENCAO - core_\uuu.py:768 -> except Exception:
+ATENCAO - core_\uuu.py:1353 -> except Exception:
+ATENCAO - core_\uuu.py:1412 -> except Exception:
+ATENCAO - core_\uuu.py:1731 -> except Exception:
+ATENCAO - core_\uuu.py:1894 -> except Exception:
+ATENCAO - core_\uuu.py:2032 -> except Exception:
+ATENCAO - core_\uuu.py:2062 -> except Exception:
+ATENCAO - core_\uuu.py:2085 -> except Exception:
+ATENCAO - core_\views.py:3671 -> except Exception:
+ATENCAO - core_\views.py:3679 -> except Exception:
+ATENCAO - core_\views.py:3927 -> except Exception:
+ATENCAO - core_\views.py:3933 -> except Exception:
+ATENCAO - core_\views.py:3937 -> except Exception:
+ATENCAO - core_\views.py:3953 -> except Exception:
+ATENCAO - core_\views.py:3961 -> except Exception:
+ATENCAO - core_\views_backup_antes_diretoria.py:3089 -> except Exception:
+ATENCAO - core_\views_backup_antes_diretoria.py:3097 -> except Exception:
+ATENCAO - core_\views_backup_antes_diretoria.py:3345 -> except Exception:
+ATENCAO - core_\views_backup_antes_diretoria.py:3351 -> except Exception:
+ATENCAO - core_\views_backup_antes_diretoria.py:3355 -> except Exception:
+ATENCAO - core_\views_backup_antes_diretoria.py:3371 -> except Exception:
+ATENCAO - core_\views_backup_antes_diretoria.py:3379 -> except Exception:
+ATENCAO - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:77 -> except Exception:
+ATENCAO - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:90 -> except Exception:
+ATENCAO - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:104 -> except Exception:
+ATENCAO - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:216 -> except Exception as e:
+ATENCAO - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:240 -> except Exception as e:
+ATENCAO - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:440 -> except Exception:
+ATENCAO - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:480 -> except Exception as e:
+ATENCAO - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:585 -> except Exception as e:
+ATENCAO - _QUARENTENA_ESTABILIZACAO\raiz_duplicados\views.py:904 -> except Exception:
+ATENCAO - _backup_patch_assistencia_tecnica_parte_1_2_20260426_0934\core\views_modular\views_assistencia_tecnica.py:126 -> except Exception:
+ATENCAO - core_\services\comunicacao_cliente.py:51 -> except Exception:
+ATENCAO - core_\services\dashboard_sla.py:106 -> except Exception:
+ATENCAO - core_\services\dashboard_sla.py:110 -> except Exception:
+ATENCAO - core_\services\destinatarios_sac.py:34 -> except Exception:
+ATENCAO - core_\services\fila_setorial.py:164 -> except Exception:
+ATENCAO - core_\services\fluxo_comercial.py:36 -> except Exception:
+ATENCAO - core_\services\fluxo_licitacao.py:81 -> except Exception:
+ATENCAO - core_\services\historico_padronizado.py:37 -> except Exception:
+ATENCAO - core_\services\monitoramento_sac.py:200 -> except Exception:
+ATENCAO - core_\services\sac_auditoria.py:35 -> except Exception:
+ATENCAO - core_\services\sac_bridge.py:160 -> except Exception:
+ATENCAO - core_\services\sac_dados_oficiais.py:21 -> except Exception:
+ATENCAO - core_\services\sac_dados_oficiais.py:35 -> except Exception:
+ATENCAO - core_\services\sac_dados_padrao.py:37 -> except Exception:
+ATENCAO - core_\services\sac_dados_padrao.py:53 -> except Exception:
+ATENCAO - core_\services\sac_dados_padrao.py:68 -> except Exception:
+ATENCAO - core_\services\sac_transicao_unificada.py:102 -> except Exception:
+ATENCAO - core_\services\sac_transicao_unificada.py:108 -> except Exception:
+Recomendacao: trocar aos poucos por logging/diagnostico, sem mudar retorno da tela.
+==============================================================================
+5) VIEWS MONOLITICAS X VIEWS MODULARES
+config/urls.py importa core.views: SIM
+config/urls.py importa views_modular: SIM
+ATENCAO - imports mistos aumentam risco de regra duplicada. Modularizar somente por etapa.
+==============================================================================
+6) SETTINGS / RISCOS DE PRODUCAO
+OK - DEBUG padrao True
+ATENCAO - Senha 123456 aparente
+OK - SECRET_KEY visivel
+Recomendacao: corrigir depois com variaveis de ambiente, sem alterar ambiente local agora.
+==============================================================================
+==============================================================================
+CONCLUSAO
+Este relatorio serve para orientar correcoes cirurgicas futuras.
+Nada foi modificado no sistema.

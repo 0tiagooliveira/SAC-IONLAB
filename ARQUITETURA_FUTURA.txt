@@ -1,0 +1,30 @@
+ARQUITETURA FUTURA SUGERIDA
+
+Fase 1 - Estabilização
+- Manter config/urls.py e core/views.py como base oficial.
+- Corrigir apenas trechos pequenos.
+
+Fase 2 - Modularização sem ruptura
+- Copiar funções do core/views.py para:
+  core/views_modular/painel.py
+  core/views_modular/comercial.py
+  core/views_modular/tecnica.py
+  core/views_modular/gestao.py
+  core/views_modular/abertura.py
+  core/views_modular/importacao.py
+  core/views_modular/api.py
+- Só depois ajustar imports do urls.py.
+
+Fase 3 - Template base
+- Criar core/templates/core/components/topo_sistema.html
+- Criar core/templates/core/components/botoes_globais.html
+- Criar base comum para:
+  Análise Comercial
+  Gestão do SAC
+  Análise Técnica
+  Páginas dinâmicas de setor
+
+Fase 4 - Setores dinâmicos
+- Criar uma rota:
+  /sac/setor/<int:setor_id>/
+- Cada novo setor cadastrado no admin passa a ter sua própria página automaticamente.

@@ -1,0 +1,140 @@
+{% comment %} PATCH_RELATO_CLIENTE_COMPARE_FIX_20260501 {% endcomment %}
+{% if sac %}
+<section class="card sac-items-card sac-items-card-final">
+    {% if not ocultar_titulo_itens_sac %}
+    <div class="sac-items-component-title">Itens do SAC</div>
+    {% endif %}
+
+    {% if itens_contexto.itens %}
+        {% for item in itens_contexto.itens %}
+            <article class="sac-product-card sac-product-card-final">
+                <header class="sac-product-head sac-product-head-final">
+                    <div class="sac-product-main">
+                        <div class="sac-product-label">Produto vinculado ao chamado</div>
+                        <h3 class="sac-product-title">{{ item.descricao_item|default:'-' }}</h3>
+                        <div class="sac-product-ref">Referência: {{ item.codigo_produto|default:'-' }}</div>
+                    </div>
+                    <div class="sac-product-total">
+                        <span>Total com problema</span>
+                        <strong>R$ {{ item.valor_total_problema|default:'-' }}</strong>
+                    </div>
+                </header>
+
+                <div class="sac-product-grid sac-product-grid-final">
+                    <div class="sac-info-box"><span>Ocorrência</span><strong>{{ item.tipo_ocorrencia_nome|default:'-' }}</strong></div>
+                    <div class="sac-info-box"><span>Identificador</span><strong>{{ item.identificador|default:'-' }} / {{ item.numero_rastreio|default:'-' }}</strong></div>
+                    <div class="sac-info-box"><span>Quantidade</span><strong>{{ item.quantidade_com_problema|default:'-' }}</strong></div>
+                    <div class="sac-info-box"><span>Valor unitário</span><strong>R$ {{ item.valor_unitario|default:'-' }}</strong></div>
+                </div>
+
+                {% with obs=item.obj.observacao_item|default:item.observacao_item|default:item.observacao|default:'' %}
+                <div class="sac-product-relato">
+                    <span>Relato do Cliente/usuário sobre o Problema</span>
+                    {% if 'APLICAR PATCH' in obs or 'Expand-Archive' in obs or 'python manage.py' in obs or 'taskkill' in obs or 'C:\\Users\\' in obs %}
+                        <p class="sac-relato-muted">Relato inválido removido automaticamente. Reabra o SAC ou registre uma nova observação limpa na próxima etapa.</p>
+                    {% elif obs %}
+                        <p>{{ obs|linebreaksbr }}</p>
+                    {% else %}
+                        <p class="sac-relato-muted">Sem relato informado.</p>
+                    {% endif %}
+                </div>
+                {% endwith %}
+            </article>
+        {% endfor %}
+    {% elif itens_contexto.itens_visiveis %}
+        {% for item in itens_contexto.itens_visiveis %}
+            <article class="sac-product-card sac-product-card-final">
+                <header class="sac-product-head sac-product-head-final">
+                    <div class="sac-product-main">
+                        <div class="sac-product-label">Produto vinculado ao chamado</div>
+                        <h3 class="sac-product-title">{{ item.descricao_item|default:'-' }}</h3>
+                        <div class="sac-product-ref">Referência: {{ item.codigo_produto|default:'-' }}</div>
+                    </div>
+                    <div class="sac-product-total">
+                        <span>Total com problema</span>
+                        <strong>R$ {{ item.valor_total_problema|default:'-' }}</strong>
+                    </div>
+                </header>
+
+                <div class="sac-product-grid sac-product-grid-final">
+                    <div class="sac-info-box"><span>Ocorrência</span><strong>{{ item.tipo_ocorrencia_nome|default:'-' }}</strong></div>
+                    <div class="sac-info-box"><span>Identificador</span><strong>{{ item.identificador|default:'-' }} / {{ item.numero_rastreio|default:'-' }}</strong></div>
+                    <div class="sac-info-box"><span>Quantidade</span><strong>{{ item.quantidade_com_problema|default:'-' }}</strong></div>
+                    <div class="sac-info-box"><span>Valor unitário</span><strong>R$ {{ item.valor_unitario|default:'-' }}</strong></div>
+                </div>
+
+                {% with obs=item.obj.observacao_item|default:item.observacao_item|default:item.observacao|default:'' %}
+                <div class="sac-product-relato">
+                    <span>Relato do Cliente/usuário sobre o Problema</span>
+                    {% if 'APLICAR PATCH' in obs or 'Expand-Archive' in obs or 'python manage.py' in obs or 'taskkill' in obs or 'C:\\Users\\' in obs %}
+                        <p class="sac-relato-muted">Relato inválido removido automaticamente. Reabra o SAC ou registre uma nova observação limpa na próxima etapa.</p>
+                    {% elif obs %}
+                        <p>{{ obs|linebreaksbr }}</p>
+                    {% else %}
+                        <p class="sac-relato-muted">Sem relato informado.</p>
+                    {% endif %}
+                </div>
+                {% endwith %}
+            </article>
+        {% endfor %}
+    {% elif sac.itens_sac.all %}
+        {% for item in sac.itens_sac.all %}
+            <article class="sac-product-card sac-product-card-final">
+                <header class="sac-product-head sac-product-head-final">
+                    <div class="sac-product-main">
+                        <div class="sac-product-label">Produto vinculado ao chamado</div>
+                        <h3 class="sac-product-title">{{ item.item_nota_fiscal.descricao_item|default:item.item_nota_fiscal.item|default:'-' }}</h3>
+                        <div class="sac-product-ref">Referência: {{ item.item_nota_fiscal.codigo_produto|default:'-' }}</div>
+                    </div>
+                    <div class="sac-product-total">
+                        <span>Valor do item</span>
+                        <strong>R$ {{ item.item_nota_fiscal.valor_total_item|default:'-' }}</strong>
+                    </div>
+                </header>
+
+                <div class="sac-product-grid sac-product-grid-final">
+                    <div class="sac-info-box"><span>Ocorrência</span><strong>{{ item.tipo_ocorrencia.nome|default:'-' }}</strong></div>
+                    <div class="sac-info-box"><span>Identificador</span><strong>{{ item.tipo_rastreio|default:'-' }} / {{ item.numero_rastreio|default:'-' }}</strong></div>
+                    <div class="sac-info-box"><span>Quantidade</span><strong>{{ item.quantidade_com_problema|default:'-' }}</strong></div>
+                    <div class="sac-info-box"><span>Grupo</span><strong>{{ item.grupo|default:'-' }}</strong></div>
+                </div>
+
+                {% with obs=item.observacao_item|default:'' %}
+                <div class="sac-product-relato">
+                    <span>Relato do Cliente/usuário sobre o Problema</span>
+                    {% if 'APLICAR PATCH' in obs or 'Expand-Archive' in obs or 'python manage.py' in obs or 'taskkill' in obs or 'C:\\Users\\' in obs %}
+                        <p class="sac-relato-muted">Relato inválido removido automaticamente. Reabra o SAC ou registre uma nova observação limpa na próxima etapa.</p>
+                    {% elif obs %}
+                        <p>{{ obs|linebreaksbr }}</p>
+                    {% else %}
+                        <p class="sac-relato-muted">Sem relato informado.</p>
+                    {% endif %}
+                </div>
+                {% endwith %}
+            </article>
+        {% endfor %}
+    {% else %}
+        <div class="empty">Nenhum item informado neste SAC.</div>
+    {% endif %}
+
+    {% if itens_contexto.avisos_outros_setores %}
+    <div class="messages">
+        {% for aviso in itens_contexto.avisos_outros_setores %}
+            <div class="msg warning">{{ aviso }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</section>
+
+<style>
+.sac-items-card-final .sac-items-component-title{display:none!important}
+.sac-product-card-final{border:1px solid #d9e7f2;border-radius:24px;background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);padding:22px;margin-bottom:16px;box-shadow:0 14px 32px rgba(13,59,102,.07)}
+.sac-product-head-final{display:grid;grid-template-columns:minmax(0,1fr) 180px;gap:20px;align-items:start;border-bottom:1px solid #e5edf5;padding-bottom:16px;margin-bottom:16px}
+.sac-product-main{min-width:0}.sac-product-title{font-size:22px!important;line-height:1.16!important;color:#0d3b66!important;margin:9px 0 4px!important;max-width:720px}.sac-product-ref{font-size:13px;color:#57718c;font-weight:700}.sac-product-label{display:inline-flex;border:1px solid rgba(0,180,199,.24);background:rgba(0,180,199,.10);color:#006e79;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.10em}
+.sac-product-total{border:1px solid #d9e7f2;border-radius:18px;background:#f7fbff;padding:15px 16px;text-align:center}.sac-product-total span{display:block;color:#64748b;text-transform:uppercase;letter-spacing:.10em;font-size:11px;font-weight:900;margin-bottom:8px}.sac-product-total strong{font-size:22px;color:#0d3b66}
+.sac-product-grid-final{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.sac-info-box{border:1px solid #dfeaf4;border-radius:16px;background:#fff;padding:14px;min-height:94px}.sac-info-box span{display:block;color:#64748b;text-transform:uppercase;letter-spacing:.10em;font-size:11px;font-weight:900;margin-bottom:8px}.sac-info-box strong{font-size:14px;color:#17324d;line-height:1.36;overflow-wrap:anywhere}
+.sac-product-relato{margin-top:14px;border:1px solid #d9e7f2;background:linear-gradient(180deg,#f8fcff,#fff);border-radius:18px;padding:16px}.sac-product-relato span{display:block;color:#0d3b66;text-transform:uppercase;letter-spacing:.08em;font-size:12px;font-weight:900;margin-bottom:9px}.sac-product-relato p{margin:0;color:#17324d;font-size:14px;line-height:1.55;font-weight:700;white-space:pre-wrap;overflow-wrap:anywhere}.sac-product-relato .sac-relato-muted{color:#6b7f91;font-weight:700;font-style:italic}
+@media(max-width:1000px){.sac-product-head-final{grid-template-columns:1fr}.sac-product-total{text-align:left}.sac-product-grid-final{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.sac-product-grid-final{grid-template-columns:1fr}.sac-product-title{font-size:18px!important}}
+</style>
+{% endif %}

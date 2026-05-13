@@ -1,0 +1,137 @@
+{% extends 'core/base.html' %}
+{% block title %}Auditoria do SAC{% endblock %}
+{% block topbar_title %}Auditoria do SAC{% endblock %}
+{% block topbar_subtitle %}Historico e auditoria visual do atendimento.{% endblock %}
+{% block extra_head %}
+<style>
+    .page{max-width:1400px;margin:0 auto;padding:24px}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px}
+    .action-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .btn{display:inline-flex;align-items:center;justify-content:center;background:#0d3b66;color:#fff;text-decoration:none;padding:10px 14px;border:0;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px}
+    .btn-edit{background:#00a9b8}
+    .btn-cancel{background:#b3261e}
+    .btn-disabled{background:#e8eef4;color:#60788f;cursor:not-allowed}
+    .box{background:#fff;border:1px solid #dbe6f0;border-radius:18px;padding:18px;box-shadow:0 8px 20px rgba(0,0,0,.05);margin-bottom:18px}
+    .timeline{display:grid;gap:14px}
+    .item{background:#fff;border:1px solid #e2ebf5;border-radius:16px;padding:14px}
+    .meta{font-size:13px;color:#64748b;margin-bottom:8px}
+    .items-grid{display:grid;gap:12px}
+    .sac-item{border:1px solid #d8e7f2;border-radius:16px;background:linear-gradient(180deg,#fff,#f8fcff);padding:14px}
+    .sac-item-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:start;margin-bottom:10px}
+    .sac-item-ref{font-size:16px;font-weight:900;color:#0d3b66;overflow-wrap:anywhere}
+    .sac-item-desc{color:#45627d;line-height:1.35;margin-top:4px}
+    .qty-badge{display:inline-flex;align-items:center;justify-content:center;min-width:42px;padding:8px 10px;border-radius:12px;background:#0d3b66;color:#fff;font-weight:900}
+    .item-fields{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+    .field{border:1px solid #e1edf5;border-radius:12px;background:#fff;padding:9px}
+    .field small{display:block;color:#64748b;text-transform:uppercase;font-size:11px;font-weight:900;margin-bottom:4px}
+    .field strong{color:#0d3b66;overflow-wrap:anywhere}
+    .legacy-history{border-left:5px solid #00b4c7;background:#f7fcff}
+    .legacy-history pre{font-size:13px;line-height:1.5}
+    pre{white-space:pre-wrap;font-family:Consolas,monospace;font-size:12px;background:#f7fbff;border:1px solid #e3eef8;border-radius:12px;padding:10px}
+    @media(max-width:900px){.item-fields{grid-template-columns:1fr 1fr}}
+    @media(max-width:620px){.top,.sac-item-head{grid-template-columns:1fr;display:grid}.item-fields{grid-template-columns:1fr}}
+  
+</style>
+{% endblock %}
+{% block content %}
+<div class="page">
+    <div class="top">
+      <div>
+        <h1>Auditoria visual do SAC {{ numero_sac }}</h1>
+        <div>{{ sac.titulo|default:'-' }}</div>
+      </div>
+      <div>
+        <div class="action-row">
+          <a class="btn" href="/sac/dashboard/">Voltar ao dashboard</a>
+          {% if pode_alterar_sac %}
+            <a class="btn btn-edit" href="{% url 'retificar_sac' sac.id %}?next={{ request.get_full_path|urlencode }}">Alterar</a>
+          {% endif %}
+          {% if pode_cancelar_sac %}
+            {% if sac_cancelado %}
+              <span class="btn btn-disabled">Cancelado</span>
+            {% else %}
+              <form method="post" action="{% url 'cancelar_sac' sac.id %}" onsubmit="return confirm('Deseja Cancelar o sac?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-cancel">Cancelar</button>
+              </form>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="box">
+      <strong>Cliente:</strong> {{ sac.cliente }}<br>
+      <strong>Setor atual:</strong> {{ sac.setor_atual|default:'-' }}<br>
+      <strong>Status atual:</strong> {{ sac.status_atual|default:'-' }}
+    </div>
+
+    <div class="box">
+      <h2>Itens do SAC</h2>
+      <div class="items-grid">
+      {% for item in itens_sac %}
+        <div class="sac-item">
+          <div class="sac-item-head">
+            <div>
+              <div class="sac-item-ref">{{ item.referencia }}</div>
+              <div class="sac-item-desc">{{ item.descricao }}</div>
+            </div>
+            <div class="qty-badge">{{ item.quantidade }}</div>
+          </div>
+          <div class="item-fields">
+            <div class="field"><small>Quantidade</small><strong>{{ item.quantidade }}</strong></div>
+            <div class="field"><small>Tipo de ocorrência</small><strong>{{ item.tipo_ocorrencia }}</strong></div>
+            <div class="field"><small>Rastreio</small><strong>{{ item.tipo_rastreio }}</strong></div>
+            <div class="field"><small>Número</small><strong>{{ item.numero_rastreio }}</strong></div>
+            <div class="field"><small>Grupo</small><strong>{{ item.grupo }}</strong></div>
+          </div>
+          {% if item.observacao %}
+            <pre>{{ item.observacao }}</pre>
+          {% endif %}
+        </div>
+      {% empty %}
+        <div class="item">Nenhum item vinculado a este SAC.</div>
+      {% endfor %}
+      </div>
+    </div>
+
+    <div class="box legacy-history">
+      <h2>Histórico da planilha</h2>
+      {% if historico_legado %}
+        <pre>{{ historico_legado }}</pre>
+      {% else %}
+        <div class="item">Nenhum histórico legado informado na planilha para este SAC.</div>
+      {% endif %}
+    </div>
+
+    <div class="box">
+      <h2>Histórico visual</h2>
+      <div class="timeline">
+      {% for item in historicos %}
+        <div class="item">
+          <div class="meta">{{ item.data_evento_fmt }} · {{ item.usuario }}</div>
+          <div><strong>Ação:</strong> {{ item.acao_executada }}</div>
+          <div><strong>Status:</strong> {{ item.status_anterior }} → {{ item.status_novo }}</div>
+          <div><strong>Setor:</strong> {{ item.setor_origem }} → {{ item.setor_destino }}</div>
+          <div><strong>Observação:</strong></div>
+          <pre>{{ item.observacao }}</pre>
+          {% if item.arquivo_url %}<div><a href="{{ item.arquivo_url }}" target="_blank">Abrir anexo</a></div>{% endif %}
+        </div>
+      {% empty %}
+        <div class="item">Nenhum histórico encontrado.</div>
+      {% endfor %}
+      </div>
+    </div>
+
+    <div class="box">
+      <h2>Log técnico interno</h2>
+      <div class="timeline">
+      {% for log in logs_tecnicos %}
+        <div class="item"><pre>{{ log|pprint }}</pre></div>
+      {% empty %}
+        <div class="item">Nenhum log técnico encontrado para este SAC.</div>
+      {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

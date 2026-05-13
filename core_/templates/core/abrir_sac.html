@@ -1,0 +1,1699 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Abertura de SAC</title>
+    <!-- patch abertura premium real v2 -->
+    <!-- PATCH_LOGO_HEADER_V1_20260430 -->
+    <style>
+        :root {
+            --ionlab-blue: #0b3a67;
+            --ionlab-blue-2: #114f8e;
+            --ionlab-cyan: #00b4c7;
+            --ionlab-card: #ffffff;
+            --ionlab-text: #17324d;
+            --ionlab-border: #d6e2ef;
+            --ionlab-shadow: 0 10px 30px rgba(10, 48, 88, 0.10);
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background:
+                radial-gradient(circle at top right, rgba(0,180,199,0.12), transparent 28%),
+                linear-gradient(180deg, #f7fbff 0%, #eef5fb 100%);
+            color: var(--ionlab-text);
+        }
+        .page {
+            max-width: 1450px;
+            margin: 20px auto;
+            padding: 0 18px 24px;
+        }
+        .hero {
+            background: linear-gradient(135deg, var(--ionlab-blue) 0%, var(--ionlab-blue-2) 55%, #146aa8 100%);
+            color: white;
+            border-radius: 24px;
+            padding: 34px 42px;
+            box-shadow: var(--ionlab-shadow);
+            display: grid;
+            grid-template-columns: 310px 1fr 300px;
+            gap: 28px;
+            align-items: center;
+            min-height: 215px;
+        }
+        .logo-box {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 150px;
+        }
+        .logo-box img {
+            width: 245px;
+            height: 150px;
+            max-width: 245px;
+            max-height: 150px;
+            object-fit: contain;
+            background: rgba(255,255,255,0.12);
+            border: 2px solid rgba(255,255,255,0.62);
+            border-radius: 30px;
+            padding: 16px 24px;
+            box-shadow: 0 18px 38px rgba(0,0,0,0.16), inset 0 0 0 1px rgba(255,255,255,0.16);
+        }
+        .hero-title-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .hero h1 {
+            margin: 0;
+            font-size: 42px;
+            line-height: 1.1;
+            letter-spacing: 0.6px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .hero-top-right {
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-start;
+        }
+        .hero-action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 20px;
+            background: #ffffff;
+            color: var(--ionlab-blue);
+            text-decoration: none;
+            border-radius: 18px;
+            font-weight: 700;
+            box-shadow: 0 10px 24px rgba(6, 32, 59, 0.16);
+            border: 1px solid rgba(255,255,255,0.65);
+            white-space: nowrap;
+        }
+        .hero-action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 28px rgba(6, 32, 59, 0.20);
+        }
+        .sac-number {
+            text-align: right;
+        }
+        .sac-number .label {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.85;
+        }
+        .sac-number .number {
+            font-size: 34px;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+        .sac-number .datetime-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            opacity: 0.80;
+            margin-top: 12px;
+        }
+        .sac-number .datetime-value {
+            font-size: 13px;
+            margin-top: 4px;
+            opacity: 0.95;
+        }
+
+        .timeline-card {
+            margin-top: 18px;
+            background: rgba(255,255,255,0.96);
+            border: 1px solid var(--ionlab-border);
+            border-radius: 22px;
+            box-shadow: var(--ionlab-shadow);
+            padding: 18px 20px;
+        }
+        .timeline-title {
+            margin: 0 0 14px;
+            font-size: 18px;
+            color: var(--ionlab-blue);
+            font-weight: 700;
+        }
+        .timeline-steps {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            align-items: stretch;
+        }
+        .timeline-step {
+            position: relative;
+            border: 1px solid #d8e5f1;
+            border-radius: 18px;
+            background: #f7fbff;
+            padding: 14px 12px;
+            min-height: 86px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 6px;
+        }
+        .timeline-step::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -11px;
+            width: 22px;
+            height: 2px;
+            background: #d4e1ed;
+            transform: translateY(-50%);
+        }
+        .timeline-step:last-child::after { display: none; }
+        .timeline-badge {
+            width: 30px;
+            height: 30px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            border: 1px solid #cbd9e7;
+            color: #5b738c;
+            background: #fff;
+        }
+        .timeline-step.done {
+            background: #eefaf5;
+            border-color: #cde9db;
+        }
+        .timeline-step.done .timeline-badge {
+            background: #1f8f58;
+            border-color: #1f8f58;
+            color: #fff;
+        }
+        .timeline-step.current {
+            background: linear-gradient(135deg, rgba(0,180,199,0.10), rgba(17,79,142,0.08));
+            border-color: #8fd0dd;
+            box-shadow: inset 0 0 0 1px rgba(0,180,199,0.12);
+        }
+        .timeline-step.current .timeline-badge {
+            background: var(--ionlab-blue);
+            border-color: var(--ionlab-blue);
+            color: #fff;
+        }
+        .timeline-step.pending {
+            opacity: 0.92;
+        }
+        .timeline-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--ionlab-text);
+        }
+        .timeline-state {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: #5e7791;
+        }
+
+        .messages { margin-top: 18px; }
+        .msg {
+            padding: 14px 16px;
+            border-radius: 14px;
+            margin-bottom: 10px;
+            background: #e8f7ef;
+            border: 1px solid #c9ebd8;
+            color: #185f37;
+            white-space: pre-wrap;
+        }
+        .layout {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 20px;
+        }
+        .card {
+            background: var(--ionlab-card);
+            border: 1px solid var(--ionlab-border);
+            border-radius: 22px;
+            box-shadow: var(--ionlab-shadow);
+            padding: 22px;
+        }
+        .card h2 {
+            margin: 0 0 18px;
+            font-size: 22px;
+            color: var(--ionlab-blue);
+        }
+        .subgrid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .subgrid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+        .field { margin-bottom: 14px; }
+        .field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #355675;
+        }
+        input, select, textarea {
+            width: 100%;
+            border: 1px solid #cddcea;
+            border-radius: 14px;
+            padding: 12px 14px;
+            font-size: 14px;
+            outline: none;
+            background: #fff;
+        }
+        input[readonly], select[disabled] {
+            background: #f4f7fb;
+            color: #45627d;
+        }
+        .search-results {
+            margin-top: 8px;
+            border: 1px solid #dbe7f2;
+            border-radius: 14px;
+            overflow: hidden;
+            background: white;
+            display: none;
+        }
+        .search-item {
+            padding: 12px 14px;
+            cursor: pointer;
+            border-bottom: 1px solid #edf3f8;
+        }
+        .search-item:last-child { border-bottom: none; }
+        .search-item:hover { background: #f1f8fd; }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 180, 199, 0.10);
+            color: #006e79;
+            border: 1px solid rgba(0, 180, 199, 0.18);
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .builder-card {
+            margin-top: 12px;
+            padding: 18px;
+            border-radius: 18px;
+            border: 1px dashed #b8cde0;
+            background: linear-gradient(180deg, #fbfdff 0%, #f5fafe 100%);
+        }
+        .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+        .btn {
+            border: none;
+            border-radius: 14px;
+            padding: 12px 18px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .btn-primary { background: linear-gradient(135deg, var(--ionlab-cyan), #1499bd); color: white; }
+        .btn-dark { background: linear-gradient(135deg, var(--ionlab-blue), #174e7e); color: white; }
+        .sticky-right { position: sticky; top: 18px; }
+        .item-row-card {
+            border: 1px solid #e1ecf5;
+            background: #fff;
+            border-radius: 18px;
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+        .item-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        .item-title { font-weight: 700; color: var(--ionlab-blue); font-size: 15px; }
+        .muted { color: #59738e; font-size: 12px; }
+        .danger-link { color: #c62828; cursor: pointer; font-weight: 700; font-size: 13px; }
+        .auto-title {
+            background: #f1f8ff;
+            border: 1px solid #d5e6f5;
+            padding: 14px;
+            border-radius: 16px;
+            margin-top: 12px;
+            font-size: 14px;
+            color: #2a4765;
+        }
+        .tempo-uso-card {
+            margin-top: 14px;
+            padding: 18px;
+            border-radius: 18px;
+            border: 1px solid #9fc7e9;
+            background: linear-gradient(135deg, #eef8ff 0%, #ffffff 100%);
+            box-shadow: inset 0 0 0 1px rgba(11,58,103,0.04);
+        }
+        .tempo-uso-card .tempo-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 800;
+            color: #355675;
+            margin-bottom: 6px;
+        }
+        .tempo-uso-card .tempo-valor {
+            font-size: 25px;
+            line-height: 1.2;
+            font-weight: 900;
+            color: var(--ionlab-blue);
+        }
+        .tempo-uso-card .tempo-ajuda {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #59738e;
+        }
+        .summary-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 10px 0;
+            border-bottom: 1px solid #edf2f7;
+            font-size: 14px;
+        }
+        .summary-line:last-child { border-bottom: none; }
+
+        @media (max-width: 1100px) {
+            .layout { grid-template-columns: 1fr; }
+            .hero { grid-template-columns: 1fr; text-align: center; min-height: auto; padding: 28px; }
+            .sac-number { text-align: center; }
+            .hero h1 { font-size: 34px; }
+            .logo-box { justify-content: center; min-height: 120px; }
+            .logo-box img { width: 210px; height: 125px; max-width: 210px; max-height: 125px; }
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'core/css/abrir_sac_premium.css' %}?v=20260430_logo_header_v1">
+</head>
+<body>
+<div class="page">
+    <div class="hero">
+        <div class="logo-box">
+            <img src="{% static 'core/img/logo-ionlab.png' %}" alt="Ionlab">
+        </div>
+
+        <div class="hero-title-wrap">
+            <h1>Abertura de SAC</h1>
+        </div>
+
+        <div class="sac-number">
+            <div class="hero-top-right" style="margin-bottom: 14px;">
+                <a class="hero-action-btn" href="/intra/">⬅ Voltar ao painel</a>
+            </div>
+            <div class="label">SAC Número</div>
+            <div class="number" id="numeroSacTopo">{{ numero_sac_preview }}</div>
+
+            <div class="datetime-label">Data e hora da inclusão</div>
+            <div class="datetime-value">{% now "d/m/Y H:i" %}</div>
+        </div>
+    </div>
+
+
+
+    <div class="timeline-card">
+        <div class="timeline-title">Linha do tempo do SAC</div>
+        <div class="timeline-steps">
+            {% for etapa in linha_tempo_sac %}
+                <div class="timeline-step {{ etapa.state }}">
+                    <div class="timeline-badge">{% if etapa.state == 'done' %}✓{% elif etapa.state == 'current' %}●{% else %}{{ forloop.counter }}{% endif %}</div>
+                    <div class="timeline-label">{{ etapa.label }}</div>
+                    <div class="timeline-state">{% if etapa.state == 'done' %}Etapa concluída{% elif etapa.state == 'current' %}Etapa atual{% else %}Próxima etapa{% endif %}</div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+
+    <div class="messages">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="msg">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <form method="post" enctype="multipart/form-data" id="formSac">
+        {% csrf_token %}
+        {{ form.status }}
+        {{ form.acao_em_espera }}
+        {{ form.setor_destino }}
+        {{ form.cliente_id }}
+        {{ form.contato_salvo_id }}
+        {{ form.itens_json }}
+
+        <div class="layout">
+            <div>
+                <div class="card">
+                    <h2>Dados principais</h2>
+
+                    <div class="subgrid-2">
+                        <div class="field">
+                            <label>Empresa</label>
+                            {{ form.empresa }}
+                        </div>
+                        <div class="field">
+                            <label style="font-weight:800;color:#8a6d00;">Status inicial</label>
+                            {{ form.display_status }}
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>Busca por Serial / Lote</label>
+                        <div style="display:flex; gap:10px;">
+                            <input type="text" id="buscaSerialLote" placeholder="Digite o número do serial ou lote">
+                            <button type="button" class="btn btn-dark" id="btnBuscarSerial">Buscar</button>
+                        </div>
+                        <div id="resultadoSerial" class="search-results"></div>
+                    </div>
+
+                    <div class="field">
+                        <label>Busca de cliente por palavra chave</label>
+                        {{ form.cliente_busca }}
+                        <div id="resultadoClientes" class="search-results"></div>
+                    </div>
+
+                    <div class="field">
+                        <label>Cliente selecionado</label>
+                        {{ form.cliente_selecionado_texto }}
+                    </div>
+
+                    <div class="field">
+                        <label>Vendedor</label>
+                        {{ form.vendedor_nome }}
+                    </div>
+
+                    <div class="subgrid-2">
+                        <div class="field">
+                            <label>Nota Fiscal</label>
+                            {{ form.nota_fiscal }}
+                        </div>
+                        <div class="field">
+                            <label>Setor que abriu o SAC</label>
+                            {{ form.setor_responsavel }}
+                        </div>
+                    </div>
+
+                    <div class="subgrid-3">
+                        <div class="field">
+                            <label>Data de emissão da nota fiscal</label>
+                            {{ form.data_emissao_nf }}
+                        </div>
+                        <div class="field">
+                            <label>Número da nota fiscal de Revenda</label>
+                            {{ form.numero_nf_revenda }}
+                        </div>
+                        <div class="field">
+                            <label>Data de emissão da nota fiscal Revenda</label>
+                            {{ form.data_emissao_nf_revenda }}
+                        </div>
+                    </div>
+
+                    <div class="tempo-uso-card" id="tempoUsoOficialCard">
+                        <div class="tempo-label">Tempo de uso oficial</div>
+                        <div class="tempo-valor" id="tempoUsoOficialValor">Selecione uma nota fiscal</div>
+                        <div class="tempo-ajuda">Calculado pela data de abertura do SAC menos a data da NF original ou da NF de revenda, quando informada.</div>
+                    </div>
+
+
+                    <div class="subgrid-2">
+                        <div class="field">
+                            <label>Usuário que abriu o SAC</label>
+                            {{ form.usuario_abertura_nome }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 20px;">
+                    <h2>Dados do contato</h2>
+
+                    <div class="field">
+                        <label>Contatos salvos do cliente</label>
+                        <select id="contatoSalvoSelect">
+                            <option value="">Selecione um contato salvo</option>
+                        </select>
+                    </div>
+
+                    <div class="subgrid-2">
+                        <div class="field">
+                            <label>Nome do contato</label>
+                            {{ form.contato_nome }}
+                        </div>
+                        <div class="field">
+                            <label>WhatsApp do contato</label>
+                            {{ form.whatsapp }}
+                        </div>
+                    </div>
+
+                    <div class="subgrid-2">
+                        <div class="field">
+                            <label>Telefone do contato</label>
+                            {{ form.telefone }}
+                        </div>
+                        <div class="field">
+                            <label>E-mail 1 do contato</label>
+                            {{ form.email_1 }}
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>E-mail 2 do contato</label>
+                        {{ form.email_2 }}
+                    </div>
+
+                    <div class="section-subtitle">Contatos do usuário</div>
+
+                    <div class="subgrid-2">
+                        <div class="field">
+                            <label>Nome do usuário</label>
+                            {{ form.nome_usuario_contato }}
+                        </div>
+                        <div class="field">
+                            <label>WhatsApp do usuário</label>
+                            {{ form.whatsapp_usuario_contato }}
+                        </div>
+                    </div>
+
+                    <div class="subgrid-2">
+                        <div class="field">
+                            <label>E-mail do usuário</label>
+                            {{ form.email_usuario_contato }}
+                        </div>
+                        <div class="field">
+                            <label>Endereço do usuário</label>
+                            {{ form.endereco_usuario_contato }}
+                        </div>
+                    </div>
+
+                    <div class="subgrid-2">
+                        <div class="field">
+                            <label>Cidade do usuário</label>
+                            {{ form.cidade_usuario_contato }}
+                        </div>
+                        <div class="field">
+                            <label>Estado do usuário</label>
+                            {{ form.estado_usuario_contato }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 20px;">
+                    <h2>Inclusão de item com problema</h2>
+                    <div class="badge">Serial trava quantidade em 1 e permite repetir o mesmo item até o limite da nota.</div>
+
+                    <div class="builder-card">
+                        <div class="subgrid-2">
+                            <div class="field">
+                                <label>Referência (SKU)</label>
+                                <input type="text" id="referenciaItem" readonly>
+                            </div>
+                            <div class="field">
+                                <label>Grupo</label>
+                                <input type="text" id="grupoItem" readonly>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>Item</label>
+                            <select id="itemNota">
+                                <option value="">Selecione o item</option>
+                            </select>
+                        </div>
+
+                        <div class="subgrid-3">
+                            <div class="field">
+                                <label>Quantidade total</label>
+                                <input type="text" id="quantidadeTotal" readonly>
+                            </div>
+                            <div class="field">
+                                <label>Valor unitário</label>
+                                <input type="text" id="valorUnitario" readonly>
+                            </div>
+                            <div class="field">
+                                <label>Identificador</label>
+                                <select id="tipoRastreio">
+                                    <option value="">Selecione</option>
+                                    <option value="SERIAL">Serial</option>
+                                    <option value="LOTE">Lote</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>Serial/Lote encontrado na base</label>
+                            <select id="serialLoteBase">
+                                <option value="">Selecione</option>
+                            </select>
+                            <div id="alertaSerialBloqueado" class="muted" style="margin-top:8px;color:#b00020;font-weight:600;"></div>
+                            <div id="alertaSerialHistorico" class="muted" style="margin-top:8px;color:#b00020;font-weight:600;"></div>
+                        </div>
+
+                        <div class="subgrid-3">
+                            <div class="field">
+                                <label>Quantidade com Problema</label>
+                                <select id="quantidadeProblema">
+                                    <option value="">Selecione</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label>Número do serial ou lote</label>
+                                <input type="text" id="numeroRastreio" placeholder="Digite ou selecione">
+                            </div>
+                            <div class="field">
+                                <label>Tipo ocorrência</label>
+                                <select id="tipoOcorrencia">
+                                    <option value="">Selecione</option>
+                                    {% for tipo in tipos_ocorrencia %}
+                                        <option value="{{ tipo.id }}">{{ tipo.nome }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="field" id="campoItemQuebradoInservivel" style="display:none;">
+                            <label>Item Quebrado Inservível</label>
+                            <select id="itemQuebradoInservivel">
+                                <option value="">Selecione</option>
+                                <option value="SIM">Sim</option>
+                                <option value="NAO">Não</option>
+                            </select>
+                        </div>
+
+                        <div class="field" id="campoItemPequenoValor" style="display:none;">
+                            <label>Item de pequeno Valor</label>
+                            <select id="itemPequenoValor">
+                                <option value="">Selecione</option>
+                                <option value="SIM">Sim</option>
+                                <option value="NAO">Não</option>
+                            </select>
+                        </div>
+
+                        <div class="subgrid-2">
+                            <div class="field">
+                                <label>Ação em espera</label>
+                                {{ form.display_acao_em_espera }}
+                            </div>
+                            <div class="field">
+                                <label>Setor de destino</label>
+                                {{ form.display_setor_destino }}
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>Relato do Cliente/usuário sobre o Problema</label>
+                            <textarea id="relatoProblema" rows="4"></textarea>
+                        </div>
+
+                        <div class="actions">
+                            <button type="button" class="btn btn-primary" id="btnAdicionarItem">Incluir item</button>
+                        </div>
+
+                        <div class="auto-title">
+                            <strong>Título automático do SAC:</strong>
+                            <div id="previewTitulo">SAC_{{ numero_sac_preview }} / Cliente / NF</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 20px;">
+                    <h2>Anexos</h2>
+                    <div class="subgrid-2">
+                        <div class="field">
+                            <label>Fotos</label>
+                            {{ form.fotos }}
+                        </div>
+                        <div class="field">
+                            <label>Vídeos</label>
+                            {{ form.videos }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="card sticky-right">
+                    <h2>Itens incluídos no SAC</h2>
+                    <div id="listaItens"></div>
+
+                    <div class="summary-line">
+                        <strong>Total de itens no SAC</strong>
+                        <strong id="totalItensSac">0</strong>
+                    </div>
+
+                    <div class="actions" style="margin-top: 18px;">
+                        <button type="submit" class="btn btn-dark">Salvar SAC</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    const empresaField = document.getElementById('id_empresa');
+    const buscaSerialField = document.getElementById('buscaSerialLote');
+    const resultadoSerial = document.getElementById('resultadoSerial');
+    const btnBuscarSerial = document.getElementById('btnBuscarSerial');
+    const clienteBuscaField = document.getElementById('id_cliente_busca');
+    const clienteIdField = document.getElementById('id_cliente_id');
+    const clienteSelecionadoField = document.getElementById('id_cliente_selecionado_texto');
+    const resultadoClientes = document.getElementById('resultadoClientes');
+    const notaFiscalField = document.getElementById('id_nota_fiscal');
+    const dataEmissaoNfField = document.getElementById('id_data_emissao_nf');
+    const numeroNfRevendaField = document.getElementById('id_numero_nf_revenda');
+    const dataEmissaoNfRevendaField = document.getElementById('id_data_emissao_nf_revenda');
+    const tempoUsoOficialValor = document.getElementById('tempoUsoOficialValor');
+    const dataAberturaSacIso = '{% now "Y-m-d" %}';
+    const vendedorNomeField = document.getElementById('id_vendedor_nome');
+    const contatoSalvoSelect = document.getElementById('contatoSalvoSelect');
+    const acaoEmEsperaField = document.getElementById('id_acao_em_espera');
+    const displayAcaoEmEsperaField = document.getElementById('id_display_acao_em_espera');
+    const setorDestinoField = document.getElementById('id_setor_destino');
+    const displaySetorDestinoField = document.getElementById('id_display_setor_destino');
+    const alertaSerialBloqueado = document.getElementById('alertaSerialBloqueado');
+    const alertaSerialHistorico = document.getElementById('alertaSerialHistorico');
+
+    const itemNotaField = document.getElementById('itemNota');
+    const referenciaItemField = document.getElementById('referenciaItem');
+    const grupoItemField = document.getElementById('grupoItem');
+    const campoItemQuebradoInservivel = document.getElementById('campoItemQuebradoInservivel');
+    const itemQuebradoInservivelField = document.getElementById('itemQuebradoInservivel');
+    const quantidadeTotalField = document.getElementById('quantidadeTotal');
+    const valorUnitarioField = document.getElementById('valorUnitario');
+    const tipoRastreioField = document.getElementById('tipoRastreio');
+    const serialLoteBaseField = document.getElementById('serialLoteBase');
+    const quantidadeProblemaField = document.getElementById('quantidadeProblema');
+    const numeroRastreioField = document.getElementById('numeroRastreio');
+    const tipoOcorrenciaField = document.getElementById('tipoOcorrencia');
+    const campoItemPequenoValor = document.getElementById('campoItemPequenoValor');
+    const itemPequenoValorField = document.getElementById('itemPequenoValor');
+    const relatoProblemaField = document.getElementById('relatoProblema');
+
+    const previewTitulo = document.getElementById('previewTitulo');
+    const listaItens = document.getElementById('listaItens');
+    const totalItensSac = document.getElementById('totalItensSac');
+    const itensJsonField = document.getElementById('id_itens_json');
+
+    let itensNotaMap = {};
+    let notasClienteMap = {};
+    let itensSac = [];
+    let contatosSalvos = [];
+    let rastreiosBase = [];
+    let debounceTimer = null;
+
+    function moeda(v) {
+        try {
+            return Number(v || 0).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        } catch (e) {
+            return v;
+        }
+    }
+
+    function formatarDataIsoParaBR(valor) {
+        if (!valor) return '';
+        const partes = String(valor).split('-');
+        if (partes.length !== 3) return valor;
+        return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    }
+
+    function formatarTempoUsoDias(dias) {
+        if (dias === null || dias === undefined || isNaN(dias)) return 'Não calculado';
+        dias = Math.max(parseInt(dias, 10) || 0, 0);
+        const meses = Math.floor(dias / 30);
+        const resto = dias % 30;
+        if (meses <= 0) return resto === 1 ? '1 dia' : `${resto} dias`;
+        const textoMeses = meses === 1 ? '1 mês' : `${meses} meses`;
+        const textoDias = resto === 1 ? '1 dia' : `${resto} dias`;
+        return `${textoMeses} e ${textoDias}`;
+    }
+
+    function calcularTempoUsoOficial() {
+        if (!tempoUsoOficialValor) return;
+
+        const dataBase = (dataEmissaoNfRevendaField && dataEmissaoNfRevendaField.value)
+            ? dataEmissaoNfRevendaField.value
+            : (dataEmissaoNfField ? dataEmissaoNfField.value : '');
+
+        if (!dataBase) {
+            tempoUsoOficialValor.innerText = 'Não calculado';
+            return;
+        }
+
+        const inicio = new Date(`${dataBase}T00:00:00`);
+        const fim = new Date(`${dataAberturaSacIso}T00:00:00`);
+
+        if (isNaN(inicio.getTime()) || isNaN(fim.getTime())) {
+            tempoUsoOficialValor.innerText = 'Não calculado';
+            return;
+        }
+
+        const diffMs = fim.getTime() - inicio.getTime();
+        const dias = Math.max(Math.floor(diffMs / 86400000), 0);
+        tempoUsoOficialValor.innerText = formatarTempoUsoDias(dias);
+    }
+
+    function atualizarDadosTempoUsoPorNota() {
+        const notaId = notaFiscalField ? String(notaFiscalField.value || '') : '';
+        const nota = notasClienteMap[String(notaId)] || null;
+
+        if (dataEmissaoNfField) {
+            if (!notaId) {
+                dataEmissaoNfField.value = '';
+            } else if (nota && nota.data_emissao_iso) {
+                dataEmissaoNfField.value = nota.data_emissao_iso;
+            }
+            // Se a NF já veio renderizada pelo Django, mas o mapa JS ainda não foi carregado,
+            // preserva o valor atual em vez de apagar. Isso evita "Não calculado" na abertura.
+        }
+
+        calcularTempoUsoOficial();
+    }
+
+    function normalizarGrupo(valor) {
+        return String(valor || '')
+            .normalize('NFD')
+            .replace(/[̀-ͯ]/g, '')
+            .replace(/[–—]/g, '-')
+            .trim()
+            .toUpperCase();
+    }
+
+    function tipoOcorrenciaNomeSelecionado() {
+        const option = tipoOcorrenciaField && tipoOcorrenciaField.options[tipoOcorrenciaField.selectedIndex];
+        return option ? String(option.text || '').trim() : '';
+    }
+
+    function tipoExigeItemQuebradoInservivel() {
+        return tipoOcorrenciaNomeSelecionado() === 'Itens/Equipamentos Avariados';
+    }
+
+    function tipoExigeItemPequenoValor() {
+        const nome = tipoOcorrenciaNomeSelecionado();
+        return nome === 'Itens/Equipamentos em desacordo com Edital/Empenho'
+            || nome === 'Pedido enviado em duplicidade (Licitação)';
+    }
+
+    function deveForcarDescarteDiretoria() {
+        return (
+            (tipoExigeItemQuebradoInservivel() && itemQuebradoInservivelField && itemQuebradoInservivelField.value === 'SIM')
+            || (tipoExigeItemPequenoValor() && itemPequenoValorField && itemPequenoValorField.value === 'SIM')
+        );
+    }
+
+    let destinoRequestSeq = 0;
+
+    function aplicarDestinoPeloTipo() {
+        const tipoId = tipoOcorrenciaField ? tipoOcorrenciaField.value : '';
+        const requestSeq = ++destinoRequestSeq;
+
+        if (deveForcarDescarteDiretoria()) {
+            if (acaoEmEsperaField) acaoEmEsperaField.value = '';
+            if (setorDestinoField) setorDestinoField.value = '';
+            if (displayAcaoEmEsperaField) displayAcaoEmEsperaField.value = 'Aguardando Autorização – Descarte';
+            if (displaySetorDestinoField) displaySetorDestinoField.value = 'Diretoria';
+            return;
+        }
+
+        preencherAcaoEmEsperaPorTipoPromise(tipoId).then((dados) => {
+            if (requestSeq !== destinoRequestSeq || deveForcarDescarteDiretoria()) {
+                return;
+            }
+            if (acaoEmEsperaField) acaoEmEsperaField.value = (dados && dados.acao_em_espera_id) || '';
+            if (displayAcaoEmEsperaField) displayAcaoEmEsperaField.value = (dados && dados.acao_em_espera_nome) || '';
+            if (setorDestinoField) setorDestinoField.value = (dados && dados.setor_id) || '';
+            if (displaySetorDestinoField) displaySetorDestinoField.value = (dados && dados.setor_nome) || '';
+        });
+    }
+
+    function limparCamposCondicionaisItem() {
+        if (itemQuebradoInservivelField) itemQuebradoInservivelField.value = '';
+        if (itemPequenoValorField) itemPequenoValorField.value = '';
+    }
+
+    function atualizarCamposCondicionaisTipoOcorrencia() {
+        const exibirQuebrado = tipoExigeItemQuebradoInservivel();
+        const exibirPequenoValor = tipoExigeItemPequenoValor();
+
+        if (campoItemQuebradoInservivel) {
+            campoItemQuebradoInservivel.style.display = exibirQuebrado ? 'block' : 'none';
+        }
+        if (!exibirQuebrado && itemQuebradoInservivelField) {
+            itemQuebradoInservivelField.value = '';
+        }
+
+        if (campoItemPequenoValor) {
+            campoItemPequenoValor.style.display = exibirPequenoValor ? 'block' : 'none';
+        }
+        if (!exibirPequenoValor && itemPequenoValorField) {
+            itemPequenoValorField.value = '';
+        }
+
+        aplicarDestinoPeloTipo();
+    }
+
+    function obterRastreioSelecionado() {
+        const numero = (serialLoteBaseField.value || '').trim();
+        return rastreiosBase.find(r => String(r.serial_lote || '').trim() === numero) || null;
+    }
+
+    function atualizarAlertaSerialBloqueado() {
+        const atual = obterRastreioSelecionado();
+
+        if (!atual) {
+            alertaSerialBloqueado.innerText = '';
+            if (alertaSerialHistorico) alertaSerialHistorico.innerText = '';
+            return;
+        }
+
+        if (atual.bloqueado) {
+            alertaSerialBloqueado.innerText = `Já existe SAC em andamento: ${atual.sac_numero} | ${atual.data_abertura} | usuário ${atual.usuario_abertura}. Um novo SAC não poderá ser aberto para este serial enquanto o anterior não for concluído ou encerrado.`;
+        } else {
+            alertaSerialBloqueado.innerText = '';
+        }
+
+        const dataAnterior = atual.data_ultima_reincidencia || '';
+        const problemaAnterior = atual.problema_anterior || '';
+        const sacAnterior = atual.sac_anterior_numero || '';
+
+        if (alertaSerialHistorico) {
+            if (dataAnterior || problemaAnterior || sacAnterior) {
+                alertaSerialHistorico.innerText = `Histórico anterior deste serial: ${sacAnterior ? sacAnterior + ' | ' : ''}${dataAnterior}${problemaAnterior ? ' | Problema anterior: ' + problemaAnterior : ''}`;
+            } else {
+                alertaSerialHistorico.innerText = '';
+            }
+        }
+    }
+
+    function textoClienteSelecionado() {
+        return clienteSelecionadoField.value || 'Cliente';
+    }
+
+    function textoNotaSelecionada() {
+        return notaFiscalField.options[notaFiscalField.selectedIndex] ? notaFiscalField.options[notaFiscalField.selectedIndex].text : 'NF';
+    }
+
+    function preencherVendedorPorNotaId(notaId) {
+        if (!vendedorNomeField) return;
+
+        const notaIdTexto = String(notaId || '').trim();
+        if (!notaIdTexto) {
+            vendedorNomeField.value = '';
+            return;
+        }
+
+        vendedorNomeField.value = '';
+
+        const urls = [
+            `/api/buscar-vendedor-por-nota/?nota_id=${encodeURIComponent(notaIdTexto)}`,
+            `/api/buscar-vendedor/?nota_id=${encodeURIComponent(notaIdTexto)}`
+        ];
+
+        function tentar(indice) {
+            if (indice >= urls.length) {
+                vendedorNomeField.value = '';
+                return;
+            }
+
+            fetch(urls[indice])
+                .then(r => r.ok ? r.json() : Promise.reject())
+                .then(data => {
+                    const resultado = data && data.resultado ? data.resultado : null;
+                    vendedorNomeField.value = (resultado && resultado.vendedor_nome) ? resultado.vendedor_nome : '';
+                })
+                .catch(() => tentar(indice + 1));
+        }
+
+        tentar(0);
+    }
+
+    function atualizarPreviewTitulo() {
+        const numeroSac = document.getElementById('numeroSacTopo').innerText.trim();
+        previewTitulo.innerText = `SAC_${numeroSac} / ${textoClienteSelecionado()} / ${textoNotaSelecionada()}`;
+    }
+
+    function preencherAcaoEmEsperaPorTipo(tipoId) {
+        preencherAcaoEmEsperaPorTipoPromise(tipoId);
+    }
+
+    function limparClienteSelecionado() {
+        clienteIdField.value = '';
+        clienteSelecionadoField.value = '';
+        notaFiscalField.innerHTML = '<option value="">Selecione a nota fiscal</option>';
+        contatoSalvoSelect.innerHTML = '<option value="">Selecione um contato salvo</option>';
+        itemNotaField.innerHTML = '<option value="">Selecione o item</option>';
+        itensNotaMap = {};
+        notasClienteMap = {};
+        if (dataEmissaoNfField) dataEmissaoNfField.value = '';
+        if (numeroNfRevendaField) numeroNfRevendaField.value = '';
+        if (dataEmissaoNfRevendaField) dataEmissaoNfRevendaField.value = '';
+        calcularTempoUsoOficial();
+        if (vendedorNomeField) vendedorNomeField.value = '';
+        contatosSalvos = [];
+        limparDadosItem();
+        atualizarPreviewTitulo();
+    }
+
+    function limparDadosItem() {
+        referenciaItemField.value = '';
+        if (grupoItemField) grupoItemField.value = '';
+        limparCamposCondicionaisItem();
+        if (campoItemQuebradoInservivel) campoItemQuebradoInservivel.style.display = 'none';
+        if (campoItemPequenoValor) campoItemPequenoValor.style.display = 'none';
+        quantidadeTotalField.value = '';
+        valorUnitarioField.value = '';
+        tipoRastreioField.value = '';
+        serialLoteBaseField.innerHTML = '<option value="">Selecione</option>';
+        quantidadeProblemaField.innerHTML = '<option value="">Selecione</option>';
+        quantidadeProblemaField.disabled = false;
+        numeroRastreioField.value = '';
+        tipoOcorrenciaField.value = '';
+        relatoProblemaField.value = '';
+        if (acaoEmEsperaField) acaoEmEsperaField.value = '';
+        if (displayAcaoEmEsperaField) displayAcaoEmEsperaField.value = '';
+        if (setorDestinoField) setorDestinoField.value = '';
+        if (displaySetorDestinoField) displaySetorDestinoField.value = '';
+        alertaSerialBloqueado.innerText = '';
+        if (alertaSerialHistorico) alertaSerialHistorico.innerText = '';
+        rastreiosBase = [];
+    }
+
+    function renderResultadosClientes(resultados) {
+        resultadoClientes.innerHTML = '';
+        if (!resultados.length) {
+            resultadoClientes.style.display = 'none';
+            return;
+        }
+
+        resultados.forEach(cliente => {
+            const div = document.createElement('div');
+            div.className = 'search-item';
+            div.innerText = cliente.texto;
+            div.onclick = () => selecionarCliente(cliente);
+            resultadoClientes.appendChild(div);
+        });
+
+        resultadoClientes.style.display = 'block';
+    }
+
+    function selecionarCliente(cliente) {
+        clienteIdField.value = cliente.id;
+        clienteSelecionadoField.value = cliente.texto;
+        resultadoClientes.style.display = 'none';
+
+        document.getElementById('id_contato_nome').value = cliente.contato_nome || '';
+        document.getElementById('id_whatsapp').value = cliente.whatsapp || '';
+        document.getElementById('id_telefone').value = cliente.telefone || '';
+        document.getElementById('id_email_1').value = cliente.email_1 || '';
+        document.getElementById('id_email_2').value = cliente.email_2 || '';
+
+        carregarNotasCliente();
+        carregarContatosCliente();
+        atualizarPreviewTitulo();
+    }
+
+    function preencherAcaoEmEsperaPorTipoPromise(tipoId) {
+        return new Promise((resolve) => {
+            if (!tipoId) {
+                resolve({
+                    acao_em_espera_id: '',
+                    acao_em_espera_nome: '',
+                    setor_id: '',
+                    setor_nome: '',
+                });
+                return;
+            }
+
+            fetch(`/api/tipo-ocorrencia/?tipo_id=${tipoId}`)
+                .then(r => r.json())
+                .then(data => {
+                    const item = data.resultado || {};
+                    resolve({
+                        acao_em_espera_id: item.acao_em_espera_id || '',
+                        acao_em_espera_nome: item.acao_em_espera_nome || '',
+                        setor_id: item.setor_id || '',
+                        setor_nome: item.setor_nome || '',
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        acao_em_espera_id: '',
+                        acao_em_espera_nome: '',
+                        setor_id: '',
+                        setor_nome: '',
+                    });
+                });
+        });
+    }
+
+    function normalizarGrupoVisual(valor) {
+        const texto = String(valor || '').trim();
+        if (!texto || texto === '-1' || texto === '-1.0' || texto.toUpperCase() === 'NULL' || texto.toUpperCase() === 'NONE' || texto.toUpperCase() === 'NAN') {
+            return '';
+        }
+        return texto;
+    }
+
+    function preencherCamposPorSerial(payload) {
+        if (!payload) return;
+
+        if (payload.empresa_id && empresaField) {
+            empresaField.value = String(payload.empresa_id);
+        }
+
+        clienteIdField.value = payload.cliente_id || '';
+        clienteSelecionadoField.value = payload.cliente_texto || '';
+        if (clienteBuscaField && payload.cliente_texto) {
+            clienteBuscaField.value = payload.cliente_texto;
+        }
+
+        carregarContatosCliente();
+
+        carregarNotasCliente().then(() => {
+            if (payload.nota_fiscal_id) {
+                notaFiscalField.value = String(payload.nota_fiscal_id);
+                atualizarDadosTempoUsoPorNota();
+                preencherVendedorPorNotaId(payload.nota_fiscal_id);
+            }
+
+            carregarItensNota();
+
+            setTimeout(() => {
+                if (payload.item_id) {
+                    itemNotaField.value = String(payload.item_id);
+                    atualizarDadosItemSelecionado();
+                }
+
+                setTimeout(() => {
+                    if (payload.tipo_rastreio) tipoRastreioField.value = payload.tipo_rastreio;
+                    if (payload.serial_lote_encontrado) {
+                        numeroRastreioField.value = payload.serial_lote_encontrado;
+                        if (serialLoteBaseField.querySelector(`option[value="${payload.serial_lote_encontrado}"]`)) {
+                            serialLoteBaseField.value = payload.serial_lote_encontrado;
+                        }
+                    }
+                    if (payload.referencia) referenciaItemField.value = payload.referencia;
+                    if (grupoItemField) {
+                        grupoItemField.value = normalizarGrupoVisual(payload.grupo);
+                        atualizarCamposCondicionaisTipoOcorrencia();
+                    }
+                    const quantidadePayload = payload.quantidade_total_nf || payload.quantidade || payload.pr_qtd || '';
+                    quantidadeTotalField.value = quantidadePayload;
+                    const valorUnitarioPayload = payload.valor_unitario ?? payload.valor ?? payload.preco_unitario ?? '';
+                    valorUnitarioField.value = valorUnitarioPayload !== '' ? moeda(valorUnitarioPayload) : '';
+                    atualizarQuantidadeProblema();
+                    atualizarAlertaSerialBloqueado();
+                    atualizarPreviewTitulo();
+                }, 300);
+            }, 400);
+        });
+    }
+
+    function renderResultadoBuscaSerial(mensagem) {
+        if (!resultadoSerial) return;
+        resultadoSerial.innerHTML = `<div class="search-item">${mensagem}</div>`;
+        resultadoSerial.style.display = 'block';
+    }
+
+    function buscarPorSerial() {
+        const valor = ((buscaSerialField && buscaSerialField.value) || '').trim();
+
+        if (!valor) {
+            renderResultadoBuscaSerial('Digite um serial ou lote para buscar.');
+            return;
+        }
+
+        const empresaId = empresaField ? empresaField.value : '';
+        const url = `/api/buscar-serial/?q=${encodeURIComponent(valor)}${empresaId ? `&empresa_id=${encodeURIComponent(empresaId)}` : ''}`;
+
+        fetch(url)
+            .then(async response => {
+                const data = await response.json();
+
+                if (!response.ok || !data.ok) {
+                    renderResultadoBuscaSerial(data.mensagem || 'Serial/Lote não encontrado na base.');
+                    return;
+                }
+
+                if (resultadoSerial) {
+                    resultadoSerial.style.display = 'none';
+                    resultadoSerial.innerHTML = '';
+                }
+                preencherCamposPorSerial(data.resultado || null);
+            })
+            .catch(() => {
+                renderResultadoBuscaSerial('Erro ao consultar serial/lote. Tente novamente.');
+            });
+    }
+
+    function buscarClientes() {
+        const empresaId = empresaField.value;
+        const termo = clienteBuscaField.value.trim();
+
+        if (!empresaId || termo.length < 2) {
+            resultadoClientes.style.display = 'none';
+            return;
+        }
+
+        fetch(`/api/clientes/?empresa_id=${empresaId}&q=${encodeURIComponent(termo)}`)
+            .then(r => r.json())
+            .then(data => renderResultadosClientes(data.resultados || []));
+    }
+
+    function carregarContatosCliente() {
+        const clienteId = clienteIdField.value;
+        contatoSalvoSelect.innerHTML = '<option value="">Selecione um contato salvo</option>';
+
+        if (!clienteId) return;
+
+        fetch(`/api/contatos-cliente/?cliente_id=${clienteId}`)
+            .then(r => r.json())
+            .then(data => {
+                contatosSalvos = data.resultados || [];
+                contatosSalvos.forEach(contato => {
+                    const option = document.createElement('option');
+                    option.value = contato.id;
+                    option.text = contato.texto;
+                    contatoSalvoSelect.appendChild(option);
+                });
+            });
+    }
+
+    function aplicarContatoSalvo() {
+        const id = contatoSalvoSelect.value;
+        const contato = contatosSalvos.find(c => String(c.id) === String(id));
+        if (!contato) return;
+
+        document.getElementById('id_contato_nome').value = contato.nome_contato || '';
+        document.getElementById('id_whatsapp').value = contato.whatsapp || '';
+        document.getElementById('id_telefone').value = contato.telefone || '';
+        document.getElementById('id_email_1').value = contato.email_1 || '';
+        document.getElementById('id_email_2').value = contato.email_2 || '';
+    }
+
+    function carregarNotasCliente() {
+        const empresaId = empresaField.value;
+        const clienteId = clienteIdField.value;
+        const notaAtual = String(notaFiscalField.value || '');
+
+        notaFiscalField.innerHTML = '<option value="">Carregando...</option>';
+        notasClienteMap = {};
+        if (vendedorNomeField) vendedorNomeField.value = '';
+
+        if (!empresaId || !clienteId) {
+            notaFiscalField.innerHTML = '<option value="">Selecione a nota fiscal</option>';
+            return Promise.resolve([]);
+        }
+
+        return fetch(`/api/notas-cliente/?empresa_id=${empresaId}&cliente_id=${clienteId}`)
+            .then(r => r.json())
+            .then(data => {
+                const resultados = data.resultados || [];
+                notaFiscalField.innerHTML = '<option value="">Selecione a nota fiscal</option>';
+                notasClienteMap = {};
+                resultados.forEach(nota => {
+                    notasClienteMap[String(nota.id)] = nota;
+                    const option = document.createElement('option');
+                    option.value = nota.id;
+                    option.text = nota.texto;
+                    notaFiscalField.appendChild(option);
+                });
+                if (notaAtual && notasClienteMap[String(notaAtual)]) {
+                    notaFiscalField.value = notaAtual;
+                }
+                atualizarDadosTempoUsoPorNota();
+                preencherVendedorPorNotaId(notaFiscalField.value || '');
+                atualizarPreviewTitulo();
+                return resultados;
+            })
+            .catch(() => {
+                notaFiscalField.innerHTML = '<option value="">Selecione a nota fiscal</option>';
+                notasClienteMap = {};
+                if (dataEmissaoNfField) dataEmissaoNfField.value = '';
+                calcularTempoUsoOficial();
+                if (vendedorNomeField) vendedorNomeField.value = '';
+                return [];
+            });
+    }
+
+    function carregarItensNota() {
+        const notaId = notaFiscalField.value;
+
+        itemNotaField.innerHTML = '<option value="">Selecione o item</option>';
+        itensNotaMap = {};
+        limparDadosItem();
+        preencherVendedorPorNotaId(notaId);
+
+        if (!notaId) return;
+
+        fetch(`/api/itens-nota/?nota_fiscal_id=${notaId}`)
+            .then(r => r.json())
+            .then(data => {
+                (data.resultados || []).forEach(item => {
+                    itensNotaMap[item.id] = item;
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.text = `${item.pr_cod || ''} - ${item.pr_des || item.texto || ''}`;
+                    itemNotaField.appendChild(option);
+                });
+                atualizarPreviewTitulo();
+            });
+    }
+
+    function carregarRastreiosItem() {
+        const empresaId = empresaField.value;
+        const notaId = notaFiscalField.value;
+        const itemId = itemNotaField.value;
+
+        serialLoteBaseField.innerHTML = '<option value="">Selecione</option>';
+        rastreiosBase = [];
+
+        if (!empresaId || !notaId || !itemId) return;
+
+        fetch(`/api/rastreios-item/?empresa_id=${empresaId}&nota_fiscal_id=${notaId}&item_id=${itemId}`)
+            .then(r => r.json())
+            .then(data => {
+                rastreiosBase = data.resultados || [];
+
+                rastreiosBase.forEach(r => {
+                    const option = document.createElement('option');
+                    option.value = r.serial_lote || r.serial_lote_encontrado || '';
+                    option.text = (r.serial_lote || r.serial_lote_encontrado || '(sem informação)') + (r.bloqueado ? ' [SAC em andamento]' : '');
+                    serialLoteBaseField.appendChild(option);
+                });
+
+                const qtdTotal = parseInt(quantidadeTotalField.value || '0', 10);
+                if (rastreiosBase.length === 1 && qtdTotal === 1) {
+                    serialLoteBaseField.value = rastreiosBase[0].serial_lote || rastreiosBase[0].serial_lote_encontrado || '';
+                    numeroRastreioField.value = rastreiosBase[0].serial_lote || rastreiosBase[0].serial_lote_encontrado || '';
+                    atualizarAlertaSerialBloqueado();
+                }
+            });
+    }
+
+    function atualizarDadosItemSelecionado() {
+        const itemId = itemNotaField.value;
+        const item = itensNotaMap[itemId];
+
+        limparDadosItem();
+
+        if (!item) return;
+
+        referenciaItemField.value = item.pr_cod || '';
+        if (grupoItemField) grupoItemField.value = item.grupo || '';
+        atualizarCamposCondicionaisTipoOcorrencia();
+        const quantidadeItem = item.quantidade_total_nf || item.quantidade || item.pr_qtd || item.qtde || item.qtd || '';
+        const valorUnitarioItem = item.valor_unitario ?? item.valor ?? item.preco_unitario ?? item.vlr_unitario ?? item.valorUnitario ?? '';
+        quantidadeTotalField.value = quantidadeItem;
+        valorUnitarioField.value = valorUnitarioItem !== '' && valorUnitarioItem !== null ? moeda(valorUnitarioItem) : '';
+
+        carregarRastreiosItem();
+    }
+
+    function contarSeriaisJaIncluidos(itemId) {
+        return itensSac.filter(i => String(i.item_id) === String(itemId) && i.tipo_rastreio === 'SERIAL').length;
+    }
+
+    function atualizarQuantidadeProblema() {
+        quantidadeProblemaField.innerHTML = '<option value="">Selecione</option>';
+
+        const tipo = tipoRastreioField.value;
+        const qtdTotal = parseInt(quantidadeTotalField.value || '0', 10);
+        const itemId = itemNotaField.value;
+
+        if (!tipo || !qtdTotal || !itemId) return;
+
+        if (tipo === 'SERIAL') {
+            const usados = contarSeriaisJaIncluidos(itemId);
+            if (usados >= qtdTotal) {
+                alert('A quantidade máxima desse item para controle por serial já foi atingida.');
+                tipoRastreioField.value = '';
+                return;
+            }
+
+            const option = document.createElement('option');
+            option.value = '1';
+            option.text = '1';
+            option.selected = true;
+            quantidadeProblemaField.appendChild(option);
+            quantidadeProblemaField.disabled = true;
+            return;
+        }
+
+        quantidadeProblemaField.disabled = false;
+        for (let i = 1; i <= qtdTotal; i++) {
+            const option = document.createElement('option');
+            option.value = String(i);
+            option.text = String(i);
+            quantidadeProblemaField.appendChild(option);
+        }
+    }
+
+    function renderItensSac() {
+        listaItens.innerHTML = '';
+
+        if (!itensSac.length) {
+            listaItens.innerHTML = '<div class="muted">Nenhum item incluído ainda.</div>';
+        }
+
+        itensSac.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'item-row-card';
+
+            card.innerHTML = `
+                <div class="item-top">
+                    <div>
+                        <div class="item-title">${item.referencia} - ${item.item_descricao}</div>
+                        <div class="muted">Tipo ocorrência: ${item.tipo_ocorrencia_nome}</div>
+                    </div>
+                    <div class="danger-link" onclick="removerItemSac(${index})">Remover</div>
+                </div>
+                <div class="muted">Grupo: ${item.grupo || '-'}</div>
+                ${item.item_quebrado_inservivel ? `<div class="muted">Item Quebrado Inservível: ${item.item_quebrado_inservivel === 'SIM' ? 'Sim' : 'Não'}</div>` : ''}
+                ${item.item_pequeno_valor ? `<div class="muted">Item de pequeno Valor: ${item.item_pequeno_valor === 'SIM' ? 'Sim' : 'Não'}</div>` : ''}
+                <div class="muted">Identificador: ${item.tipo_rastreio} | Número: ${item.numero_rastreio || ''}</div>
+                <div class="muted">Quantidade total NF: ${item.quantidade_total_nf} | Quantidade com problema: ${item.quantidade_com_problema}</div>
+                <div class="muted">Valor unitário: ${moeda(item.valor_unitario)}</div>
+                <div style="margin-top: 10px; font-size: 13px;">${item.observacao_item || ''}</div>
+            `;
+
+            listaItens.appendChild(card);
+        });
+
+        totalItensSac.innerText = itensSac.length;
+        itensJsonField.value = JSON.stringify(itensSac);
+    }
+
+    function removerItemSac(index) {
+        itensSac.splice(index, 1);
+        renderItensSac();
+    }
+
+    window.removerItemSac = removerItemSac;
+
+    async function adicionarItemSac() {
+        const itemId = itemNotaField.value;
+        const item = itensNotaMap[itemId];
+        const tipoRastreio = tipoRastreioField.value;
+        const quantidadeProblema = quantidadeProblemaField.value;
+        const numeroRastreio = numeroRastreioField.value.trim();
+        const tipoOcorrenciaId = tipoOcorrenciaField.value;
+        const tipoOcorrenciaNome = tipoOcorrenciaField.options[tipoOcorrenciaField.selectedIndex] ? tipoOcorrenciaField.options[tipoOcorrenciaField.selectedIndex].text : '';
+        const grupoItem = normalizarGrupoVisual(grupoItemField ? grupoItemField.value : '');
+        const itemQuebradoInservivel = itemQuebradoInservivelField ? (itemQuebradoInservivelField.value || 'NAO') : 'NAO';
+        const itemPequenoValor = itemPequenoValorField ? (itemPequenoValorField.value || 'NAO') : 'NAO';
+        const relato = relatoProblemaField.value.trim();
+
+        if (!notaFiscalField.value) {
+            alert('Selecione a nota fiscal.');
+            return;
+        }
+        if (!item) {
+            alert('Selecione o item.');
+            return;
+        }
+        if (!tipoRastreio) {
+            alert('Selecione o identificador.');
+            return;
+        }
+        if (!quantidadeProblema) {
+            alert('Selecione a quantidade com problema.');
+            return;
+        }
+        if (!tipoOcorrenciaId) {
+            alert('Selecione o tipo de ocorrência.');
+            return;
+        }
+        if (tipoExigeItemQuebradoInservivel() && !itemQuebradoInservivelField.value) {
+            alert('Informe se o item está quebrado inservível.');
+            return;
+        }
+        if (tipoExigeItemPequenoValor() && !itemPequenoValorField.value) {
+            alert('Informe se o item é de pequeno valor.');
+            return;
+        }
+
+        if (tipoRastreio === 'SERIAL') {
+            if (!numeroRastreio) {
+                alert('Para Serial, o número do serial é obrigatório.');
+                return;
+            }
+
+            const rastreioAtual = obterRastreioSelecionado();
+            if (rastreioAtual && rastreioAtual.bloqueado) {
+                alert(`Já existe SAC em andamento para este serial: ${rastreioAtual.sac_numero} | ${rastreioAtual.data_abertura} | usuário ${rastreioAtual.usuario_abertura}.`);
+                return;
+            }
+
+            const usados = contarSeriaisJaIncluidos(item.id);
+            const qtdTotal = parseInt(item.quantidade_total_nf || 0, 10);
+
+            if (usados >= qtdTotal) {
+                alert('A quantidade máxima desse item para controle por serial já foi atingida.');
+                return;
+            }
+
+            const serialDuplicado = itensSac.some(i =>
+                String(i.item_id) === String(item.id) &&
+                i.tipo_rastreio === 'SERIAL' &&
+                String(i.numero_rastreio).trim().toUpperCase() === numeroRastreio.trim().toUpperCase()
+            );
+
+            if (serialDuplicado) {
+                alert('Este serial já foi incluído neste SAC.');
+                return;
+            }
+        }
+
+        const descarteDiretoria = deveForcarDescarteDiretoria();
+        const dadosTipo = descarteDiretoria ? null : await preencherAcaoEmEsperaPorTipoPromise(tipoOcorrenciaId);
+
+        const registro = {
+            item_id: item.id,
+            referencia: item.pr_cod || '',
+            grupo: grupoItem || '',
+            item_quebrado_inservivel: tipoExigeItemQuebradoInservivel() ? itemQuebradoInservivel : 'NAO',
+            item_pequeno_valor: tipoExigeItemPequenoValor() ? itemPequenoValor : 'NAO',
+            item_descricao: item.pr_des || item.descricao_item || item.item || item.texto || '',
+            quantidade_total_nf: item.quantidade_total_nf || item.quantidade || item.pr_qtd || item.qtde || item.qtd || 0,
+            valor_unitario: item.valor_unitario ?? item.valor ?? item.preco_unitario ?? item.vlr_unitario ?? item.valorUnitario ?? 0,
+            tipo_rastreio: tipoRastreio,
+            quantidade_com_problema: quantidadeProblema,
+            numero_rastreio: numeroRastreio,
+            tipo_ocorrencia_id: tipoOcorrenciaId,
+            tipo_ocorrencia_nome: tipoOcorrenciaNome,
+            acao_em_espera_id: descarteDiretoria ? '' : ((dadosTipo && dadosTipo.acao_em_espera_id) || (acaoEmEsperaField ? acaoEmEsperaField.value : '')),
+            acao_em_espera_nome: descarteDiretoria ? 'Aguardando Autorização – Descarte' : ((dadosTipo && dadosTipo.acao_em_espera_nome) || (displayAcaoEmEsperaField ? displayAcaoEmEsperaField.value : '')),
+            setor_destino_id: descarteDiretoria ? '' : ((dadosTipo && dadosTipo.setor_id) || (setorDestinoField ? setorDestinoField.value : '')),
+            setor_destino_nome: descarteDiretoria ? 'Diretoria' : ((dadosTipo && dadosTipo.setor_nome) || (displaySetorDestinoField ? displaySetorDestinoField.value : '')),
+            observacao_item: relato
+        };
+
+        itensSac.push(registro);
+        renderItensSac();
+
+        if (acaoEmEsperaField) acaoEmEsperaField.value = registro.acao_em_espera_id || acaoEmEsperaField.value;
+        if (displayAcaoEmEsperaField) displayAcaoEmEsperaField.value = registro.acao_em_espera_nome || displayAcaoEmEsperaField.value;
+        if (setorDestinoField) setorDestinoField.value = registro.setor_destino_id || setorDestinoField.value;
+        if (displaySetorDestinoField) displaySetorDestinoField.value = registro.setor_destino_nome || displaySetorDestinoField.value;
+
+        referenciaItemField.value = '';
+        if (grupoItemField) grupoItemField.value = '';
+        limparCamposCondicionaisItem();
+        if (campoItemQuebradoInservivel) campoItemQuebradoInservivel.style.display = 'none';
+        if (campoItemPequenoValor) campoItemPequenoValor.style.display = 'none';
+        quantidadeTotalField.value = '';
+        valorUnitarioField.value = '';
+        tipoRastreioField.value = '';
+        serialLoteBaseField.innerHTML = '<option value="">Selecione</option>';
+        quantidadeProblemaField.innerHTML = '<option value="">Selecione</option>';
+        quantidadeProblemaField.disabled = false;
+        numeroRastreioField.value = '';
+        tipoOcorrenciaField.value = '';
+        relatoProblemaField.value = '';
+        alertaSerialBloqueado.innerText = '';
+        if (alertaSerialHistorico) alertaSerialHistorico.innerText = '';
+        rastreiosBase = [];
+        itemNotaField.value = '';
+    }
+
+    empresaField.addEventListener('change', () => {
+        limparClienteSelecionado();
+        atualizarPreviewTitulo();
+    });
+
+    clienteBuscaField.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(buscarClientes, 350);
+    });
+
+    contatoSalvoSelect.addEventListener('change', aplicarContatoSalvo);
+    notaFiscalField.addEventListener('change', () => {
+        atualizarDadosTempoUsoPorNota();
+        preencherVendedorPorNotaId(notaFiscalField.value);
+        carregarItensNota();
+        atualizarPreviewTitulo();
+    });
+    if (dataEmissaoNfRevendaField) {
+        dataEmissaoNfRevendaField.addEventListener('change', calcularTempoUsoOficial);
+        dataEmissaoNfRevendaField.addEventListener('input', calcularTempoUsoOficial);
+    }
+    itemNotaField.addEventListener('change', atualizarDadosItemSelecionado);
+    tipoRastreioField.addEventListener('change', atualizarQuantidadeProblema);
+    tipoOcorrenciaField.addEventListener('change', () => {
+        atualizarPreviewTitulo();
+        atualizarCamposCondicionaisTipoOcorrencia();
+    });
+    if (itemQuebradoInservivelField) {
+        itemQuebradoInservivelField.addEventListener('change', aplicarDestinoPeloTipo);
+    }
+    if (itemPequenoValorField) {
+        itemPequenoValorField.addEventListener('change', aplicarDestinoPeloTipo);
+    }
+    serialLoteBaseField.addEventListener('change', () => {
+        numeroRastreioField.value = serialLoteBaseField.value || '';
+        atualizarAlertaSerialBloqueado();
+        const atual = obterRastreioSelecionado();
+        if (atual && atual.bloqueado) {
+            alert(`Já existe SAC em andamento para este serial: ${atual.sac_numero} | ${atual.data_abertura} | usuário ${atual.usuario_abertura}.`);
+        }
+    });
+    document.getElementById('btnAdicionarItem').addEventListener('click', adicionarItemSac);
+    if (btnBuscarSerial) {
+        btnBuscarSerial.addEventListener('click', buscarPorSerial);
+    }
+    if (buscaSerialField) {
+        buscaSerialField.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                buscarPorSerial();
+            }
+        });
+    }
+
+    document.getElementById('formSac').addEventListener('submit', function (e) {
+        if (!clienteIdField.value) {
+            e.preventDefault();
+            alert('Selecione um cliente.');
+            return;
+        }
+        if (!notaFiscalField.value) {
+            e.preventDefault();
+            alert('Selecione uma nota fiscal.');
+            return;
+        }
+        if (!itensSac.length) {
+            e.preventDefault();
+            alert('Inclua pelo menos um item no SAC.');
+            return;
+        }
+        itensJsonField.value = JSON.stringify(itensSac);
+    });
+
+    atualizarDadosTempoUsoPorNota();
+    atualizarPreviewTitulo();
+    renderItensSac();
+</script>
+
+
+    <script src="{% static 'core/js/abrir_sac_premium.js' %}?v=20260429_real_v2"></script>
+</body>
+</html>

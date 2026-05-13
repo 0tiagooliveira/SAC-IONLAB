@@ -1,0 +1,510 @@
+RELATORIO FINAL DE BLINDAGEM PREVENTIVA DO SAC
+======================================================================
+Gerado em: 01/05/2026 10:28:54
+Modo: somente leitura. Nenhuma regra, banco ou template foi alterado por este comando.
+
+1) TAMANHO DOS PRINCIPAIS ARQUIVOS
+----------------------------------------------------------------------
+ 4652 linhas | core\views.py
+ 2193 linhas | core\forms.py
+ 1699 linhas | core\templates\core\abrir_sac.html
+ 1293 linhas | core\templates\core\analise_tecnica_sac.html
+  855 linhas | core\models.py
+  818 linhas | core\templates\core\gestao_logistica.html
+  648 linhas | core\templates\core\painel_navegacao.html
+  585 linhas | core\views_modular\views_logistica.py
+  576 linhas | core\views_modular\views_gestao.py
+  570 linhas | core\templates\core\analise_gestao_sac.html
+  532 linhas | core\templates\core\gestao_licitacao.html
+  501 linhas | core\views_modular\views_assistencia_tecnica.py
+  437 linhas | core\templates\core\base.html
+  366 linhas | core\templates\core\gestao_assistencia_tecnica.html
+  332 linhas | core\templates\core\analise_comercial_sac.html
+  329 linhas | core\templates\core\pesquisa_sacs.html
+  301 linhas | core\views_modular\views_diretoria.py
+  290 linhas | core\services\sac_transicao_unificada.py
+  283 linhas | core\services\fila_setorial.py
+  274 linhas | core\templates\core\analise_diretoria.html
+  272 linhas | core\services\sac_visual.py
+  271 linhas | core\admin.py
+  270 linhas | core\services\regras_sac.py
+  260 linhas | core\views_modular\views_financeiro.py
+  252 linhas | core\templates\core\assessoria_cientifica.html
+  238 linhas | core\views_modular\views_comercial.py
+  238 linhas | core\views_modular\views_licitacao.py
+  223 linhas | core\services\fluxo_licitacao.py
+  217 linhas | core\templates\core\gestao_financeira.html
+  207 linhas | core\services\monitoramento_sac.py
+  196 linhas | core\services\fluxo_sac.py
+  196 linhas | core\services\sac_bridge.py
+  186 linhas | core\templates\core\analise_comercial_sac_backup_modo_lista_detalhe.html
+  165 linhas | core\services\fluxo_comercial.py
+  141 linhas | core\templates\core\components\itens_sac_padrao.html
+  141 linhas | core\services\dashboard_sla.py
+  134 linhas | core\templates\core\importar.html
+  134 linhas | core\services\comunicacao_cliente.py
+  115 linhas | core\services\historico_padronizado.py
+  108 linhas | core\services\destinatarios_sac.py
+  103 linhas | config\settings.py
+  103 linhas | core\services\fluxo_formularios.py
+   93 linhas | core\services\alertas_sla.py
+   91 linhas | core\templates\core\importar_rastreios.html
+   91 linhas | core\services\sac_dados_oficiais.py
+   89 linhas | core\services\sac_dados_padrao.py
+   82 linhas | config\urls.py
+   82 linhas | core\templates\core\dashboard_sla.html
+   72 linhas | core\services\vendedor_service.py
+   69 linhas | core\templates\core\auditoria_visual_sac.html
+
+2) ARQUIVOS GRANDES QUE DEVEM SER MEXIDOS COM MUITO CUIDADO
+----------------------------------------------------------------------
+ATENCAO: core\views.py tem 4652 linhas. Risco alto de regressao em alteracoes grandes.
+ATENCAO: core\forms.py tem 2193 linhas. Risco alto de regressao em alteracoes grandes.
+ATENCAO: core\models.py tem 855 linhas. Risco alto de regressao em alteracoes grandes.
+ATENCAO: core\templates\core\abrir_sac.html tem 1699 linhas. Risco alto de regressao em alteracoes grandes.
+ATENCAO: core\templates\core\analise_tecnica_sac.html tem 1293 linhas. Risco alto de regressao em alteracoes grandes.
+ATENCAO: core\templates\core\gestao_logistica.html tem 818 linhas. Risco alto de regressao em alteracoes grandes.
+
+3) EXCEPT GENERICO / ERRO SILENCIOSO
+----------------------------------------------------------------------
+core\views.py:3681 | except Exception:
+core\views.py:3689 | except Exception:
+core\views.py:3937 | except Exception:
+core\views.py:3943 | except Exception:
+core\views.py:3947 | except Exception:
+core\views.py:3963 | except Exception:
+core\views.py:3971 | except Exception:
+core\forms.py:467 | except Exception:
+core\forms.py:516 | except Exception:
+core\forms.py:771 | except Exception:
+core\forms.py:779 | except Exception:
+core\forms.py:1364 | except Exception:
+core\forms.py:1423 | except Exception:
+core\forms.py:1742 | except Exception:
+core\forms.py:1857 | except Exception:
+core\forms.py:1978 | except Exception:
+core\forms.py:2001 | except Exception:
+core\services\comunicacao_cliente.py:51 | except Exception:
+core\services\dashboard_sla.py:106 | except Exception:
+core\services\dashboard_sla.py:110 | except Exception:
+core\services\destinatarios_sac.py:34 | except Exception:
+core\services\fila_setorial.py:164 | except Exception:
+core\services\fluxo_comercial.py:36 | except Exception:
+core\services\fluxo_licitacao.py:81 | except Exception:
+core\services\historico_padronizado.py:37 | except Exception:
+core\services\monitoramento_sac.py:200 | except Exception:
+core\services\sac_auditoria.py:35 | except Exception:
+core\services\sac_bridge.py:160 | except Exception:
+core\services\sac_dados_oficiais.py:21 | except Exception:
+core\services\sac_dados_oficiais.py:35 | except Exception:
+core\services\sac_dados_padrao.py:37 | except Exception:
+core\services\sac_dados_padrao.py:53 | except Exception:
+core\services\sac_dados_padrao.py:68 | except Exception:
+core\services\sac_transicao_unificada.py:102 | except Exception:
+core\services\sac_transicao_unificada.py:108 | except Exception:
+core\services\sac_visual.py:75 | except Exception:
+core\services\sac_visual.py:86 | except Exception:
+core\services\sac_visual.py:184 | except Exception:
+core\services\sac_visual.py:233 | except Exception:
+core\services\sac_visual.py:237 | except Exception:
+core\views_modular\views_assistencia_tecnica.py:112 | except Exception:
+core\views_modular\views_assistencia_tecnica.py:122 | except Exception:
+core\views_modular\views_assistencia_tecnica.py:191 | except Exception:
+core\views_modular\views_assistencia_tecnica.py:347 | except Exception:
+core\views_modular\views_diretoria.py:41 | except Exception:
+core\views_modular\views_diretoria.py:69 | except Exception:
+core\views_modular\views_financeiro.py:124 | except Exception:
+core\views_modular\views_financeiro.py:166 | except Exception:
+core\views_modular\views_gestao.py:53 | except Exception:
+core\views_modular\views_gestao.py:85 | except Exception:
+core\views_modular\views_gestao.py:127 | except Exception:
+core\views_modular\views_gestao.py:211 | except Exception:
+core\views_modular\views_logistica.py:139 | except Exception:
+core\views_modular\views_logistica.py:195 | except Exception:
+core\views_modular\views_logistica.py:234 | except Exception:
+
+4) PRINTS DE DEBUG EM PYTHON
+----------------------------------------------------------------------
+Nada relevante encontrado nesta categoria.
+
+5) POSSIVEIS REGRAS / NOMES DE FLUXO FIXOS NO CODIGO
+----------------------------------------------------------------------
+core\views.py:328 | data = nota_fiscal.data_emissao.strftime('%d/%m/%Y') if getattr(nota_fiscal, 'data_emissao', None) else ''
+core\views.py:546 | data_emissao = normalizar_data_excel(row.get('NF_EMI'))
+core\views.py:660 | data_emissao=data_emissao,
+core\views.py:985 | if status_nome not in ['concluído', 'concluido', 'encerrado']:
+core\views.py:1020 | for nome in ('Gestão Comercial', 'Gestao Comercial', 'Comercial'):
+core\views.py:1421 | acao_em_espera_final = AcaoEmEspera.objects.filter(nome__iexact='Aguardando Autorização – Descarte').first() or AcaoEmEspera.objects.filter(nome__iexact='Aguardando Autorização - D
+core\views.py:1422 | setor_destino_final = obter_setor_por_nome('Diretoria') or setor_destino_final
+core\views.py:1466 | data_emissao_nf=nota_fiscal.data_emissao,
+core\views.py:1468 | data_emissao_nf_revenda=form.cleaned_data.get('data_emissao_nf_revenda'),
+core\views.py:1568 | if 'comercial' in nome_setor_destino:
+core\views.py:1569 | return redirect(f'/sac/analise-comercial/?sac={sac.id}')
+core\views.py:1570 | elif 'logistica' in nome_setor_destino:
+core\views.py:1571 | return redirect(f'/sac/gestao-logistica/?sac={sac.id}')
+core\views.py:1572 | elif 'cientifica' in nome_setor_destino or 'assessoria' in nome_setor_destino:
+core\views.py:1573 | return redirect(f'/sac/assessoria-cientifica/?sac={sac.id}')
+core\views.py:1576 | elif 'diretoria' in nome_setor_destino:
+core\views.py:1577 | return redirect(f'/sac/diretoria/?sac={sac.id}')
+core\views.py:1808 | status_diretoria = obter_status_por_nome('Aguardando Aprovação de Orçamento – Diretoria') or obter_status_por_nome('Aguardando Aprovação de Orçamento - Diretoria')
+core\views.py:1809 | setor_diretoria = obter_setor_por_nome('Diretoria')
+core\views.py:1814 | setor_destino=setor_diretoria,
+core\views.py:1815 | status_novo=status_diretoria,
+core\views.py:1836 | proximo_status = _obter_status_por_nomes('Concluído', 'Concluido')
+core\views.py:1878 | setor_destino = obter_setor_por_nome('Assessoria Cientifica') or obter_setor_por_nome('Assessoria Científica')
+core\views.py:1908 | proximo_status = _obter_status_por_nomes('Em Análise', 'Em Analise')
+core\views.py:1909 | acao_final = _obter_acao_por_nomes('Aguardando Contato com Cliente - SAC')
+core\views.py:1989 | status_concluido = _obter_status_por_nomes('Concluído', 'Concluido')
+core\views.py:1990 | if not status_concluido:
+core\views.py:2037 | f"Próximo Status: {status_concluido.nome if status_concluido else '-'}",
+core\views.py:2066 | status_novo=status_concluido,
+core\views.py:2076 | status_novo=status_concluido,
+core\views.py:2119 | proximo_status = _obter_status_por_nomes('Concluído', 'Concluido')
+core\views.py:2203 | proximo_status = obter_status_por_nome('Concluído') or obter_status_por_nome('Concluido') or proximo_status
+core\views.py:2205 | if (proximo_status.nome or '').strip().lower() in ['concluído', 'concluido']:
+core\views.py:2531 | nota = queryset.order_by('-data_emissao', '-id').only('id', 'vendedor_nome', 'vendedor_codigo', 'numero_nf', 'numero').first()
+core\views.py:2561 | 'texto': f'NF {n.numero_nf or n.numero or ""} - {n.data_emissao.strftime("%d/%m/%Y") if n.data_emissao else ""}',
+core\views.py:2563 | 'data_emissao': n.data_emissao.strftime('%d/%m/%Y') if n.data_emissao else '',
+core\views.py:2564 | 'data_emissao_iso': n.data_emissao.isoformat() if n.data_emissao else ''
+core\views.py:2730 | return Q(pk__in=queryset_fila_por_setor(nome_setor='Comercial').values('pk'))
+core\views.py:2746 | return queryset_fila_por_setor(nome_setor='Comercial')
+core\views.py:2754 | return queryset_fila_por_setor(nome_setor='Assessoria Científica')
+core\views.py:2758 | return queryset_fila_por_setor(nome_setor='Logística')
+core\views.py:2762 | return queryset_fila_por_setor(nome_setor='Diretoria')
+core\views.py:2881 | ASSESSORIA_CIENTIFICA_NOMES = (
+core\views.py:2889 | Q(setor_atual__nome__iexact=ASSESSORIA_CIENTIFICA_NOMES[0]) |
+core\views.py:2890 | Q(setor_atual__nome__iexact=ASSESSORIA_CIENTIFICA_NOMES[1]) |
+core\views.py:2891 | Q(acao_em_espera__setor_destino__nome__iexact=ASSESSORIA_CIENTIFICA_NOMES[0]) |
+core\views.py:2892 | Q(acao_em_espera__setor_destino__nome__iexact=ASSESSORIA_CIENTIFICA_NOMES[1])
+core\views.py:2897 | setor_assessoria = (
+core\views.py:2914 | Q(status_atual__nome__iexact='Concluído') |
+core\views.py:2915 | Q(status_atual__nome__iexact='Concluido') |
+core\views.py:2921 | if setor_assessoria:
+core\views.py:2923 | Q(setor_atual_id=setor_assessoria.id) |
+core\views.py:2924 | Q(acao_em_espera__setor_destino_id=setor_assessoria.id)
+core\views.py:2927 | qs = qs.filter(_q_assessoria_cientifica())
+core\views.py:2942 | LOGISTICA_NOMES = (
+core\views.py:2947 | STATUS_LOGISTICA_NOMES = (
+core\views.py:2960 | ACOES_LOGISTICA_NOMES = (
+core\views.py:2977 | Q(setor_atual__nome__iexact=LOGISTICA_NOMES[0]) |
+core\views.py:2978 | Q(setor_atual__nome__iexact=LOGISTICA_NOMES[1]) |
+core\views.py:2979 | Q(acao_em_espera__setor_destino__nome__iexact=LOGISTICA_NOMES[0]) |
+core\views.py:2980 | Q(acao_em_espera__setor_destino__nome__iexact=LOGISTICA_NOMES[1]) |
+core\views.py:2981 | Q(acao_em_espera__nome__icontains='Logistica') |
+core\views.py:2982 | Q(acao_em_espera__nome__icontains='Logística')
+core\views.py:2984 | for nome in STATUS_LOGISTICA_NOMES:
+core\views.py:2986 | for nome in ACOES_LOGISTICA_NOMES:
+core\views.py:2992 | setor_logistica = (
+core\views.py:3009 | Q(status_atual__nome__iexact='Concluído') |
+core\views.py:3010 | Q(status_atual__nome__iexact='Concluido') |
+core\views.py:3015 | if setor_logistica:
+core\views.py:3017 | Q(setor_atual_id=setor_logistica.id) |
+core\views.py:3018 | Q(acao_em_espera__setor_destino_id=setor_logistica.id) |
+core\views.py:3023 | qs = qs.filter(_q_gestao_logistica())
+core\views.py:3029 | DIRETORIA_NOMES = (
+core\views.py:3036 | Q(setor_atual__nome__iexact='Diretoria') |
+core\views.py:3037 | Q(acao_em_espera__setor_destino__nome__iexact='Diretoria')
+core\views.py:3039 | q |= Q(acao_em_espera__nome__icontains='Diretoria')
+core\views.py:3040 | q |= Q(status_atual__nome__iexact='Aguardando Aprovação de Desconto')
+core\views.py:3041 | q |= Q(status_atual__nome__iexact='Aguardando Aprovacao de Desconto')
+core\views.py:3042 | q |= Q(acao_em_espera__nome__iexact='Aguardando Aprovação de Desconto')
+core\views.py:3043 | q |= Q(acao_em_espera__nome__iexact='Aguardando Aprovacao de Desconto')
+core\views.py:3048 | setor_diretoria = obter_setor_por_nome('Diretoria')
+core\views.py:3066 | Q(status_atual__nome__iexact='Concluído') |
+core\views.py:3067 | Q(status_atual__nome__iexact='Concluido') |
+core\views.py:3072 | if setor_diretoria is not None:
+core\views.py:3074 | Q(setor_atual_id=setor_diretoria.id) |
+core\views.py:3075 | Q(acao_em_espera__setor_destino_id=setor_diretoria.id) |
+core\views.py:3079 | qs = qs.filter(_q_diretoria())
+core\views.py:3091 | if sac.setor_atual and sac.setor_atual.nome and 'comercial' in sac.setor_atual.nome.lower():
+core\views.py:3093 | if sac.acao_em_espera and sac.acao_em_espera.nome and 'comercial' in sac.acao_em_espera.nome.lower():
+core\views.py:3213 | def analise_comercial_sac(request, sac_id=None):
+core\views.py:3214 | sacs_pendentes_qs = _sac_aguardando_acao_comercial_queryset()
+core\views.py:3264 | setor_contexto_comercial = None
+core\views.py:3287 | setor_contexto_comercial = resolver_setor_contexto_comercial(sac)
+core\views.py:3295 | form = AnaliseComercialSACForm(request.POST, sac=sac, setor_contexto=setor_contexto_comercial)
+core\views.py:3302 | observacao = (form.cleaned_data.get('observacao_comercial') or '').strip()
+core\views.py:3310 | if nome_status == 'concluido' and itens_contexto and itens_contexto.get('itens_outros_setores'):
+core\views.py:3312 | return redirect(f'/sac/analise-comercial/?sac={sac.id}')
+core\views.py:3350 | setor_destino_validacao = None if nome_status == 'concluido' else (proximo_setor or sac.setor_atual)
+core\views.py:3362 | acao_em_espera=acao_em_espera if nome_status != 'concluido' else None,
+core\views.py:3363 | setor_destino=proximo_setor if nome_status != 'concluido' else None,
+core\views.py:3366 | acao_executada_texto='Análise comercial registrada',
+core\views.py:3372 | form = AnaliseComercialSACForm(sac=sac, setor_contexto=setor_contexto_comercial)
+core\views.py:3395 | 'fluxo_alertas': diagnosticar_fluxo_inicial(sac, setor_contexto=getattr(sac, 'setor_atual', None), nome_tela='Gestão Comercial') if sac else [],
+core\views.py:3446 | sacs_qs = _sac_aguardando_acao_gestao_queryset()
+core\views.py:3551 | proximo_sac = _sac_aguardando_acao_gestao_queryset().exclude(id=sac.id).first()
+core\views.py:3693 | def _diretoria_campos_historico(observacoes='', acao_em_espera_setor='', valor_pleiteado='', decisao='', contraproposta='', proximo_status='', proxima_acao='', proximo_setor=''):
+core\views.py:3718 | sacs_qs = _sac_aguardando_acao_diretoria_queryset()
+core\views.py:3763 | observacoes_diretoria = (request.POST.get('observacoes_diretoria') or '').strip()
+core\views.py:3768 | if acao_setor_nome.lower() == 'aguardando aprovação de desconto' or acao_setor_nome.lower() == 'aguardando aprovacao de desconto':
+core\views.py:3775 | return redirect(f'/sac/diretoria/?sac={sac.id}')
+core\views.py:3778 | status_novo = obter_status_por_nome('Concluído') or obter_status_por_nome('Concluido')
+core\views.py:3779 | observacao = _diretoria_campos_historico(
+core\views.py:3780 | observacoes=observacoes_diretoria,
+core\views.py:3784 | proximo_status=getattr(status_novo, 'nome', 'Concluído'),
+core\views.py:3795 | acao_executada_texto='Análise da Diretoria registrada',
+core\views.py:3798 | return redirect(f'/sac/analise-comercial/?sac={sac.id}')
+core\views.py:3803 | return redirect(f'/sac/diretoria/?sac={sac.id}')
+core\views.py:3805 | acao_destino = resolver_acao_por_codigo('LIGAR_CLIENTE_COMERCIAL') or resolver_acao_por_codigo('LIGAR_PARA_O_CLIENTE_COMERCIAL') or resolver_acao_por_codigo('COMERCIAL_LIGAR_CLIENT
+core\views.py:3806 | status_novo = obter_status_por_nome('Em Análise') or obter_status_por_nome('Em Analise')
+core\views.py:3807 | setor_destino = obter_setor_por_nome('Gestão Comercial') or obter_setor_por_nome('Gestao Comercial') or obter_setor_por_nome('Comercial')
+core\views.py:3809 | observacao = _diretoria_campos_historico(
+core\views.py:3810 | observacoes=observacoes_diretoria,
+core\views.py:3815 | proximo_status=getattr(status_novo, 'nome', 'Em Análise'),
+core\views.py:3817 | proximo_setor=getattr(setor_destino, 'nome', 'Comercial'),
+core\views.py:3826 | acao_executada_texto='Análise da Diretoria registrada',
+core\views.py:3829 | return redirect(f'/sac/diretoria/?sac={sac.id}')
+core\views.py:3832 | observacao = _diretoria_campos_historico(
+core\views.py:3833 | observacoes=observacoes_diretoria,
+core\views.py:3839 | acao_executada='Análise da Diretoria registrada',
+core\views.py:3847 | return redirect(f'/sac/diretoria/?sac={sac.id}')
+core\views.py:3875 | sacs_qs = _sac_aguardando_acao_assessoria_queryset()
+core\views.py:3981 | linhas = [f'Ações Executadas - Gestão Logística | Ação em espera de origem: {acao_nome}']
+core\views.py:3988 | valor = _normalizar_bool_logistica(valor)
+core\views.py:3994 | if acao_normalizada in {'aguardando alocação em prateleira', 'aguardando alocacao em prateleira'}:
+core\views.py:3999 | elif acao_normalizada == 'aguardando coleta no cliente':
+core\views.py:4014 | add('Data de emissão da Nota fiscal', 'data_emissao_nota_fiscal', data_field=True)
+core\views.py:4016 | elif acao_normalizada in {'aguardando devolução ao cliente', 'aguardando devolucao ao cliente', 'aguardando emissão da nota fiscal', 'aguardando emissao da nota fiscal'}:
+core\views.py:4026 | add('Data de emissão da Nota fiscal', 'data_emissao_nota_fiscal', data_field=True)
+core\views.py:4050 | elif acao_normalizada in {'análise do ocorrido - logistica', 'análise do ocorrido - logística', 'analise do ocorrido - logistica'}:
+core\views.py:4080 | def gestao_logistica(request, sac_id=None):
+core\views.py:4082 | sacs_qs = _sac_aguardando_acao_logistica_queryset()
+core\views.py:4128 | form = GestaoLogisticaAcaoExecutadaForm(request.POST, sac=sac, acao_atual_nome=acao_atual_nome, tem_serial=tem_serial)
+core\views.py:4131 | observacao = _formatar_observacao_gestao_logistica(acao_atual_nome, cleaned, tem_serial)
+core\views.py:4139 | acao_executada_texto='Gestão Logística registrada',
+core\views.py:4142 | return redirect('gestao_logistica', sac_id=sac.id)
+core\views.py:4146 | form = GestaoLogisticaAcaoExecutadaForm(sac=sac, acao_atual_nome=acao_atual_nome, tem_serial=tem_serial)
+core\views.py:4148 | fluxo_alertas = diagnosticar_fluxo_inicial(sac, setor_contexto=getattr(sac, 'setor_atual', None), nome_tela='Gestão Logística')
+core\views.py:4149 | contexto_logistica = _dados_contexto_logistica(sac)
+core\views.py:4176 | if 'comercial' in nome:
+core\views.py:4178 | if 'assessoria' in nome:
+core\views.py:4180 | if 'diretoria' in nome:
+core\views.py:4182 | if 'logistica' in nome or 'logística' in nome:
+core\views.py:4232 | for nome in ("Em Análise", "Em Analise", "Em análise", "Em analise"):
+core\views.py:4256 | obj = resolver_acao_por_codigo('AGUARDANDO_PEDIDO_ENTRADA_RETORNO') or resolver_acao_por_codigo('EMISSAO_DO_PEDIDO_DE_ENTRADA_RETORNO')
+core\views.py:4270 | if "aguardando emissao" in base and "pedido" in base and "entrada retorno" in base:
+core\views.py:4408 | 'proximo_status_nome': getattr(flow.get('status'), 'nome', 'Em Análise') if flow else 'Em Análise',
+core\views.py:4635 | # === OVERRIDE MODULAR LOGISTICA ===
+core\forms.py:173 | status = resolver_status_por_codigo_service('CONCLUIDO')
+core\forms.py:361 | data_emissao_nf = forms.DateField(
+core\forms.py:363 | label='Data de emissão da nota fiscal',
+core\forms.py:379 | data_emissao_nf_revenda = forms.DateField(
+core\forms.py:381 | label='Data de emissão da nota fiscal Revenda',
+core\forms.py:515 | nota_atual = NotaFiscal.objects.filter(id=nota_id).only('vendedor_nome', 'data_emissao').first()
+core\forms.py:521 | if nota_atual.data_emissao:
+core\forms.py:522 | self.fields['data_emissao_nf'].initial = nota_atual.data_emissao.isoformat()
+core\forms.py:753 | dados = _extrair_dados_historico_logistica(form.sac)
+core\forms.py:883 | if proximo_status and nome_status != 'concluído':
+core\forms.py:888 | if nome_status == 'concluído':
+core\forms.py:983 | if 'diretoria' not in acao and 'valor do desconto' not in texto and 'contra proposta' not in texto:
+core\forms.py:986 | 'decisão da diretoria: reprovado' in texto
+core\forms.py:987 | or 'decisao da diretoria: reprovado' in texto
+core\forms.py:1056 | observacao_comercial = forms.CharField(
+core\forms.py:1080 | if 'ligar para o cliente' in acao_nome and _historico_reprovacao_diretoria(self.sac):
+core\forms.py:1102 | status_concluido = _resolver_status_conclusao_comercial()
+core\forms.py:1103 | self._preview_fluxo_contra_aceita = _criar_fluxo_preview(status_concluido, None, None)
+core\forms.py:1125 | status_concluido = _resolver_status_conclusao_comercial()
+core\forms.py:1126 | self._preview_fluxo_contra_aceita = _criar_fluxo_preview(status_concluido, None, None)
+core\forms.py:1136 | self._status_resolvido = status_concluido
+core\forms.py:1166 | instancias = resolver_instancias_fluxo_comercial(
+core\forms.py:1201 | self._erro_fluxo = 'Configuração obrigatória não encontrada para a Gestão Comercial: ' + '; '.join(faltando)
+core\forms.py:1254 | if cleaned_data.get('proximo_status_sugerido') and _resolver_status_conclusao_comercial() == cleaned_data.get('proximo_status_sugerido'):
+core\forms.py:1284 | label='Já foi solicitado a emissão da Nota fiscal'
+core\forms.py:1286 | data_emissao_nf = forms.DateField(
+core\forms.py:1302 | data_emissao_nf_venda_visual = forms.CharField(
+core\forms.py:1304 | label='Data da Emissão da Nota fiscal',
+core\forms.py:1312 | data_emissao_venda_usuario = forms.DateField(
+core\forms.py:1313 | label='Data de Emissão de venda ao usuário',
+core\forms.py:1380 | elif self._acao_e_analise_ocorrido_logistica() and 'item vencido' in self._tipo_ocorrencia_normalizado():
+core\forms.py:1391 | data_nf = getattr(nota, 'data_emissao', None)
+core\forms.py:1393 | self.fields['data_emissao_nf_venda_visual'].initial = data_nf.strftime('%d/%m/%Y') if hasattr(data_nf, 'strftime') else '-'
+core\forms.py:1421 | if dados.get(self.add_prefix('data_emissao_venda_usuario')) is not None or dados.get('data_emissao_venda_usuario') is not None:
+core\forms.py:1428 | resultado = resolver_fluxo_formulario('analise ocorrido logistica para sac')
+core\forms.py:1441 | resultado = resolver_fluxo_formulario('cliente nao confirmou coleta logistica')
+core\forms.py:1458 | codes=('AGUARDANDO_DISPONIBILIDADE_DO_CLIENTE',),
+core\forms.py:1472 | codes=('AGUARDANDO_EMISSAO_DA_NOTA_FISCAL_ENTRADA_RETORNO',),
+core\forms.py:1474 | setor = _resolver_setor_por_nome('Logística', 'Logistica', codes=('LOGISTICA',))
+core\forms.py:1488 | codes=('AGUARDANDO_INSPECAO_FISICA_FUNCIONAL',),
+core\forms.py:1551 | data_emissao = cleaned_data.get('data_emissao_nf')
+core\forms.py:1565 | if not data_emissao:
+core\forms.py:1670 | data_emissao_nota_fiscal = forms.DateField(required=False, label='Data de emissão da Nota fiscal', widget=forms.DateInput(attrs={'type': 'date'}), input_formats=['%Y-%m-%d'])
+core\forms.py:1732 | self.origem_fluxo_aguardando_emissao_nf = (kwargs.pop('origem_fluxo_aguardando_emissao_nf', '') or '').strip().upper()
+core\forms.py:1761 | if self._eh_tipo_tecnico_equipamento_logistica():
+core\forms.py:1764 | elif self._acao_aguardando_coleta_cliente():
+core\forms.py:1766 | self.fields['data_emissao_nota_fiscal'].label = 'Data de emissão da Nota fiscal'
+core\forms.py:1776 | elif self._acao_aguardando_recebimento_fisico_fiscal():
+core\forms.py:1781 | self.fields['data_emissao_nota_fiscal'].label = 'Data de Emissão'
+core\forms.py:1804 | if self._eh_tipo_tecnico_equipamento_logistica():
+core\forms.py:1806 | elif self._acao_aguardando_coleta_cliente():
+core\forms.py:1808 | elif self._acao_aguardando_recebimento_fisico_fiscal():
+core\forms.py:1832 | return 'aguardando coleta no cliente' in texto
+core\forms.py:1837 | 'aguardando recebimento fisico fiscal' in texto
+core\forms.py:1838 | or 'aguardando recebimento fisico/fiscal' in texto
+core\forms.py:1872 | codes=('AGUARDANDO_RECEBIMENTO_FISICO_FISCAL',),
+core\forms.py:1874 | setor = _resolver_setor_por_nome('Logística', 'Logistica', codes=('LOGISTICA',))
+core\forms.py:1878 | status = _resolver_status_por_nome('Em Análise', 'Em Analise', 'EM_ANALISE')
+core\forms.py:1896 | codes=('AGUARDANDO_COLETA_NA_IONLAB',),
+core\forms.py:1898 | setor = _resolver_setor_por_nome('Logística', 'Logistica', codes=('LOGISTICA',))
+core\forms.py:1922 | resultado = resolver_fluxo_formulario('analise ocorrido logistica para sac')
+core\forms.py:1932 | resultado = resolver_fluxo_formulario('item vencido assessoria')
+core\forms.py:1942 | resultado = resolver_fluxo_formulario('cliente nao confirmou coleta logistica')
+core\forms.py:1957 | if self._eh_tipo_tecnico_equipamento_logistica():
+core\forms.py:1963 | if self._acao_aguardando_coleta_cliente():
+core\forms.py:1985 | if self._acao_aguardando_recebimento_fisico_fiscal():
+core\forms.py:2017 | obrigatorios = ['numero_nota_fiscal', 'data_emissao_nota_fiscal', 'nome_transportadora', 'numero_cotacao_frete', 'valor_frete_cotado', 'data_coleta']
+core\forms.py:2027 | if self._acao_e_analise_ocorrido_logistica() and 'item vencido' in self._tipo_ocorrencia_normalizado():
+core\forms.py:2041 | if fluxo.status_destino_id is None and not self._acao_e_analise_ocorrido_logistica():
+core\forms.py:2060 | if self._acao_e_analise_ocorrido_logistica():
+core\forms.py:2063 | status, acao_destino, setor_destino = self._configurar_fluxo_analise_ocorrido_logistica(cleaned_data)
+core\forms.py:2084 | if acao_normalizada in {'aguardando alocacao em prateleira', 'aguardando alocação em prateleira'}:
+core\forms.py:2099 | elif acao_normalizada == 'aguardando coleta no cliente':
+core\forms.py:2100 | obrigatorios = ['nome_transportadora', 'telefone_transportadora', 'contato_transportadora', 'email_transportadora', 'data_coleta', 'numero_cotacao_frete', 'valor_frete_cotado', 'di
+core\forms.py:2112 | elif acao_normalizada in {'aguardando emissao da nota fiscal', 'aguardando emissão da nota fiscal'}:
+core\forms.py:2113 | if self.origem_fluxo_aguardando_emissao_nf == 'RETORNO':
+core\forms.py:2114 | obrigatorios = ['numero_nota_fiscal', 'data_emissao_nota_fiscal', 'nome_transportadora', 'telefone_transportadora', 'contato_transportadora', 'email_transportadora', 'data_coleta',
+core\forms.py:2127 | obrigatorios = ['numero_nota_fiscal', 'data_emissao_nota_fiscal', 'nome_transportadora', 'telefone_transportadora', 'contato_transportadora', 'email_transportadora', 'data_expedica
+core\forms.py:2137 | cleaned_data['proximo_setor'] = _resolver_setor_destino_por_acao(cleaned_data['proxima_acao_em_espera'], 'Logística', 'Logistica')
+core\forms.py:2139 | elif acao_normalizada in {'aguardando devolucao ao cliente', 'aguardando devolução ao cliente'}:
+core\forms.py:2140 | obrigatorios = ['nome_transportadora', 'telefone_transportadora', 'contato_transportadora', 'email_transportadora', 'data_expedicao', 'numero_cotacao_frete', 'valor_frete_cotado', 
+core\forms.py:2150 | cleaned_data['proximo_setor'] = _resolver_setor_destino_por_acao(cleaned_data['proxima_acao_em_espera'], 'Logística', 'Logistica')
+core\models.py:237 | data_emissao = models.DateField(blank=True, null=True)
+core\models.py:260 | ordering = ['-data_emissao', '-numero_nf', '-numero']
+core\models.py:492 | concluido_em = models.DateTimeField(blank=True, null=True)
+core\models.py:503 | data_emissao_nf = models.DateField(
+core\models.py:507 | help_text='Data de emissão da nota fiscal original usada como base do tempo de uso.',
+core\models.py:515 | data_emissao_nf_revenda = models.DateField(
+core\models.py:519 | help_text='Data de emissão da nota fiscal de revenda; quando preenchida, prevalece no cálculo do tempo de uso.',
+core\models.py:741 | sac = models.OneToOneField(SAC, on_delete=models.CASCADE, related_name='analise_comercial')
+core\models.py:759 | observacao_comercial = models.TextField(blank=True, null=True)
+core\models.py:771 | verbose_name = 'Análise Comercial do SAC'
+core\admin.py:93 | list_display = ("id", "empresa", "numero_nf", "numero", "serie_nf", "cliente", "data_emissao")
+core\admin.py:95 | list_filter = ("empresa", "data_emissao")
+config\urls.py:48 | path('sac/assessoria-cientifica/', assessoria_cientifica, name='assessoria_cientifica'),
+config\urls.py:49 | path('sac/diretoria/', analise_diretoria, name='analise_diretoria'),
+config\urls.py:56 | path('sac/analise-comercial/', analise_comercial_sac, name='analise_comercial_sac_lista'),
+config\urls.py:57 | path('sac/<int:sac_id>/analise-comercial/', analise_comercial_sac, name='analise_comercial_sac'),
+config\urls.py:58 | path('sac/gestao-logistica/', gestao_logistica, name='gestao_logistica_lista'),
+config\urls.py:59 | path('sac/<int:sac_id>/gestao-logistica/', gestao_logistica, name='gestao_logistica'),
+core\templates\core\abrir_sac.html:761 | const dataEmissaoNfField = document.getElementById('id_data_emissao_nf');
+core\templates\core\abrir_sac.html:763 | const dataEmissaoNfRevendaField = document.getElementById('id_data_emissao_nf_revenda');
+core\templates\core\abrir_sac.html:832 | const dataBase = (dataEmissaoNfRevendaField && dataEmissaoNfRevendaField.value)
+core\templates\core\abrir_sac.html:858 | if (dataEmissaoNfField) {
+core\templates\core\abrir_sac.html:860 | dataEmissaoNfField.value = '';
+core\templates\core\abrir_sac.html:861 | } else if (nota && nota.data_emissao_iso) {
+core\templates\core\abrir_sac.html:862 | dataEmissaoNfField.value = nota.data_emissao_iso;
+core\templates\core\abrir_sac.html:908 | if (deveForcarDescarteDiretoria()) {
+core\templates\core\abrir_sac.html:911 | if (displayAcaoEmEsperaField) displayAcaoEmEsperaField.value = 'Aguardando Autorização – Descarte';
+core\templates\core\abrir_sac.html:912 | if (displaySetorDestinoField) displaySetorDestinoField.value = 'Diretoria';
+core\templates\core\abrir_sac.html:917 | if (requestSeq !== destinoRequestSeq || deveForcarDescarteDiretoria()) {
+core\templates\core\abrir_sac.html:968 | alertaSerialBloqueado.innerText = `Já existe SAC em andamento: ${atual.sac_numero} | ${atual.data_abertura} | usuário ${atual.usuario_abertura}. Um novo SAC não poderá ser aberto p
+core\templates\core\abrir_sac.html:1045 | if (dataEmissaoNfField) dataEmissaoNfField.value = '';
+core\templates\core\abrir_sac.html:1047 | if (dataEmissaoNfRevendaField) dataEmissaoNfRevendaField.value = '';
+core\templates\core\abrir_sac.html:1330 | if (dataEmissaoNfField) dataEmissaoNfField.value = '';
+core\templates\core\abrir_sac.html:1566 | const descarteDiretoria = deveForcarDescarteDiretoria();
+core\templates\core\abrir_sac.html:1567 | const dadosTipo = descarteDiretoria ? null : await preencherAcaoEmEsperaPorTipoPromise(tipoOcorrenciaId);
+core\templates\core\abrir_sac.html:1635 | if (dataEmissaoNfRevendaField) {
+core\templates\core\analise_comercial_sac.html:114 | <h2 class="section-title">SACs aguardando ação — Gestão Comercial</h2>
+core\templates\core\analise_comercial_sac.html:115 | <p class="section-subtitle">Selecione um SAC para abrir a tratativa da Gestão Comercial.</p>
+core\templates\core\analise_comercial_sac.html:117 | {% if sacs_aguardando_acao_comercial %}
+core\templates\core\analise_comercial_sac.html:119 | {% for item in sacs_aguardando_acao_comercial %}
+core\templates\core\analise_comercial_sac.html:120 | <a class="list-card" href="/sac/analise-comercial/?sac={{ item.id }}">
+core\templates\core\analise_comercial_sac.html:128 | <div><div class="meta-label">Tempo aguardando</div><div class="meta-value"><span class="tempo-badge {{ item.tempo_cor|default:'tempo-verde' }}">{{ item.tempo_espera|default:'-' }}<
+core\templates\core\analise_comercial_sac.html:134 | <div class="empty">Nenhum SAC aguardando ação na Gestão Comercial.</div>
+core\templates\core\analise_comercial_sac.html:156 | <form method="post" id="form-comercial">
+core\templates\core\analise_comercial_sac.html:208 | <label for="{{ form.observacao_comercial.id_for_label }}">{{ form.observacao_comercial.label }}</label>
+core\templates\core\analise_comercial_sac.html:210 | {% if form.observacao_comercial.errors %}<div class="field-errors">{{ form.observacao_comercial.errors }}</div>{% endif %}
+core\templates\core\analise_comercial_sac.html:233 | <button type="submit" class="btn btn-primary">Salvar análise comercial</button>
+core\templates\core\analise_comercial_sac.html:234 | <a href="/sac/analise-comercial/" class="btn btn-dark">Voltar para fila</a>
+core\templates\core\analise_comercial_sac.html:287 | const fluxoConfirmado = montar({statusId:'{{ fluxo_comercial_confirmado.status_id|default:""|escapejs }}',statusNome:'{{ fluxo_comercial_confirmado.status_nome|default:""|escapejs 
+core\templates\core\analise_comercial_sac.html:288 | const fluxoNegociacao = montar({statusId:'{{ fluxo_comercial_negociacao.status_id|default:""|escapejs }}',statusNome:'{{ fluxo_comercial_negociacao.status_nome|default:""|escapejs 
+core\templates\core\analise_comercial_sac.html:289 | const fluxoSemNegociacao = montar({statusId:'{{ fluxo_comercial_sem_negociacao.status_id|default:""|escapejs }}',statusNome:'{{ fluxo_comercial_sem_negociacao.status_nome|default:"
+core\templates\core\analise_comercial_sac.html:290 | const fluxoDoacao = montar({statusId:'{{ fluxo_comercial_doacao_brinde.status_id|default:""|escapejs }}',statusNome:'{{ fluxo_comercial_doacao_brinde.status_nome|default:""|escapej
+core\templates\core\analise_comercial_sac.html:291 | const fluxoContraAceita = montar({statusId:'{{ fluxo_contra_aceita.status_id|default:""|escapejs }}',statusNome:'{{ fluxo_contra_aceita.status_nome|default:""|escapejs }}',acaoId:'
+core\templates\core\analise_comercial_sac_backup_modo_lista_detalhe.html:91 | <h2 class="section-title">SACs aguardando ação — Gestão Comercial</h2>
+core\templates\core\analise_comercial_sac_backup_modo_lista_detalhe.html:92 | <p class="section-subtitle">Selecione um SAC para abrir o detalhe da análise comercial.</p>
+core\templates\core\analise_comercial_sac_backup_modo_lista_detalhe.html:95 | {% if sacs_aguardando_acao_comercial %}
+core\templates\core\analise_comercial_sac_backup_modo_lista_detalhe.html:97 | {% for item in sacs_aguardando_acao_comercial %}
+core\templates\core\analise_comercial_sac_backup_modo_lista_detalhe.html:98 | <a class="list-card" href="/sac/analise-comercial/?sac={{ item.id }}">
+core\templates\core\analise_comercial_sac_backup_modo_lista_detalhe.html:106 | <div><div class="meta-label">Tempo aguardando</div><div class="meta-value"><span class="tempo-badge">{{ item.tempo_espera|default:'-' }}</span></div></div>
+core\templates\core\analise_comercial_sac_backup_modo_lista_detalhe.html:112 | <div class="empty">Nenhum SAC aguardando ação na Gestão Comercial.</div>
+core\templates\core\analise_comercial_sac_backup_modo_lista_detalhe.html:157 | <button type="submit" class="btn btn-primary">Salvar análise comercial</button>
+... mais 306 ocorrencias omitidas. Aumente --limite se precisar.
+
+6) REFERENCIAS FRAGEIS EM TEMPLATES
+----------------------------------------------------------------------
+core\templates\admin\core\notafiscal\change_list.html:7 | <a href="{{ botao_importar_url }}" class="addlink">Importar novas notas fiscais</a>
+core\templates\admin\core\pecatabelapreco\change_form.html:5 | <a href="{% url 'importar_tabela_pecas' %}" class="addlink">Importar tabela de preços de peças</a>
+core\templates\admin\core\pecatabelapreco\change_list.html:5 | <a href="{{ botao_importar_url }}" class="addlink">Importar tabela de preços de peças</a>
+core\templates\admin\core\rastreionotaitem\change_list.html:7 | <a href="{{ botao_importar_url }}" class="addlink">Importar novos itens</a>
+core\templates\core\abrir_sac.html:386 | <link rel="stylesheet" href="{% static 'core/css/abrir_sac_premium.css' %}?v=20260430_logo_header_v1">
+core\templates\core\abrir_sac.html:392 | <img src="{% static 'core/img/logo-ionlab.png' %}" alt="Ionlab">
+core\templates\core\abrir_sac.html:1225 | const url = `/api/buscar-serial/?q=${encodeURIComponent(valor)}${empresaId ? `&empresa_id=${encodeURIComponent(empresaId)}` : ''}`;
+core\templates\core\abrir_sac.html:1697 | <script src="{% static 'core/js/abrir_sac_premium.js' %}?v=20260429_real_v2"></script>
+core\templates\core\analise_comercial_sac.html:83 | <img src="{% static 'core/img/logo-ionlab.png' %}" alt="Ionlab">
+core\templates\core\analise_comercial_sac.html:142 | {% include 'core/components/dados_sac_oficiais.html' %}
+core\templates\core\analise_comercial_sac.html:144 | {% include 'core/components/itens_sac_padrao.html' %}
+core\templates\core\analise_comercial_sac.html:242 | {% include "core/partials/historico_recente_padrao.html" with historicos_visual=historicos_detalhados %}
+core\templates\core\analise_comercial_sac_backup_modo_lista_detalhe.html:61 | <img src="/static/core/img/logo-ionlab.png" alt="Ionlab">
+core\templates\core\analise_diretoria.html:67 | <img src="/static/core/img/logo-ionlab.png" alt="Ionlab">
+core\templates\core\analise_diretoria.html:130 | {% include 'core/components/dados_sac_oficiais.html' %}
+core\templates\core\analise_diretoria.html:220 | {% include 'core/components/itens_sac_padrao.html' %}
+core\templates\core\analise_diretoria.html:223 | {% include "core/partials/historico_recente_padrao.html" with historicos_visual=historicos_detalhados %}
+core\templates\core\analise_gestao_sac.html:74 | <div class="logo-box"><img src="{% static 'core/img/logo-ionlab.png' %}" alt="Ionlab"></div>
+core\templates\core\analise_gestao_sac.html:150 | {% include 'core/components/dados_sac_oficiais.html' %}
+core\templates\core\analise_gestao_sac.html:162 | {% include 'core/components/itens_sac_padrao.html' %}
+core\templates\core\analise_gestao_sac.html:428 | {% include 'core/components/fluxo_padrao_form.html' with status_field=form.proximo_status acao_field=form.proxima_acao_em_espera setor_field=form.proximo_setor %}
+core\templates\core\analise_gestao_sac.html:449 | {% include "core/partials/historico_recente_padrao.html" with historicos_visual=historicos_detalhados %}
+core\templates\core\analise_tecnica_sac.html:407 | <img src="{% static 'core/img/logo-ionlab.png' %}" alt="Ionlab">
+core\templates\core\analise_tecnica_sac.html:891 | <a href="{% url 'importar_tabela_pecas' %}" class="btn btn-dark">Importar tabela de preços de peças</a>
+core\templates\core\analise_tecnica_sac.html:970 | {% include "core/partials/historico_recente_padrao.html" with historicos_visual=historicos_detalhados %}
+core\templates\core\analise_tecnica_sac.html:1029 | return t.includes('resolvido') && t.includes('remoto') && !t.includes('não') && !t.includes('nao');
+core\templates\core\assessoria_cientifica.html:154 | <img src="{% static 'core/img/logo-ionlab.png' %}" alt="Ionlab">
+core\templates\core\auditoria_visual_sac.html:48 | {% if item.arquivo_url %}<div><a href="{{ item.arquivo_url }}" target="_blank">Abrir anexo</a></div>{% endif %}
+core\templates\core\base.html:341 | <img src="/static/core/img/logo-ionlab.png" alt="Ionlab">
+core\templates\core\base.html:364 | <a href="{{ item.url }}" class="{% if item.slug == setor_slug_atual %}active{% endif %}">
+core\templates\core\gestao_assistencia_tecnica.html:68 | <div class="logo-box"><img src="/static/core/img/logo-ionlab.png" alt="Ionlab"></div>
+core\templates\core\gestao_assistencia_tecnica.html:112 | {% include 'core/components/dados_sac_oficiais.html' %}
+core\templates\core\gestao_assistencia_tecnica.html:209 | function up(){box.style.display='none';preview.style.display='none';aviso.style.display='none';abaOrc.style.display='none';campoPrecisa.style.display='none';if(!tipo.value||!erro.v
+core\templates\core\gestao_assistencia_tecnica.html:308 | {% include 'core/components/fluxo_padrao_readonly.html' with status_valor=dados_sac.status_atual acao_valor=dados_sac.acao_em_espera_atual setor_valor=dados_sac.setor_atual %}
+core\templates\core\gestao_assistencia_tecnica.html:346 | <a href="{{ anexo.url }}" target="_blank">{{ anexo.nome }}</a>
+core\templates\core\gestao_assistencia_tecnica.html:359 | {% include "core/partials/historico_recente_padrao.html" with historicos_visual=historicos_detalhados %}
+core\templates\core\gestao_financeira.html:57 | <div class="logo-box"><img src="/static/core/img/logo-ionlab.png" alt="Ionlab"></div>
+core\templates\core\gestao_financeira.html:108 | {% include 'core/components/dados_sac_oficiais.html' %}
+core\templates\core\gestao_financeira.html:210 | {% include "core/partials/historico_recente_padrao.html" with historicos_visual=historicos_detalhados %}
+core\templates\core\gestao_licitacao.html:125 | <div class="logo-box"><img src="{% static 'core/img/logo-ionlab.png' %}" alt="Ionlab"></div>
+core\templates\core\gestao_licitacao.html:155 | {% include 'core/components/dados_sac_oficiais.html' %}
+core\templates\core\gestao_licitacao.html:319 | {% include 'core/components/itens_sac_padrao.html' with ocultar_titulo_itens_sac=True %}
+core\templates\core\gestao_licitacao.html:360 | {% include "core/partials/historico_recente_padrao.html" with historicos_visual=historicos_detalhados %}
+core\templates\core\gestao_logistica.html:99 | <img src="{% static 'core/img/logo-ionlab.png' %}" alt="Ionlab">
+core\templates\core\gestao_logistica.html:176 | {% include 'core/components/dados_sac_oficiais.html' %}
+core\templates\core\gestao_logistica.html:547 | {% include 'core/components/fluxo_padrao_form.html' with status_field=form.proximo_status acao_field=form.proxima_acao_em_espera setor_field=form.proximo_setor %}
+core\templates\core\gestao_logistica.html:570 | {% include 'core/components/itens_sac_padrao.html' %}
+core\templates\core\gestao_logistica.html:631 | <a href="{{ h.arquivo.url }}" target="_blank" class="btn btn-outline">📄 Visualizar arquivo</a>
+core\templates\core\gestao_logistica.html:632 | <a href="{{ h.arquivo.url }}" download class="btn btn-light">⬇️ Baixar arquivo</a>
+core\templates\core\gestao_logistica.html:656 | const acaoConfirmarEntregaCliente = acaoAtual.includes('confirmar entrega') && acaoAtual.includes('cliente');
+core\templates\core\gestao_logistica.html:714 | if (acaoAtual.includes('aguardando coleta no cliente')){
+core\templates\core\gestao_logistica.html:716 | } else if (acaoAtual.includes('aguardando recebimento fisico fiscal') || acaoAtual.includes('aguardando recebimento fisico/fiscal')){
+core\templates\core\gestao_logistica.html:720 | (tipoOc.includes('cliente') && tipoOc.includes('confirmou') && tipoOc.includes('compra'))
+core\templates\core\gestao_logistica.html:723 | } else if (tipoOc.includes('avariad')){
+core\templates\core\gestao_logistica.html:726 | } else if (tipoOc.includes('faltantes na embalagem')){
+core\templates\core\gestao_logistica.html:728 | } else if (tipoOc.includes('sobrando na embalagem')){
+core\templates\core\gestao_logistica.html:730 | } else if (tipoOc.includes('item vencido')){
+core\templates\core\importar.html:114 | <form method="post" action="{% url 'executar_correcao_banco' %}" style="margin-top: 16px;">
+core\templates\core\painel_navegacao.html:543 | <a class="critical-item" href="{{ item.url }}">
+core\templates\core\painel_navegacao.html:573 | <a class="sector-item" href="{{ item.url }}">
+core\templates\core\painel_navegacao.html:593 | <a class="critical-item" href="{{ item.url }}">
+core\templates\core\painel_navegacao.html:623 | <a class="sector-item" href="{{ item.url }}">
+core\templates\core\partials\historico_recente_padrao.html:17 | {% if h.arquivo %}<div class="histpad-actions"><a href="{{ h.arquivo.url }}" target="_blank" class="btn btn-outline">📄 Visualizar arquivo</a><a href="{{ h.arquivo.url }}" download 
+core\templates\core\pesquisa_sacs.html:293 | <a class="file-link" href="{{ anexo.arquivo.url }}" target="_blank">Abrir arquivo</a>
+
+7) RECOMENDACAO TECNICA
+----------------------------------------------------------------------
+Nao recomendo alterar regras agora. Recomendo iniciar uma etapa de correcoes cirurgicas nesta ordem:
+1. remover erro silencioso em pontos criticos, mantendo a mesma resposta da tela;
+2. padronizar logs em diagnosticos/logs_sac, sem afetar fluxo;
+3. corrigir templates com referencias quebraveis, uma tela por vez;
+4. isolar views por setor somente depois de testes de fumaça;
+5. criar testes para regras existentes antes de qualquer refatoracao.
+
+CONCLUSAO: etapa de auditoria preventiva concluida. Proximo passo seguro: corrigir apenas pontos apontados nos relatorios, com patch pequeno e rollback.

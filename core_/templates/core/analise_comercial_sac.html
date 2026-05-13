@@ -1,0 +1,331 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <title>Gestão Comercial</title>
+    <style>
+        :root{--azul:#0d3b66;--azul-2:#145a8f;--ciano:#00b4c7;--texto:#17324d;--muted:#64748b;--borda:#d6e3ef;--card:#fff;--bg:#f4f8fc;--shadow:0 18px 40px rgba(13,59,102,.10);--danger:#d62839;}
+        *{box-sizing:border-box}
+        body{margin:0;font-family:Arial,sans-serif;color:var(--texto);background:radial-gradient(circle at top right,rgba(0,180,199,.14),transparent 30%),linear-gradient(180deg,#f8fbfe 0%,#eef5fb 100%)}
+        .page{max-width:1380px;margin:0 auto;padding:28px 22px 42px}
+        .hero{display:grid;grid-template-columns:96px 1fr auto;gap:20px;align-items:center;padding:26px;border-radius:28px;background:linear-gradient(135deg,var(--azul) 0%,var(--azul-2) 55%,#0f7490 100%);color:#fff;box-shadow:var(--shadow)}
+        .logo-box{width:96px;height:96px;border-radius:22px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center}
+        .logo-box img{max-width:70px;max-height:70px}
+        .hero h1{margin:0;font-size:34px}
+        .hero p{margin:8px 0 0;line-height:1.5;color:rgba(255,255,255,.86)}
+        .hero-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+        .btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:700;padding:13px 18px;border-radius:15px;border:none;cursor:pointer;font-size:14px}
+        .btn-light{background:#fff;color:var(--azul)}
+        .btn-outline{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.24)}
+        .btn-primary{background:linear-gradient(135deg,var(--ciano),#1499bd);color:#fff}
+        .btn-dark{background:linear-gradient(135deg,var(--azul),#174e7e);color:#fff}
+        .section,.card,.tempo-status-card{margin-top:22px;background:var(--card);border:1px solid var(--borda);border-radius:28px;box-shadow:var(--shadow);overflow:hidden}
+        .section-header{padding:22px 24px;border-bottom:1px solid #e5edf5}
+        .section-title{margin:0;color:var(--azul);font-size:24px}
+        .section-subtitle{margin:6px 0 0;color:var(--muted);font-size:14px}
+        .list{padding:18px;display:grid;gap:14px}
+        .list-card{display:block;text-decoration:none;color:inherit;border:1px solid #dbe8f4;border-radius:22px;padding:18px;background:linear-gradient(180deg,#fff 0%,#f8fbfe 100%);transition:.18s ease}
+        .list-card:hover{transform:translateY(-1px);border-color:#bfd4e8;box-shadow:0 12px 24px rgba(13,59,102,.08)}
+        .list-grid{display:grid;grid-template-columns:minmax(120px,160px) minmax(160px,1fr) minmax(140px,.9fr) minmax(90px,.5fr) minmax(170px,1fr) minmax(170px,1fr) minmax(130px,.7fr);gap:14px}
+        .meta-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+        .meta-value{font-size:15px;font-weight:700;color:var(--texto);line-height:1.35}
+        .detail-layout{margin-top:22px;display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+        .stack{display:grid;gap:18px}
+        .card{padding:22px}
+        .card h2{margin:0 0 18px;font-size:22px;color:var(--azul)}
+        .subcard{border:1px solid #dbe8f3;border-radius:18px;padding:16px;background:#f8fbfe;margin-bottom:16px}
+        .subcard h3{margin:0 0 14px;color:#0d3b66;font-size:18px}
+        .field{margin-bottom:14px}
+        .field label{display:block;margin-bottom:6px;font-size:13px;font-weight:700;color:#355675}
+        input,select,textarea{width:100%;border:1px solid #cfdeec;border-radius:14px;padding:12px 14px;font-size:14px;outline:none;background:#fff}
+        input[readonly],textarea[readonly],select[disabled]{background:#f4f7fb;color:#45627d}
+        textarea{min-height:120px;resize:vertical}
+        .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+        .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+        .empty{padding:24px;color:var(--muted)}
+        .msg{padding:14px 16px;border-radius:14px;margin-bottom:10px;font-weight:700}
+        .msg.warning{background:#fff7e7;border:1px solid #f2d494;color:#7d5a00}
+        .msg.success{background:#e8f7ef;border:1px solid #c9ebd8;color:#185f37}
+        .msg.error{background:#b3261e;border:1px solid #8e1c16;color:#fff}
+        .messages{margin-top:16px}
+        .item-row-card{border:1px solid #e1ecf5;background:#fff;border-radius:18px;padding:14px;margin-bottom:12px}
+        .item-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px}
+        .item-title{font-weight:700;color:var(--azul);font-size:15px}
+        .summary-line{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid #edf2f7;font-size:14px}
+        .summary-line:last-child{border-bottom:none}
+        .destaque-valores{font-size:17px;font-weight:700}
+        .destaque-valores span{font-size:17px;font-weight:700;color:#0d3b66}
+        .destaque-valores strong{font-size:20px;font-weight:800;color:#0d3b66}
+        .history-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;margin-top:10px}
+        .history-meta .line{background:#f7fbff;border:1px solid #e3eef8;border-radius:12px;padding:10px 12px;font-size:13px}
+        .history-obs{margin-top:10px;background:#f9fbfd;border:1px solid #e6eef6;border-radius:12px;padding:12px;font-size:13px;white-space:pre-wrap}
+        .tempo-status-card{padding:18px}
+        .tempo-status-header{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+        .tempo-status-title{margin:0 0 6px 0;font-size:20px;color:var(--azul)}
+        .tempo-status-subtitle{margin:0;color:#5a728a;font-size:13px;max-width:760px}
+        .tempo-resumo{margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+        .tempo-resumo-box,.fluxo-box{background:#f7fbff;border:1px solid #dbe8f4;border-radius:14px;padding:12px 14px}
+        .tempo-resumo-box strong,.fluxo-box strong{display:block;color:var(--azul);font-size:16px;margin-top:4px}
+        .tempo-badge{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;font-size:13px;font-weight:700}
+        .tempo-verde{background:#0b6b3a;color:#fff}.tempo-amarelo{background:#f2c94c;color:#1d1d1d}.tempo-vermelho{background:#d62839;color:#fff}
+        .hidden{display:none !important}
+        .field-errors{margin-top:6px}.field-errors ul{margin:0;padding-left:18px;color:#b3261e;font-size:12px}
+        .hint{font-size:12px;color:#5f7893;margin-top:6px}
+        @media (max-width:1100px){.detail-layout,.grid-2,.grid-3,.list-grid,.history-meta{grid-template-columns:1fr}.hero{grid-template-columns:1fr}.hero-actions{justify-content:flex-start}.tempo-status-header{align-items:flex-start}}
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="hero">
+        <div class="logo-box">
+            <img src="{% static 'core/img/logo-ionlab.png' %}" alt="Ionlab">
+        </div>
+        <div>
+            <h1>Gestão Comercial</h1>
+            <p>Painel operacional da Gestão Comercial no mesmo padrão visual da Gestão Logística.</p>
+        </div>
+        <div class="hero-actions">
+            <a class="btn btn-light" href="/intra/">⬅ Voltar ao painel</a>
+            <a class="btn btn-outline" href="/sac/abrir/">➕ Abrir novo SAC</a>
+        </div>
+    </div>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="msg {{ message.tags|default:'warning' }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if fluxo_alertas %}
+    <div class="messages">
+        {% for alerta in fluxo_alertas %}
+            <div class="msg warning"><strong>{{ alerta.titulo }}</strong> — {{ alerta.mensagem }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if not sac %}
+    <section class="section">
+        <div class="section-header">
+            <h2 class="section-title">SACs aguardando ação — Gestão Comercial</h2>
+            <p class="section-subtitle">Selecione um SAC para abrir a tratativa da Gestão Comercial.</p>
+        </div>
+        {% if sacs_aguardando_acao_comercial %}
+        <div class="list">
+            {% for item in sacs_aguardando_acao_comercial %}
+            <a class="list-card" href="/sac/analise-comercial/?sac={{ item.id }}">
+                <div class="list-grid">
+                    <div><div class="meta-label">Número</div><div class="meta-value">{{ item.numero }}</div></div>
+                    <div><div class="meta-label">Cliente</div><div class="meta-value">{{ item.cliente_nome|default:'-' }}</div></div>
+                    <div><div class="meta-label">Empresa</div><div class="meta-value">{{ item.empresa_nome|default:'-' }}</div></div>
+                    <div><div class="meta-label">NF</div><div class="meta-value">{{ item.nota_fiscal_numero|default:'-' }}</div></div>
+                    <div><div class="meta-label">Status atual</div><div class="meta-value">{{ item.status_atual_nome|default:'-' }}</div></div>
+                    <div><div class="meta-label">Ação em espera</div><div class="meta-value">{{ item.acao_em_espera_nome|default:'-' }}</div></div>
+                    <div><div class="meta-label">Tempo aguardando</div><div class="meta-value"><span class="tempo-badge {{ item.tempo_cor|default:'tempo-verde' }}">{{ item.tempo_espera|default:'-' }}</span></div></div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty">Nenhum SAC aguardando ação na Gestão Comercial.</div>
+        {% endif %}
+    </section>
+    {% endif %}
+
+    {% if sac %}
+    <div class="detail-layout">
+        <div class="stack">
+            {% include 'core/components/dados_sac_oficiais.html' %}
+
+            {% include 'core/components/itens_sac_padrao.html' %}
+
+            {% if itens_contexto.avisos_outros_setores %}
+            <div class="messages">
+                {% for aviso in itens_contexto.avisos_outros_setores %}
+                    <div class="msg warning">{{ aviso }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <section class="card">
+                <h2>Ações a Serem Executadas por esse Setor</h2>
+                <form method="post" id="form-comercial">
+                    {% csrf_token %}
+                    <input type="hidden" name="sac_id" value="{{ sac.id }}">
+
+                    {% if form.non_field_errors %}
+                    <div class="messages">
+                        {% for erro in form.non_field_errors %}
+                            <div class="msg error">{{ erro }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <section class="subcard">
+                        <h3>Investigação do Ocorrido</h3>
+                        <div id="modo-contra-proposta" data-ativo="{% if form and form.modo_contra_proposta %}1{% else %}0{% endif %}"></div>
+                        <div class="field" id="wrap-cliente-confirmou">
+                            <label for="{{ form.cliente_confirmou_pedido.id_for_label }}">{{ form.cliente_confirmou_pedido.label }}</label>
+                            {{ form.cliente_confirmou_pedido }}
+                            {% if form.cliente_confirmou_pedido.errors %}<div class="field-errors">{{ form.cliente_confirmou_pedido.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="field" id="wrap-cliente-aceita">
+                            <label for="{{ form.cliente_aceita_negociacao.id_for_label }}">{{ form.cliente_aceita_negociacao.label }}</label>
+                            {{ form.cliente_aceita_negociacao }}
+                            {% if form.cliente_aceita_negociacao.errors %}<div class="field-errors">{{ form.cliente_aceita_negociacao.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="field" id="wrap-item-pequeno">
+                            <label for="{{ form.item_pequeno_valor.id_for_label }}">{{ form.item_pequeno_valor.label }}</label>
+                            {{ form.item_pequeno_valor }}
+                            <div class="hint">Preenchimento automático: o sistema considera pequeno valor quando o total com problema for igual ou menor que R$ 200,00.</div>
+                        </div>
+
+                        <div class="field" id="wrap-valor-desconto">
+                            <label for="{{ form.valor_desconto_pleiteado.id_for_label }}">{{ form.valor_desconto_pleiteado.label }}</label>
+                            {{ form.valor_desconto_pleiteado }}
+                            {% if form.valor_desconto_pleiteado.errors %}<div class="field-errors">{{ form.valor_desconto_pleiteado.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="field" id="wrap-contra-proposta">
+                            <label for="{{ form.contra_proposta_visual.id_for_label }}">{{ form.contra_proposta_visual.label }}</label>
+                            {{ form.contra_proposta_visual }}
+                            {% if form.contra_proposta_visual.errors %}<div class="field-errors">{{ form.contra_proposta_visual.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="field" id="wrap-aceitou-contra-proposta">
+                            <label for="{{ form.cliente_aceitou_contra_proposta.id_for_label }}">{{ form.cliente_aceitou_contra_proposta.label }}</label>
+                            {{ form.cliente_aceitou_contra_proposta }}
+                            {% if form.cliente_aceitou_contra_proposta.errors %}<div class="field-errors">{{ form.cliente_aceitou_contra_proposta.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="field" id="wrap-observacao">
+                            <label for="{{ form.observacao_comercial.id_for_label }}">{{ form.observacao_comercial.label }}</label>
+                            {{ form.observacao_comercial }}
+                            {% if form.observacao_comercial.errors %}<div class="field-errors">{{ form.observacao_comercial.errors }}</div>{% endif %}
+                        </div>
+                    </section>
+
+                    <section class="subcard">
+                        <h3>Fluxo que será aplicado</h3>
+                        <div class="grid-3">
+                            <div class="field">
+                                <label for="{{ form.proximo_status_sugerido.id_for_label }}">{{ form.proximo_status_sugerido.label }}</label>
+                                {{ form.proximo_status_sugerido }}
+                            </div>
+                            <div class="field" id="wrap-acao-em-espera">
+                                <label for="{{ form.acao_em_espera.id_for_label }}">{{ form.acao_em_espera.label }}</label>
+                                {{ form.acao_em_espera }}
+                            </div>
+                            <div class="field" id="wrap-proximo-setor">
+                                <label for="{{ form.proximo_setor.id_for_label }}">{{ form.proximo_setor.label }}</label>
+                                {{ form.proximo_setor }}
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="actions">
+                        <button type="submit" class="btn btn-primary">Salvar análise comercial</button>
+                        <a href="/sac/analise-comercial/" class="btn btn-dark">Voltar para fila</a>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <div class="stack">
+            <section class="card">
+                {% include "core/partials/historico_recente_padrao.html" with historicos_visual=historicos_detalhados %}
+            </section>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+(function() {
+    const modoContra = document.getElementById('modo-contra-proposta');
+    const contraAtivo = modoContra && modoContra.dataset.ativo === '1';
+
+    const confirmou = document.getElementById('id_cliente_confirmou_pedido');
+    const aceita = document.getElementById('id_cliente_aceita_negociacao');
+    const aceitouContra = document.getElementById('id_cliente_aceitou_contra_proposta');
+    const itemPequeno = document.getElementById('id_item_pequeno_valor');
+    const desconto = document.getElementById('id_valor_desconto_pleiteado');
+    const proximoStatus = document.getElementById('id_proximo_status_sugerido');
+    const acaoEmEspera = document.getElementById('id_acao_em_espera');
+    const proximoSetor = document.getElementById('id_proximo_setor');
+
+    const wrapAceita = document.getElementById('wrap-cliente-aceita');
+    const wrapItemPequeno = document.getElementById('wrap-item-pequeno');
+    const wrapDesconto = document.getElementById('wrap-valor-desconto');
+    const wrapContra = document.getElementById('wrap-contra-proposta');
+    const wrapAceitouContra = document.getElementById('wrap-aceitou-contra-proposta');
+    const wrapObservacao = document.getElementById('wrap-observacao');
+    const wrapConfirmou = document.getElementById('wrap-cliente-confirmou');
+    const wrapAcao = document.getElementById('wrap-acao-em-espera');
+    const wrapSetor = document.getElementById('wrap-proximo-setor');
+
+    function setHidden(el, hidden) { if (el) el.classList.toggle('hidden', !!hidden); }
+    function setSelectValue(selectEl, value, label) {
+        if (!selectEl) return;
+        while (selectEl.options.length) selectEl.remove(0);
+        const option = document.createElement('option');
+        option.value = value || '';
+        option.text = label || '--------';
+        option.selected = true;
+        selectEl.add(option);
+        selectEl.value = value || '';
+    }
+    function montar(raw, fallback){
+        return {statusId: raw.statusId || '', statusNome: raw.statusNome || fallback.statusNome || '--------', acaoId: raw.acaoId || '', acaoNome: raw.acaoNome || fallback.acaoNome || '--------', setorId: raw.setorId || '', setorNome: raw.setorNome || fallback.setorNome || '--------'};
+    }
+    const fluxoConfirmado = montar({statusId:'{{ fluxo_comercial_confirmado.status_id|default:""|escapejs }}',statusNome:'{{ fluxo_comercial_confirmado.status_nome|default:""|escapejs }}',acaoId:'{{ fluxo_comercial_confirmado.acao_id|default:""|escapejs }}',acaoNome:'{{ fluxo_comercial_confirmado.acao_nome|default:""|escapejs }}',setorId:'{{ fluxo_comercial_confirmado.setor_id|default:""|escapejs }}',setorNome:'{{ fluxo_comercial_confirmado.setor_nome|default:""|escapejs }}'},{statusNome:'Concluído',acaoNome:'--------',setorNome:'--------'});
+    const fluxoNegociacao = montar({statusId:'{{ fluxo_comercial_negociacao.status_id|default:""|escapejs }}',statusNome:'{{ fluxo_comercial_negociacao.status_nome|default:""|escapejs }}',acaoId:'{{ fluxo_comercial_negociacao.acao_id|default:""|escapejs }}',acaoNome:'{{ fluxo_comercial_negociacao.acao_nome|default:""|escapejs }}',setorId:'{{ fluxo_comercial_negociacao.setor_id|default:""|escapejs }}',setorNome:'{{ fluxo_comercial_negociacao.setor_nome|default:""|escapejs }}'},{statusNome:'Em Análise',acaoNome:'Aguardando Aprovação de Desconto',setorNome:'Diretoria'});
+    const fluxoSemNegociacao = montar({statusId:'{{ fluxo_comercial_sem_negociacao.status_id|default:""|escapejs }}',statusNome:'{{ fluxo_comercial_sem_negociacao.status_nome|default:""|escapejs }}',acaoId:'{{ fluxo_comercial_sem_negociacao.acao_id|default:""|escapejs }}',acaoNome:'{{ fluxo_comercial_sem_negociacao.acao_nome|default:""|escapejs }}',setorId:'{{ fluxo_comercial_sem_negociacao.setor_id|default:""|escapejs }}',setorNome:'{{ fluxo_comercial_sem_negociacao.setor_nome|default:""|escapejs }}'},{statusNome:'Emissão do Pedido de Entrada/Retorno',acaoNome:'Emissão do Pedido de Entrada/Retorno',setorNome:'SAC'});
+    const fluxoDoacao = montar({statusId:'{{ fluxo_comercial_doacao_brinde.status_id|default:""|escapejs }}',statusNome:'{{ fluxo_comercial_doacao_brinde.status_nome|default:""|escapejs }}',acaoId:'{{ fluxo_comercial_doacao_brinde.acao_id|default:""|escapejs }}',acaoNome:'{{ fluxo_comercial_doacao_brinde.acao_nome|default:""|escapejs }}',setorId:'{{ fluxo_comercial_doacao_brinde.setor_id|default:""|escapejs }}',setorNome:'{{ fluxo_comercial_doacao_brinde.setor_nome|default:""|escapejs }}'},{statusNome:'Em Análise',acaoNome:'Aguardando Autorização para Doação/Brinde',setorNome:'Diretoria'});
+    const fluxoContraAceita = montar({statusId:'{{ fluxo_contra_aceita.status_id|default:""|escapejs }}',statusNome:'{{ fluxo_contra_aceita.status_nome|default:""|escapejs }}',acaoId:'{{ fluxo_contra_aceita.acao_id|default:""|escapejs }}',acaoNome:'{{ fluxo_contra_aceita.acao_nome|default:""|escapejs }}',setorId:'{{ fluxo_contra_aceita.setor_id|default:""|escapejs }}',setorNome:'{{ fluxo_contra_aceita.setor_nome|default:""|escapejs }}'},{statusNome:'Concluído',acaoNome:'--------',setorNome:'--------'});
+    const fluxoContraRecusa = montar({statusId:'{{ fluxo_contra_recusa.status_id|default:""|escapejs }}',statusNome:'{{ fluxo_contra_recusa.status_nome|default:""|escapejs }}',acaoId:'{{ fluxo_contra_recusa.acao_id|default:""|escapejs }}',acaoNome:'{{ fluxo_contra_recusa.acao_nome|default:""|escapejs }}',setorId:'{{ fluxo_contra_recusa.setor_id|default:""|escapejs }}',setorNome:'{{ fluxo_contra_recusa.setor_nome|default:""|escapejs }}'},{statusNome:'--------',acaoNome:'--------',setorNome:'--------'});
+
+    function atualizarContra(){
+        const v = aceitouContra ? (aceitouContra.value || '').toLowerCase() : '';
+        setHidden(wrapConfirmou, true); setHidden(wrapAceita, true); setHidden(wrapItemPequeno, true); setHidden(wrapDesconto, true);
+        setHidden(wrapContra, false); setHidden(wrapAceitouContra, false); setHidden(wrapObservacao, false);
+        const fluxo = v === 'sim' ? fluxoContraAceita : (v === 'nao' ? fluxoContraRecusa : {statusId:'',statusNome:'Selecione',acaoId:'',acaoNome:'Selecione',setorId:'',setorNome:'Selecione'});
+        setSelectValue(proximoStatus, fluxo.statusId, fluxo.statusNome);
+        setSelectValue(acaoEmEspera, fluxo.acaoId, fluxo.acaoNome);
+        setSelectValue(proximoSetor, fluxo.setorId, fluxo.setorNome);
+    }
+
+    function atualizarNormal() {
+        if (!confirmou) return;
+        const confirmouValor = (confirmou.value || '').toLowerCase();
+        const aceitaValor = aceita ? (aceita.value || '').toLowerCase() : '';
+        const confirmouSim = confirmouValor === 'sim';
+        const aceitaSim = aceitaValor === 'sim';
+        const pequenoValorSim = itemPequeno && (itemPequeno.value || '').toLowerCase() === 'sim';
+        const fluxo = confirmouValor === 'sim' ? fluxoConfirmado : (aceitaValor === 'sim' ? fluxoNegociacao : (pequenoValorSim ? fluxoDoacao : fluxoSemNegociacao));
+        setHidden(wrapConfirmou, false); setHidden(wrapContra, true); setHidden(wrapAceitouContra, true);
+        setHidden(wrapAceita, confirmouSim); setHidden(wrapItemPequeno, confirmouSim || aceitaSim); setHidden(wrapDesconto, confirmouSim || !aceitaSim); setHidden(wrapAcao, confirmouSim); setHidden(wrapSetor, confirmouSim); setHidden(wrapObservacao, false);
+        if (desconto) desconto.required = !confirmouSim && aceitaSim;
+        setSelectValue(proximoStatus, fluxo.statusId, fluxo.statusNome);
+        if (!confirmouSim) { setSelectValue(acaoEmEspera, fluxo.acaoId, fluxo.acaoNome); setSelectValue(proximoSetor, fluxo.setorId, fluxo.setorNome); }
+        else { setSelectValue(acaoEmEspera, '', '--------'); setSelectValue(proximoSetor, '', '--------'); }
+    }
+
+    if (contraAtivo) {
+        if (aceitouContra) aceitouContra.addEventListener('change', atualizarContra);
+        atualizarContra();
+    } else {
+        if (confirmou) confirmou.addEventListener('change', atualizarNormal);
+        if (aceita) aceita.addEventListener('change', atualizarNormal);
+        atualizarNormal();
+    }
+})();
+</script>
+</body>
+</html>

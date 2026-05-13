@@ -1,0 +1,569 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <title>Gestão do SAC</title>
+    <style>
+        :root{--azul:#0d3b66;--azul-2:#145a8f;--ciano:#00b4c7;--texto:#17324d;--muted:#64748b;--borda:#d6e3ef;--card:#fff;--bg:#f4f8fc;--shadow:0 18px 40px rgba(13,59,102,.10);--danger:#d62839;}
+        *{box-sizing:border-box}
+        body{margin:0;font-family:Arial,sans-serif;color:var(--texto);background:radial-gradient(circle at top right,rgba(0,180,199,.14),transparent 30%),linear-gradient(180deg,#f8fbfe 0%,#eef5fb 100%)}
+        .page{max-width:1380px;margin:0 auto;padding:28px 22px 42px}
+        .hero{display:grid;grid-template-columns:96px 1fr auto;gap:20px;align-items:center;padding:26px;border-radius:28px;background:linear-gradient(135deg,var(--azul) 0%,var(--azul-2) 55%,#0f7490 100%);color:#fff;box-shadow:var(--shadow)}
+        .logo-box{width:96px;height:96px;border-radius:22px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center}
+        .logo-box img{max-width:70px;max-height:70px}
+        .hero h1{margin:0;font-size:34px}
+        .hero p{margin:8px 0 0;line-height:1.5;color:rgba(255,255,255,.86)}
+        .hero-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+        .btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:700;padding:13px 18px;border-radius:15px;border:none;cursor:pointer;font-size:14px}
+        .btn-light{background:#fff;color:var(--azul)}
+        .btn-outline{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.24)}
+        .section{margin-top:22px;background:var(--card);border:1px solid var(--borda);border-radius:28px;box-shadow:var(--shadow);overflow:hidden}
+        .section-header{padding:22px 24px;border-bottom:1px solid #e5edf5}
+        .section-title{margin:0;color:var(--azul);font-size:24px}
+        .section-subtitle{margin:6px 0 0;color:var(--muted);font-size:14px}
+        .list{padding:18px;display:grid;gap:14px}
+        .list-card{display:block;text-decoration:none;color:inherit;border:1px solid #dbe8f4;border-radius:22px;padding:18px;background:linear-gradient(180deg,#fff 0%,#f8fbfe 100%);transition:.18s ease}
+        .list-card:hover{transform:translateY(-1px);border-color:#bfd4e8;box-shadow:0 12px 24px rgba(13,59,102,.08)}
+        .list-grid{display:grid;grid-template-columns:minmax(120px,160px) minmax(160px,1fr) minmax(140px,.9fr) minmax(90px,.5fr) minmax(170px,1fr) minmax(170px,1fr) minmax(130px,.7fr);gap:14px}
+        .meta-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+        .meta-value{font-size:15px;font-weight:700;color:var(--texto);line-height:1.35}
+        .detail-layout{margin-top:22px;display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+        .stack{display:grid;gap:18px}
+        .card{background:var(--card);border:1px solid var(--borda);border-radius:24px;box-shadow:var(--shadow);padding:22px}
+        .card h2{margin:0 0 18px;font-size:22px;color:var(--azul)}
+        .subcard{border:1px solid #dbe8f3;border-radius:18px;padding:16px;background:#f8fbfe;margin-bottom:16px}
+        .subcard h3{margin:0 0 14px;color:#0d3b66;font-size:18px}
+        .field{margin-bottom:14px}
+        .field label{display:block;margin-bottom:6px;font-size:13px;font-weight:700;color:#355675}
+        input,select,textarea{width:100%;border:1px solid #cfdeec;border-radius:14px;padding:12px 14px;font-size:14px;outline:none;background:#fff}
+        input[readonly],textarea[readonly],select[disabled]{background:#f4f7fb;color:#45627d}
+        textarea{min-height:120px;resize:vertical}
+        .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+        .history-item{border:1px solid #dbe8f3;border-radius:18px;padding:16px;background:#fff}
+        .history-title{font-size:18px;font-weight:700;color:var(--azul);margin-bottom:6px}
+        .history-sub,.muted,.item-sub{color:#5f7893;font-size:13px}
+        .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+        .btn-primary{background:linear-gradient(135deg,var(--ciano),#1499bd);color:#fff}
+        .btn-dark{background:linear-gradient(135deg,var(--azul),#174e7e);color:#fff}
+        .empty{padding:24px;color:var(--muted)}
+        .msg{padding:14px 16px;border-radius:14px;margin-bottom:10px;font-weight:700}
+        .msg.warning{background:#fff7e7;border:1px solid #f2d494;color:#7d5a00}
+        .msg.error{background:#b3261e;border:1px solid #8e1c16;color:#fff}
+        .msg.info{background:#e8f4ff;border:1px solid #b8d9f7;color:#0d3b66}
+        .messages{margin-top:16px}
+        .hidden-js{display:none}
+        .fluxo-preview-box{border:1px solid #dbe8f3;border-radius:18px;padding:16px;background:#fff;margin-top:14px}
+        .item-row-card{border:1px solid #e1ecf5;background:#fff;border-radius:18px;padding:14px;margin-bottom:12px}
+        .item-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px}
+        .item-title{font-weight:700;color:var(--azul);font-size:15px}
+        .history-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;margin-top:10px}
+        .history-meta .line{background:#f7fbff;border:1px solid #e3eef8;border-radius:12px;padding:10px 12px;font-size:13px}
+        .history-obs{margin-top:10px;background:#f9fbfd;border:1px solid #e6eef6;border-radius:12px;padding:12px;font-size:13px;white-space:pre-wrap}
+        .tempo-badge{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;font-size:13px;font-weight:700}
+        .tempo-verde{background:#0b6b3a;color:#fff}
+        .tempo-amarelo{background:#f2c94c;color:#1d1d1d}
+        .tempo-vermelho{background:#d62839;color:#fff}
+        @media (max-width:1100px){.detail-layout,.grid-2,.grid-3,.list-grid,.history-meta{grid-template-columns:1fr}.hero{grid-template-columns:1fr}.hero-actions{justify-content:flex-start}}
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="hero">
+        <div class="logo-box"><img src="{% static 'core/img/logo-ionlab.png' %}" alt="Ionlab"></div>
+        <div>
+            <h1>Gestão do SAC</h1>
+            <p>Painel operacional da Gestão do SAC no mesmo padrão visual da Gestão Logística.</p>
+        </div>
+        <div class="hero-actions">
+            <a class="btn btn-light" href="/intra/">⬅ Voltar ao painel</a>
+            <a class="btn btn-outline" href="/sac/abrir/">➕ Abrir novo SAC</a>
+        </div>
+    </div>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="msg {{ message.tags|default:'warning' }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if modo_lista %}
+    <section class="section">
+        <div class="section-header">
+            <h2 class="section-title">SACs aguardando ação — Gestão do SAC</h2>
+            <p class="section-subtitle">Selecione um SAC para abrir a tratativa da Gestão do SAC.</p>
+        </div>
+        {% if sacs_disponiveis %}
+        <div class="list">
+            {% for item in sacs_disponiveis %}
+            <a class="list-card" href="/sac/gestao/?sac={{ item.id }}">
+                <div class="list-grid">
+                    <div><div class="meta-label">Número</div><div class="meta-value">{{ item.numero }}</div></div>
+                    <div><div class="meta-label">Cliente</div><div class="meta-value">{{ item.cliente_nome }}</div></div>
+                    <div><div class="meta-label">Empresa</div><div class="meta-value">{{ item.empresa_nome }}</div></div>
+                    <div><div class="meta-label">NF</div><div class="meta-value">{{ item.nota_fiscal_numero }}</div></div>
+                    <div><div class="meta-label">Status atual</div><div class="meta-value">{{ item.status_atual_nome }}</div></div>
+                    <div><div class="meta-label">Ação em espera</div><div class="meta-value">{{ item.acao_em_espera_nome }}</div></div>
+                    <div><div class="meta-label">Tempo aguardando</div><div class="meta-value"><span class="tempo-badge {{ item.tempo_cor|default:'tempo-verde' }}">{{ item.tempo_espera }}</span></div></div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty">Nenhum SAC aguardando ação na Gestão do SAC.</div>
+        {% endif %}
+    </section>
+
+    <section class="section">
+        <div class="section-header">
+            <h2 class="section-title">SAC – Agendamentos</h2>
+            <p class="section-subtitle">SACs com data futura definida pela Gestão do SAC. No dia agendado eles retornam para a fila principal.</p>
+        </div>
+        {% if sacs_agendamentos %}
+        <div class="list">
+            {% for item in sacs_agendamentos %}
+            <a class="list-card" href="/sac/gestao/?sac={{ item.id }}">
+                <div class="list-grid">
+                    <div><div class="meta-label">Número</div><div class="meta-value">{{ item.numero }}</div></div>
+                    <div><div class="meta-label">Cliente</div><div class="meta-value">{{ item.cliente_nome }}</div></div>
+                    <div><div class="meta-label">Empresa</div><div class="meta-value">{{ item.empresa_nome }}</div></div>
+                    <div><div class="meta-label">NF</div><div class="meta-value">{{ item.nota_fiscal_numero }}</div></div>
+                    <div><div class="meta-label">Tipo ocorrência</div><div class="meta-value">{{ item.tipo_ocorrencia_nome }}</div></div>
+                    <div><div class="meta-label">Data agendada</div><div class="meta-value">{{ item.data_agendamento_gestao }}</div></div>
+                    <div><div class="meta-label">Ação em espera</div><div class="meta-value">{{ item.acao_em_espera_nome }}</div></div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty">Nenhum SAC agendado na Gestão do SAC.</div>
+        {% endif %}
+    </section>
+    {% endif %}
+
+    {% if sac and not modo_lista %}
+    <div class="detail-layout">
+        <div class="stack">
+            {% include 'core/components/dados_sac_oficiais.html' %}
+
+            <section class="card">
+                <h2>Dados complementares da Gestão do SAC</h2>
+                <div class="field"><label>Título</label><input type="text" readonly value="{{ dados_sac.titulo|default:dados_sac_oficiais.titulo|default:'-' }}"></div>
+                <div class="grid-2">
+                    <div class="field"><label>Data/Hora que veio para esse Setor</label><input type="text" readonly value="{{ dados_sac.data_hora_setor|default:'-' }}"></div>
+                    <div class="field"><label>Tempo nesse setor</label><input type="text" readonly value="{{ dados_sac.tempo_setor|default:'-' }}"></div>
+                </div>
+                <div class="field"><label>Tipo de ocorrência</label><input type="text" readonly value="{{ dados_sac.tipo_ocorrencia|default:'-' }}"></div>
+            </section>
+
+            {% include 'core/components/itens_sac_padrao.html' %}
+
+            <section class="card">
+                <h2>Ações a Serem Executadas por esse Setor</h2>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    {% if eh_tecnico_equipamento_gestao %}
+                    <section class="subcard" id="bloco-tecnico-equipamento-gestao">
+                        {% if eh_fluxo_emissao_pedido_saida %}
+                        <h3>Fluxo — Emissão do Pedido (Saída)</h3>
+                        <input type="hidden" name="form_origem" value="gestao_emissao_pedido_saida">
+
+                        <div class="field">
+                            <label>Equipamento foi coberto pela garantia</label>
+                            <input type="text" readonly value="{{ garantia_sac|default:'-' }}" style="font-weight:900;color:#0d3b66;background:#eef8ff;border:2px solid #b8d9f7;">
+                            <div class="muted">Informação buscada automaticamente no histórico técnico deste SAC.</div>
+                        </div>
+
+                        {% if garantia_sac == 'Sim' %}
+                        <div class="grid-2">
+                            <div class="field">
+                                <label>Número do Pedido de Devolução *</label>
+                                <input type="text" name="numero_pedido_devolucao" required placeholder="Informe o número do pedido de devolução">
+                            </div>
+                            <div class="field">
+                                <label>Data de Emissão *</label>
+                                <input type="date" name="data_emissao_devolucao" required>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>Frete *</label>
+                            <select name="frete" required>
+                                <option value="">Selecione...</option>
+                                <option value="Pago">Pago</option>
+                                <option value="A Pagar">A Pagar</option>
+                            </select>
+                        </div>
+
+                        <div class="fluxo-preview-box">
+                            <h3>Fluxo que será aplicado</h3>
+                            <div class="grid-3">
+                                <div class="field"><label>Próximo status</label><input type="text" readonly value="Emissão Nota Fiscal de Saída"></div>
+                                <div class="field"><label>Ação em Espera próximo Setor</label><input type="text" readonly value="Aguardando emissão da nota fiscal (Saída)"></div>
+                                <div class="field"><label>Próximo setor</label><input type="text" readonly value="Logística"></div>
+                            </div>
+                        </div>
+                        {% elif garantia_sac == 'Não' %}
+                        <div class="field">
+                            <label>Valor total da Manutenção</label>
+                            <input type="text" readonly value="{{ valor_manutencao|default:'-' }}" style="font-weight:900;color:#0d3b66;background:#eef8ff;border:2px solid #b8d9f7;">
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="field">
+                                <label>Número da Nota fiscal de Serviço</label>
+                                <input type="text" name="nf_servico" placeholder="Informe a NF de serviço, se já disponível">
+                            </div>
+                            <div class="field">
+                                <label>Data de Emissão Nota de Serviço</label>
+                                <input type="date" name="data_nf_servico">
+                            </div>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="field">
+                                <label>Número do Pedido de Devolução *</label>
+                                <input type="text" name="numero_pedido_devolucao" required placeholder="Informe o número do pedido de devolução">
+                            </div>
+                            <div class="field">
+                                <label>Data de Emissão *</label>
+                                <input type="date" name="data_emissao_devolucao" required>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>Frete</label>
+                            <input type="text" readonly value="A pagar" style="font-weight:900;">
+                        </div>
+
+                        <div class="fluxo-preview-box">
+                            <h3>Fluxo que será aplicado</h3>
+                            <div class="grid-3">
+                                <div class="field"><label>Próximo status</label><input type="text" readonly value="Em Análise Financeira"></div>
+                                <div class="field"><label>Ação em Espera próximo Setor</label><input type="text" readonly value="Aprovar Cobrança do Valor do Serviço"></div>
+                                <div class="field"><label>Próximo setor</label><input type="text" readonly value="Financeiro"></div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="msg error">
+                            Não foi possível identificar se o equipamento foi coberto pela garantia. Verifique o histórico da Assistência Técnica antes de prosseguir.
+                        </div>
+                        {% endif %}
+
+                        <div class="field">
+                            <label>Observação importante</label>
+                            <textarea name="observacao_importante" placeholder="Registre informações importantes sobre a emissão do pedido, se necessário."></textarea>
+                        </div>
+
+                        <div class="field">
+                            <label>Anexos PDF</label>
+                            {{ form.anexos_pdf }}
+                            <div class="muted">Anexe o PDF do pedido ou documentos complementares, quando houver.</div>
+                        </div>
+
+                        {% elif eh_fluxo_autorizar_manutencao_interna %}
+                        <h3>Fluxo — Autorizar manutenção Interna</h3>
+
+                        <div class="grid-2">
+                            <div class="field">
+                                <label>Nota Fiscal de Venda</label>
+                                <input type="text" readonly value="{{ dados_manutencao_interna.nota_fiscal_venda|default:'-' }}">
+                            </div>
+                            <div class="field">
+                                <label>Data da Emissão da Nota fiscal</label>
+                                <input type="text" readonly value="{{ dados_manutencao_interna.data_emissao_nf_venda|default:'-' }}">
+                            </div>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="field">
+                                <label>{{ form.numero_nf_venda_usuario.label }}</label>
+                                {{ form.numero_nf_venda_usuario }}
+                            </div>
+                            <div class="field">
+                                <label>{{ form.data_emissao_venda_usuario.label }}</label>
+                                {{ form.data_emissao_venda_usuario }}
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>Tempo de uso</label>
+                            <input type="text"
+                                   id="tempo_uso_manutencao"
+                                   readonly
+                                   value="{{ dados_manutencao_interna.tempo_uso|default:'-' }}"
+                                   data-data-abertura="{{ dados_manutencao_interna.data_abertura_iso|default:'' }}"
+                                   data-data-nf="{{ dados_manutencao_interna.data_emissao_nf_venda_iso|default:'' }}"
+                                   style="font-weight:800;font-size:22px;color:#0d3b66;background:#eef8ff;border:2px solid #b8d9f7;">
+                            <div class="muted">Calculado pela data de abertura do SAC menos a data de emissão da NF, ou a data de venda ao usuário quando preenchida.</div>
+                        </div>
+
+                        <div class="field">
+                            <label>{{ form.observacao_importante.label }}</label>
+                            {{ form.observacao_importante }}
+                        </div>
+
+                        <div class="field">
+                            <label>{{ form.anexos_pdf.label }}</label>
+                            {{ form.anexos_pdf }}
+                            <div class="muted">Anexe documentos complementares, quando houver.</div>
+                        </div>
+
+                        <div class="fluxo-preview-box">
+                            <h3>Fluxo que será aplicado</h3>
+                            <div class="grid-3">
+                                <div class="field">
+                                    <label>Próximo status</label>
+                                    <input type="text" readonly value="Em Análise">
+                                </div>
+                                <div class="field">
+                                    <label>Ação em Espera próximo Setor</label>
+                                    <input type="text" readonly value="Aguardando Inspeção física e Funcional">
+                                </div>
+                                <div class="field">
+                                    <label>Próximo setor</label>
+                                    <input type="text" readonly value="Assistência Técnica">
+                                </div>
+                            </div>
+                        </div>
+
+                        {% else %}
+                        <h3>Fluxo — Técnico - Equipamento não funciona</h3>
+
+                        <div class="field">
+                            <label>{{ form.cliente_emite_nf.label }}</label>
+                            {{ form.cliente_emite_nf }}
+                        </div>
+
+                        <div id="bloco-cliente-emite-sim" class="hidden-js">
+                            <div class="field">
+                                <label>{{ form.nf_solicitada.label }}</label>
+                                {{ form.nf_solicitada }}
+                            </div>
+                            <div id="bloco-data-emissao-nf" class="hidden-js">
+                                <div class="field">
+                                    <label>{{ form.data_emissao_nf.label }}</label>
+                                    {{ form.data_emissao_nf }}
+                                    <div class="muted">Essa data mantém o SAC em Agendamentos até o dia indicado.</div>
+                                </div>
+                            </div>
+                            <div id="msg-nf-nao-solicitada" class="msg error hidden-js">
+                                Retornar para dar continuidade após confirmação da Data de emissão da nota fiscal
+                            </div>
+                        </div>
+
+                        <div id="bloco-cliente-emite-nao" class="hidden-js">
+                            <div class="grid-2">
+                                <div class="field">
+                                    <label>{{ form.numero_pedido.label }}</label>
+                                    {{ form.numero_pedido }}
+                                </div>
+                                <div class="field">
+                                    <label>{{ form.data_pedido.label }}</label>
+                                    {{ form.data_pedido }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>{{ form.observacao_importante.label }}</label>
+                            {{ form.observacao_importante }}
+                        </div>
+
+                        <div class="field">
+                            <label>{{ form.anexos_pdf.label }}</label>
+                            {{ form.anexos_pdf }}
+                            <div class="muted">Anexe aqui o PDF do pedido gerado para esse SAC, quando houver.</div>
+                        </div>
+
+                        <div class="fluxo-preview-box">
+                            <h3>Fluxo que será aplicado</h3>
+                            <div class="grid-3">
+                                <div class="field">
+                                    <label>Próximo status</label>
+                                    <input type="text" id="gestao_fluxo_status_preview" readonly value="-">
+                                </div>
+                                <div class="field">
+                                    <label>Ação em Espera próximo Setor</label>
+                                    <input type="text" id="gestao_fluxo_acao_preview" readonly value="-">
+                                </div>
+                                <div class="field">
+                                    <label>Próximo setor</label>
+                                    <input type="text" id="gestao_fluxo_setor_preview" readonly value="-">
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </section>
+                    {% else %}
+                    <section class="subcard">
+                        <h3>Execução</h3>
+                        <div class="grid-2">
+                            <div class="field">
+                                <label>{{ form.numero_pedido.label }}</label>
+                                {{ form.numero_pedido }}
+                            </div>
+                            <div class="field">
+                                <label>{{ form.data_pedido.label }}</label>
+                                {{ form.data_pedido }}
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>{{ form.observacao_importante.label }}</label>
+                            {{ form.observacao_importante }}
+                        </div>
+
+                        <div class="field">
+                            <label>{{ form.anexos_pdf.label }}</label>
+                            {{ form.anexos_pdf }}
+                            <div class="muted">Anexe aqui o PDF do pedido gerado para esse SAC.</div>
+                        </div>
+                    </section>
+
+                    {% include 'core/components/fluxo_padrao_form.html' with status_field=form.proximo_status acao_field=form.proxima_acao_em_espera setor_field=form.proximo_setor %}
+                    {% endif %}
+
+                    {% if form.non_field_errors %}
+                    <div class="messages">
+                        {% for erro in form.non_field_errors %}
+                            <div class="msg error">{{ erro }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="actions">
+                        <button type="submit" class="btn btn-primary" id="btn-salvar-gestao">Salvar gestão do SAC</button>
+                        <a href="/sac/gestao/" class="btn btn-dark">Voltar para fila</a>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <div class="stack">
+            <section class="card">
+                {% include "core/partials/historico_recente_padrao.html" with historicos_visual=historicos_detalhados %}
+            </section>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% if eh_tecnico_equipamento_gestao and not eh_fluxo_autorizar_manutencao_interna %}
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const clienteEmite = document.getElementById('id_cliente_emite_nf');
+    const nfSolicitada = document.getElementById('id_nf_solicitada');
+    const blocoSim = document.getElementById('bloco-cliente-emite-sim');
+    const blocoNao = document.getElementById('bloco-cliente-emite-nao');
+    const blocoData = document.getElementById('bloco-data-emissao-nf');
+    const msgNaoSolicitada = document.getElementById('msg-nf-nao-solicitada');
+    const status = document.getElementById('gestao_fluxo_status_preview');
+    const acao = document.getElementById('gestao_fluxo_acao_preview');
+    const setor = document.getElementById('gestao_fluxo_setor_preview');
+    const btnSalvar = document.getElementById('btn-salvar-gestao');
+
+    function setFluxo(statusTxt, acaoTxt, setorTxt){
+        if(status) status.value = statusTxt || '-';
+        if(acao) acao.value = acaoTxt || '-';
+        if(setor) setor.value = setorTxt || '-';
+    }
+
+    function atualizarTela(){
+        const cliente = clienteEmite ? clienteEmite.value : '';
+        const solicitou = nfSolicitada ? nfSolicitada.value : '';
+
+        if(blocoSim) blocoSim.style.display = cliente === 'SIM' ? 'block' : 'none';
+        if(blocoNao) blocoNao.style.display = cliente === 'NAO' ? 'block' : 'none';
+        if(blocoData) blocoData.style.display = (cliente === 'SIM' && solicitou === 'SIM') ? 'block' : 'none';
+        if(msgNaoSolicitada) msgNaoSolicitada.style.display = (cliente === 'SIM' && solicitou === 'NAO') ? 'block' : 'none';
+
+        if(cliente === 'SIM' && solicitou === 'SIM'){
+            setFluxo('Aguardando Cliente Emitir Nota Fiscal', 'Aguardando disponibilidade do Cliente', 'SAC');
+            if(btnSalvar) btnSalvar.disabled = false;
+        } else if(cliente === 'SIM' && solicitou === 'NAO'){
+            setFluxo('-', '-', '-');
+            if(btnSalvar) btnSalvar.disabled = true;
+        } else if(cliente === 'NAO'){
+            setFluxo('Emissão Nota Fiscal de Retorno', 'Aguardando Emissão da Nota fiscal (Entrada/Retorno)', 'Logística');
+            if(btnSalvar) btnSalvar.disabled = false;
+        } else {
+            setFluxo('-', '-', '-');
+            if(btnSalvar) btnSalvar.disabled = false;
+        }
+    }
+
+    if(clienteEmite) clienteEmite.addEventListener('change', atualizarTela);
+    if(nfSolicitada) nfSolicitada.addEventListener('change', atualizarTela);
+    atualizarTela();
+});
+</script>
+{% endif %}
+
+{% if eh_fluxo_emissao_pedido_saida and garantia_sac != 'Sim' and garantia_sac != 'Não' %}
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const btn = document.getElementById('btn-salvar-gestao');
+    if(btn){ btn.disabled = true; btn.style.opacity = '.55'; btn.title = 'Garantia não identificada no histórico.'; }
+});
+</script>
+{% endif %}
+
+{% if eh_fluxo_autorizar_manutencao_interna %}
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const campoDataUsuario = document.getElementById('id_data_emissao_venda_usuario');
+    const tempo = document.getElementById('tempo_uso_manutencao');
+
+    function parseISO(valor){
+        if(!valor) return null;
+        const partes = valor.split('-').map(Number);
+        if(partes.length !== 3 || !partes[0] || !partes[1] || !partes[2]) return null;
+        return new Date(partes[0], partes[1] - 1, partes[2]);
+    }
+
+    function calcularMesesDias(inicio, fim){
+        if(!inicio || !fim) return '-';
+        if(inicio > fim){
+            const tmp = inicio;
+            inicio = fim;
+            fim = tmp;
+        }
+        let meses = (fim.getFullYear() - inicio.getFullYear()) * 12 + (fim.getMonth() - inicio.getMonth());
+        let dias = fim.getDate() - inicio.getDate();
+        if(dias < 0){
+            meses -= 1;
+            const ultimoDiaMesAnterior = new Date(fim.getFullYear(), fim.getMonth(), 0).getDate();
+            dias += ultimoDiaMesAnterior;
+        }
+        const partes = [];
+        if(meses){
+            partes.push(meses + (meses === 1 ? ' mês' : ' meses'));
+        }
+        partes.push(dias + (dias === 1 ? ' dia' : ' dias'));
+        return partes.join(' e ');
+    }
+
+    function atualizarTempoUso(){
+        if(!tempo) return;
+        const abertura = parseISO(tempo.dataset.dataAbertura || '');
+        const dataUsuario = parseISO(campoDataUsuario ? campoDataUsuario.value : '');
+        const dataNf = parseISO(tempo.dataset.dataNf || '');
+        const base = dataUsuario || dataNf;
+        tempo.value = calcularMesesDias(base, abertura);
+    }
+
+    if(campoDataUsuario){
+        campoDataUsuario.addEventListener('change', atualizarTempoUso);
+    }
+    atualizarTempoUso();
+});
+</script>
+{% endif %}
+
+</body>
+</html>

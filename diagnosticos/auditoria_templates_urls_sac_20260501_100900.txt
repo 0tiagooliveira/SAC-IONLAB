@@ -1,0 +1,297 @@
+AUDITORIA PREVENTIVA - TEMPLATES / URLS / REFERENCIAS SAC
+Somente leitura: nao altera regra, banco, migrations ou fluxo.
+Projeto: C:\Ionlab\SAC\programa\SAC_Intranet_oficial
+Gerado em: 2026-05-01T10:09:00
+
+RESUMO
+- templates_html: 33
+- arquivos_python_core: 124
+- url_names_identificados: 182
+- includes_total: 22
+- extends_total: 8
+- url_tags_total: 3
+- hardcoded_urls_total: 173
+- padroes_frageis_total: 676
+
+INCLUDES FALTANTES
+- Nenhum achado nesta secao.
+
+EXTENDS FALTANTES
+- arquivo: core\templates\admin\core\notafiscal\change_list.html | template: admin/change_list.html
+- arquivo: core\templates\admin\core\pecatabelapreco\change_form.html | template: admin/change_form.html
+- arquivo: core\templates\admin\core\pecatabelapreco\change_list.html | template: admin/change_list.html
+- arquivo: core\templates\admin\core\rastreionotaitem\change_list.html | template: admin/change_list.html
+
+URL TAGS FALTANTES
+- Nenhum achado nesta secao.
+
+TEMPLATES CHAMADOS EM PYTHON MAS NAO ENCONTRADOS
+- Nenhum achado nesta secao.
+
+BLOCKS DUPLICADOS EM TEMPLATES
+- Nenhum block duplicado encontrado.
+
+URLS /sac/ FIXAS NO CODIGO (RISCO FUTURO)
+- arquivo: core\templates\core\analise_comercial_sac.html | url: /sac/abrir/
+- arquivo: core\templates\core\analise_comercial_sac.html | url: /sac/analise-comercial/?sac={{ item.id }}
+- arquivo: core\templates\core\analise_comercial_sac.html | url: /sac/analise-comercial/
+- arquivo: core\templates\core\analise_comercial_sac_backup_modo_lista_detalhe.html | url: /sac/abrir/
+- arquivo: core\templates\core\analise_comercial_sac_backup_modo_lista_detalhe.html | url: /sac/analise-comercial/?sac={{ item.id }}
+- arquivo: core\templates\core\analise_comercial_sac_backup_modo_lista_detalhe.html | url: /sac/analise-comercial/
+- arquivo: core\templates\core\analise_diretoria.html | url: /sac/abrir/
+- arquivo: core\templates\core\analise_diretoria.html | url: /sac/diretoria/
+- arquivo: core\templates\core\analise_diretoria.html | url: /sac/diretoria/?sac={{ item.id }}
+- arquivo: core\templates\core\analise_diretoria.html | url: /sac/diretoria/
+- arquivo: core\templates\core\analise_gestao_sac.html | url: /sac/abrir/
+- arquivo: core\templates\core\analise_gestao_sac.html | url: /sac/gestao/?sac={{ item.id }}
+- arquivo: core\templates\core\analise_gestao_sac.html | url: /sac/gestao/?sac={{ item.id }}
+- arquivo: core\templates\core\analise_gestao_sac.html | url: /sac/gestao/
+- arquivo: core\templates\core\assessoria_cientifica.html | url: /sac/abrir/
+- arquivo: core\templates\core\assessoria_cientifica.html | url: /sac/{{ item.id }}/analise-tecnica/
+- arquivo: core\templates\core\auditoria_visual_sac.html | url: /sac/dashboard/
+- arquivo: core\templates\core\base.html | url: /sac/abrir/
+- arquivo: core\templates\core\base.html | url: /sac/gestao/
+- arquivo: core\templates\core\base.html | url: /sac/analise-comercial/
+- arquivo: core\templates\core\base.html | url: /sac/gestao-logistica/
+- arquivo: core\templates\core\base.html | url: /sac/diretoria/
+- arquivo: core\templates\core\base.html | url: /sac/abrir/
+- arquivo: core\templates\core\dashboard_sla.html | url: /sac/{{ item.id }}/auditoria/
+- arquivo: core\templates\core\gestao_assistencia_tecnica.html | url: /sac/abrir/
+- arquivo: core\templates\core\gestao_assistencia_tecnica.html | url: /sac/assistencia-tecnica/
+- arquivo: core\templates\core\gestao_assistencia_tecnica.html | url: /sac/assistencia-tecnica/?sac={{ item.id }}
+- arquivo: core\templates\core\gestao_financeira.html | url: /sac/abrir/
+- arquivo: core\templates\core\gestao_financeira.html | url: /sac/gestao-financeira/
+- arquivo: core\templates\core\gestao_financeira.html | url: /sac/gestao-financeira/?sac={{ item.id }}
+- arquivo: core\templates\core\gestao_financeira.html | url: /sac/gestao-financeira/
+- arquivo: core\templates\core\gestao_licitacao.html | url: /sac/abrir/
+- arquivo: core\templates\core\gestao_licitacao.html | url: /sac/gestao-licitacao/
+- arquivo: core\templates\core\gestao_licitacao.html | url: /sac/gestao-licitacao/?sac={{ item.id }}
+- arquivo: core\templates\core\gestao_logistica.html | url: /sac/abrir/
+- arquivo: core\templates\core\gestao_logistica.html | url: /sac/{{ item.id }}/gestao-logistica/
+- arquivo: core\templates\core\gestao_logistica.html | url: /sac/{{ item.id }}/gestao-logistica/
+- arquivo: core\templates\core\gestao_logistica.html | url: /sac/gestao-logistica/
+- arquivo: core\templates\core\painel_navegacao.html | url: /sac/abrir/
+- arquivo: core\templates\core\painel_navegacao.html | url: /sac/gestao/
+- arquivo: core\templates\core\painel_navegacao.html | url: /sac/gestao/
+- arquivo: core\templates\core\painel_navegacao.html | url: /sac/assessoria-cientifica/
+- arquivo: core\templates\core\painel_navegacao.html | url: /sac/assistencia-tecnica/
+- arquivo: core\templates\core\painel_navegacao.html | url: /sac/analise-comercial/
+- arquivo: core\templates\core\painel_navegacao.html | url: /sac/gestao-financeira/
+- arquivo: core\templates\core\painel_navegacao.html | url: /sac/gestao-licitacao/
+- arquivo: core\templates\core\painel_navegacao.html | url: /sac/abrir/
+- arquivo: core\templates\core\painel_navegacao.html | url: /sac/diretoria/
+- arquivo: core\templates\core\painel_navegacao.html | url: /sac/pesquisa/
+- arquivo: core\templates\core\painel_navegacao.html | url: /sac/gestao-logistica/
+- arquivo: core\templates\core\pesquisa_sacs.html | url: /sac/abrir/
+- arquivo: core\templates\core\pesquisa_sacs.html | url: /sac/pesquisa/
+- arquivo: core\test_fluxo_alertas_e_filas.py | url: /sac/analise-comercial/?sac={sac.id}
+- arquivo: core\test_fluxo_alertas_e_filas.py | url: /sac/diretoria/
+- arquivo: core\test_fluxo_alertas_telas_criticas.py | url: /sac/gestao/?sac={sac.id}
+- arquivo: core\test_fluxo_alertas_telas_criticas.py | url: /sac/{sac.id}/gestao-logistica/
+- arquivo: core\test_fluxo_alertas_telas_criticas.py | url: /sac/diretoria/?sac={sac.id}
+- arquivo: core\test_fluxo_alertas_telas_criticas.py | url: /sac/gestao/?sac={sac.id}
+- arquivo: core\test_views_smoke.py | url: /sac/pesquisa/
+- arquivo: core\test_views_smoke.py | url: /sac/assessoria-cientifica/?sac={self.sac.id}
+- arquivo: core\test_views_smoke.py | url: /sac/analise-comercial/?sac={self.sac.id}
+- arquivo: core\test_views_smoke.py | url: /sac/gestao/?sac={self.sac.id}
+- arquivo: core\test_views_smoke.py | url: /sac/gestao-logistica/?sac={self.sac.id}
+- arquivo: core\test_views_smoke.py | url: /sac/diretoria/?sac={self.sac.id}
+- arquivo: core\views.py | url: /sac/analise-comercial/?sac={sac.id}
+- arquivo: core\views.py | url: /sac/gestao-logistica/?sac={sac.id}
+- arquivo: core\views.py | url: /sac/assessoria-cientifica/?sac={sac.id}
+- arquivo: core\views.py | url: /sac/gestao/?sac={sac.id}
+- arquivo: core\views.py | url: /sac/diretoria/?sac={sac.id}
+- arquivo: core\views.py | url: /sac/gestao-licitacao/?sac={sac.id}
+- arquivo: core\views.py | url: /sac/gestao/?sac={sac.id}
+- arquivo: core\views.py | url: /sac/analise-comercial/?sac={sac.id}
+- arquivo: core\views.py | url: /sac/analise-comercial/
+- arquivo: core\views.py | url: /sac/gestao/?sac={sac.id}
+- arquivo: core\views.py | url: /sac/gestao/?sac={proximo_sac.id}
+- arquivo: core\views.py | url: /sac/gestao/
+- arquivo: core\views.py | url: /sac/gestao/?sac={sac_id_redirect}
+- arquivo: core\views.py | url: /sac/assessoria-cientifica/
+- arquivo: core\views.py | url: /sac/diretoria/?sac={sac.id}
+- arquivo: core\views.py | url: /sac/analise-comercial/?sac={sac.id}
+- arquivo: core\views.py | url: /sac/diretoria/?sac={sac.id}
+- arquivo: core\views.py | url: /sac/diretoria/?sac={sac.id}
+- arquivo: core\views.py | url: /sac/diretoria/?sac={sac.id}
+- arquivo: core\views.py | url: /sac/gestao/?sac={sac.id}
+- arquivo: core\views.py | url: /sac/gestao-licitacao/
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/analise-comercial/?sac={sac.id}
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/gestao-logistica/?sac={sac.id}
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/assessoria-cientifica/?sac={sac.id}
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/gestao/?sac={sac.id}
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/diretoria/?sac={sac.id}
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/gestao-licitacao/?sac={sac.id}
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/gestao/?sac={sac.id}
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/gestao-licitacao/?sac={sac.id}
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/analise-comercial/?sac={sac.id}
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/analise-comercial/
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/gestao/?sac=%s
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/gestao/?sac={sac.id}
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/gestao/?sac={proximo_sac.id}
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/gestao/
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/gestao/?sac={sac_id_redirect}
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/assessoria-cientifica/
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/diretoria/?sac={sac.id}
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/analise-comercial/?sac={sac.id}
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/diretoria/?sac={sac.id}
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/diretoria/?sac={sac.id}
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/diretoria/?sac={sac.id}
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/gestao/?sac={sac.id}
+- arquivo: core\views_backup_antes_diretoria.py | url: /sac/gestao-licitacao/
+- arquivo: core\services\fila_setorial.py | url: /sac/gestao/
+- arquivo: core\services\monitoramento_sac.py | url: /sac/{sac.id}/
+- arquivo: core\services\regras_sac.py | url: /sac/gestao/
+- arquivo: core\services\regras_sac.py | url: /sac/analise-comercial/
+- arquivo: core\services\regras_sac.py | url: /sac/assessoria-cientifica/
+- arquivo: core\services\regras_sac.py | url: /sac/gestao-logistica/
+- arquivo: core\services\regras_sac.py | url: /sac/diretoria/
+- arquivo: core\services\regras_sac.py | url: /sac/gestao-licitacao/
+- arquivo: core\services\regras_sac.py | url: /sac/assistencia-tecnica/
+- arquivo: core\services\regras_sac.py | url: /sac/gestao/
+- arquivo: core\services\regras_sac.py | url: /sac/gestao/
+- arquivo: core\services\regras_sac.py | url: /sac/{sac_id}/analise-tecnica/
+- arquivo: core\views_modular\views_assistencia_tecnica.py | url: /sac/assistencia-tecnica/?sac={sac.id}
+- arquivo: core\views_modular\views_assistencia_tecnica.py | url: /sac/assistencia-tecnica/?sac={sac.id}
+- arquivo: core\views_modular\views_assistencia_tecnica.py | url: /sac/assistencia-tecnica/?sac={sac.id}
+- arquivo: core\views_modular\views_assistencia_tecnica.py | url: /sac/assistencia-tecnica/?sac={sac.id}
+- arquivo: core\views_modular\views_assistencia_tecnica.py | url: /sac/assistencia-tecnica/?sac={sac.id}
+- arquivo: core\views_modular\views_assistencia_tecnica.py | url: /sac/assistencia-tecnica/?sac={sac.id}
+- arquivo: core\views_modular\views_assistencia_tecnica.py | url: /sac/assistencia-tecnica/?sac={sac.id}
+- arquivo: core\views_modular\views_assistencia_tecnica.py | url: /sac/assistencia-tecnica/?sac={sac.id}
+- arquivo: core\views_modular\views_assistencia_tecnica.py | url: /sac/assistencia-tecnica/
+- arquivo: core\views_modular\views_assistencia_tecnica.py | url: /sac/assistencia-tecnica/?sac={sac.id}
+- arquivo: core\views_modular\views_assistencia_tecnica.py | url: /sac/assistencia-tecnica/?sac={sac.id}
+- arquivo: core\views_modular\views_assistencia_tecnica.py | url: /sac/assistencia-tecnica/?sac={sac.id}
+- arquivo: core\views_modular\views_assistencia_tecnica.py | url: /sac/assistencia-tecnica/?sac={sac.id}
+- arquivo: core\views_modular\views_assistencia_tecnica.py | url: /sac/assistencia-tecnica/?sac={sac.id}
+- arquivo: core\views_modular\views_assistencia_tecnica.py | url: /sac/assistencia-tecnica/?sac={sac.id}
+- arquivo: core\views_modular\views_assistencia_tecnica.py | url: /sac/assistencia-tecnica/?sac={sac.id}
+- arquivo: core\views_modular\views_assistencia_tecnica.py | url: /sac/assistencia-tecnica/
+- arquivo: core\views_modular\views_comercial.py | url: /sac/analise-comercial/?sac={sac.id}
+- arquivo: core\views_modular\views_comercial.py | url: /sac/analise-comercial/
+- arquivo: core\views_modular\views_diretoria.py | url: /sac/diretoria/?sac={sac.id}
+- arquivo: core\views_modular\views_diretoria.py | url: /sac/analise-comercial/?sac={sac.id}
+- arquivo: core\views_modular\views_diretoria.py | url: /sac/diretoria/?sac={sac.id}
+- arquivo: core\views_modular\views_diretoria.py | url: /sac/diretoria/?sac={sac.id}
+- arquivo: core\views_modular\views_diretoria.py | url: /sac/diretoria/?sac={sac.id}
+- arquivo: core\views_modular\views_financeiro.py | url: /sac/gestao-financeira/?sac={sac.id}
+- arquivo: core\views_modular\views_financeiro.py | url: /sac/gestao-financeira/?sac={sac.id}
+- arquivo: core\views_modular\views_financeiro.py | url: /sac/gestao-financeira/?sac={sac.id}
+- arquivo: core\views_modular\views_financeiro.py | url: /sac/gestao-financeira/?sac={sac.id}
+- arquivo: core\views_modular\views_financeiro.py | url: /sac/gestao-financeira/?sac={sac.id}
+- arquivo: core\views_modular\views_financeiro.py | url: /sac/gestao/?sac={sac.id}
+- arquivo: core\views_modular\views_gestao.py | url: /sac/gestao/
+- arquivo: core\views_modular\views_gestao.py | url: /sac/{sac.id}/assistencia-tecnica/
+- arquivo: core\views_modular\views_gestao.py | url: /sac/{sac.id}/gestao-logistica/
+- arquivo: core\views_modular\views_gestao.py | url: /sac/{sac.id}/gestao-licitacao/
+- arquivo: core\views_modular\views_gestao.py | url: /sac/{sac.id}/analise-comercial/
+- arquivo: core\views_modular\views_gestao.py | url: /sac/{sac.id}/analise-tecnica/
+- arquivo: core\views_modular\views_gestao.py | url: /sac/diretoria/?sac={sac.id}
+- arquivo: core\views_modular\views_gestao.py | url: /sac/gestao/?sac={sac.id}
+- arquivo: core\views_modular\views_gestao.py | url: /sac/gestao/?sac={sac.id}
+- arquivo: core\views_modular\views_gestao.py | url: /sac/gestao/?sac={sac.id}
+- arquivo: core\views_modular\views_gestao.py | url: /sac/gestao/?sac={sac.id}
+- arquivo: core\views_modular\views_gestao.py | url: /sac/gestao/?sac={sac.id}
+- arquivo: core\views_modular\views_gestao.py | url: /sac/{sac.id}/assistencia-tecnica/
+- arquivo: core\views_modular\views_gestao.py | url: /sac/{sac.id}/gestao-logistica/
+- arquivo: core\views_modular\views_gestao.py | url: /sac/{sac.id}/gestao-licitacao/
+- arquivo: core\views_modular\views_gestao.py | url: /sac/{sac.id}/analise-comercial/
+- arquivo: core\views_modular\views_gestao.py | url: /sac/{sac.id}/analise-tecnica/
+- arquivo: core\views_modular\views_gestao.py | url: /sac/diretoria/?sac={sac.id}
+- arquivo: core\views_modular\views_gestao.py | url: /sac/gestao/?sac={sac.id}
+- arquivo: core\views_modular\views_licitacao.py | url: /sac/gestao/?sac={sac.id}
+- arquivo: core\views_modular\views_licitacao.py | url: /sac/gestao-licitacao/
+- arquivo: core\management\commands\auditar_mapa_dependencias_sac.py | url: /sac/
+- arquivo: core\management\commands\auditar_mapa_dependencias_sac.py | url: /sac/
+
+PADROES FRAGEIS PARA REVISAO FUTURA
+- arquivo: core\views.py | tipo: status_texto_fixo | ocorrencias: 117
+- arquivo: core\views_backup_antes_diretoria.py | tipo: status_texto_fixo | ocorrencias: 109
+- arquivo: core\uuu.py | tipo: status_texto_fixo | ocorrencias: 47
+- arquivo: core\forms.py | tipo: status_texto_fixo | ocorrencias: 44
+- arquivo: core\services\regras_sac.py | tipo: status_texto_fixo | ocorrencias: 17
+- arquivo: core\views_modular\views_gestao.py | tipo: status_texto_fixo | ocorrencias: 15
+- arquivo: core\services\sac_bridge.py | tipo: status_texto_fixo | ocorrencias: 14
+- arquivo: core\migrations\0012_acaoemespera_setor_destino.py | tipo: status_texto_fixo | ocorrencias: 12
+- arquivo: core\services\fluxo_formularios.py | tipo: status_texto_fixo | ocorrencias: 11
+- arquivo: core\forms.py | tipo: except_exception | ocorrencias: 10
+- arquivo: core\services\fila_setorial.py | tipo: status_texto_fixo | ocorrencias: 10
+- arquivo: core\services\fluxo_comercial.py | tipo: status_texto_fixo | ocorrencias: 10
+- arquivo: core\services\fluxo_licitacao.py | tipo: status_texto_fixo | ocorrencias: 10
+- arquivo: core\uuu.py | tipo: except_exception | ocorrencias: 10
+- arquivo: core\views_modular\views_diretoria.py | tipo: status_texto_fixo | ocorrencias: 10
+- arquivo: core\management\commands\auditar_riscos_futuros_sac.py | tipo: status_texto_fixo | ocorrencias: 9
+- arquivo: core\migrations\0003_pacotes_1_e_2_base.py | tipo: status_texto_fixo | ocorrencias: 9
+- arquivo: core\test_fluxo_alertas_e_filas.py | tipo: status_texto_fixo | ocorrencias: 9
+- arquivo: core\views_modular\views_logistica.py | tipo: status_texto_fixo | ocorrencias: 9
+- arquivo: core\management\commands\auditar_integridade_sac.py | tipo: status_texto_fixo | ocorrencias: 7
+- arquivo: core\test_logistica_completa.py | tipo: status_texto_fixo | ocorrencias: 7
+- arquivo: core\views.py | tipo: except_exception | ocorrencias: 7
+- arquivo: core\views_backup_antes_diretoria.py | tipo: except_exception | ocorrencias: 7
+- arquivo: core\views_modular\views_comercial.py | tipo: status_texto_fixo | ocorrencias: 7
+- arquivo: core\views_modular\views_financeiro.py | tipo: status_texto_fixo | ocorrencias: 7
+- arquivo: core\management\commands\auditar_blindagem_sac.py | tipo: status_texto_fixo | ocorrencias: 6
+- arquivo: core\services\comunicacao_cliente.py | tipo: status_texto_fixo | ocorrencias: 6
+- arquivo: core\admin.py | tipo: status_texto_fixo | ocorrencias: 5
+- arquivo: core\management\commands\auditar_integridade_sac.py | tipo: except_exception | ocorrencias: 5
+- arquivo: core\management\commands\auditar_templates_urls_sac.py | tipo: todo_fixme | ocorrencias: 5
+- arquivo: core\services\sac_visual.py | tipo: except_exception | ocorrencias: 5
+- arquivo: core\test_fluxo_alertas_telas_criticas.py | tipo: status_texto_fixo | ocorrencias: 5
+- arquivo: core\test_modelos_codigo.py | tipo: status_texto_fixo | ocorrencias: 5
+- arquivo: core\views_modular\views_assistencia_tecnica.py | tipo: status_texto_fixo | ocorrencias: 5
+- arquivo: core\management\commands\auditar_blindagem_sac.py | tipo: except_exception | ocorrencias: 4
+- arquivo: core\management\commands\auditar_blindagem_sac.py | tipo: todo_fixme | ocorrencias: 4
+- arquivo: core\management\commands\auditar_dados_sac.py | tipo: except_exception | ocorrencias: 4
+- arquivo: core\management\commands\cadastrar_setores.py | tipo: status_texto_fixo | ocorrencias: 4
+- arquivo: core\migrations\0040_tempo_uso_oficial_sac.py | tipo: status_texto_fixo | ocorrencias: 4
+- arquivo: core\services\monitoramento_sac.py | tipo: status_texto_fixo | ocorrencias: 4
+- arquivo: core\test_auditoria_fluxo.py | tipo: status_texto_fixo | ocorrencias: 4
+- arquivo: core\views_modular\views_assistencia_tecnica.py | tipo: except_exception | ocorrencias: 4
+- arquivo: core\views_modular\views_gestao.py | tipo: except_exception | ocorrencias: 4
+- arquivo: core\management\commands\auditar_riscos_futuros_sac.py | tipo: except_exception | ocorrencias: 3
+- arquivo: core\management\commands\auditar_templates_urls_sac.py | tipo: except_exception | ocorrencias: 3
+- arquivo: core\migrations\0001_initial.py | tipo: status_texto_fixo | ocorrencias: 3
+- arquivo: core\services\sac_dados_padrao.py | tipo: except_exception | ocorrencias: 3
+- arquivo: core\test_transicao_nf_pendente.py | tipo: status_texto_fixo | ocorrencias: 3
+- arquivo: core\views_modular\views_financeiro.py | tipo: except_exception | ocorrencias: 3
+- arquivo: core\views_modular\views_licitacao.py | tipo: status_texto_fixo | ocorrencias: 3
+- arquivo: core\views_modular\views_logistica.py | tipo: except_exception | ocorrencias: 3
+- arquivo: core\management\commands\auditar_mapa_dependencias_sac.py | tipo: except_exception | ocorrencias: 2
+- arquivo: core\management\commands\cadastrar_status_sac.py | tipo: status_texto_fixo | ocorrencias: 2
+- arquivo: core\management\commands\corrigir_banco.py | tipo: status_texto_fixo | ocorrencias: 2
+- arquivo: core\management\commands\garantir_fluxo_assistencia_tecnica.py | tipo: status_texto_fixo | ocorrencias: 2
+- arquivo: core\services\comunicacao_cliente.py | tipo: except_exception | ocorrencias: 2
+- arquivo: core\services\dashboard_sla.py | tipo: except_exception | ocorrencias: 2
+- arquivo: core\services\sac_dados_oficiais.py | tipo: except_exception | ocorrencias: 2
+- arquivo: core\services\sac_transicao_unificada.py | tipo: except_exception | ocorrencias: 2
+- arquivo: core\test_views_smoke.py | tipo: status_texto_fixo | ocorrencias: 2
+- arquivo: core\views_modular\views_diretoria.py | tipo: except_exception | ocorrencias: 2
+- arquivo: core\management\commands\blindar_fluxo.py | tipo: except_exception | ocorrencias: 1
+- arquivo: core\management\commands\blindar_fluxo.py | tipo: status_texto_fixo | ocorrencias: 1
+- arquivo: core\management\commands\cadastrar_fluxo_sac_base.py | tipo: status_texto_fixo | ocorrencias: 1
+- arquivo: core\management\commands\corrigir_banco.py | tipo: except_exception | ocorrencias: 1
+- arquivo: core\migrations\0002_acaoemespera_alter_tipoocorrencia_options_and_more.py | tipo: status_texto_fixo | ocorrencias: 1
+- arquivo: core\migrations\0004_sac_endereco_usuario_contato.py | tipo: status_texto_fixo | ocorrencias: 1
+- arquivo: core\migrations\0005_sacitem_unicidade_por_sac.py | tipo: status_texto_fixo | ocorrencias: 1
+- arquivo: core\migrations\0010_orcamento_tecnico_externo.py | tipo: status_texto_fixo | ocorrencias: 1
+- arquivo: core\migrations\0011_sacanalisecomercial.py | tipo: status_texto_fixo | ocorrencias: 1
+- arquivo: core\migrations\0041_sac_data_agendamento_gestao.py | tipo: status_texto_fixo | ocorrencias: 1
+- arquivo: core\models.py | tipo: status_texto_fixo | ocorrencias: 1
+- arquivo: core\services\alertas_sla.py | tipo: except_exception | ocorrencias: 1
+- arquivo: core\services\dashboard_sla.py | tipo: status_texto_fixo | ocorrencias: 1
+- arquivo: core\services\destinatarios_sac.py | tipo: except_exception | ocorrencias: 1
+- arquivo: core\services\fila_setorial.py | tipo: except_exception | ocorrencias: 1
+- arquivo: core\services\fluxo_comercial.py | tipo: except_exception | ocorrencias: 1
+- arquivo: core\services\fluxo_licitacao.py | tipo: except_exception | ocorrencias: 1
+- arquivo: core\services\historico_padronizado.py | tipo: except_exception | ocorrencias: 1
+- arquivo: core\services\monitoramento_sac.py | tipo: except_exception | ocorrencias: 1
+- arquivo: core\services\sac_auditoria.py | tipo: except_exception | ocorrencias: 1
+- arquivo: core\services\sac_bridge.py | tipo: except_exception | ocorrencias: 1
+- arquivo: core\test_fluxo_alertas_e_filas.py | tipo: except_exception | ocorrencias: 1
+- arquivo: core\test_services.py | tipo: status_texto_fixo | ocorrencias: 1
+- arquivo: core\test_transicao_unificada.py | tipo: status_texto_fixo | ocorrencias: 1
+- arquivo: core\test_views_smoke.py | tipo: except_exception | ocorrencias: 1
+
+OBS: Este relatorio apenas aponta riscos. Corrigir somente por patch cirurgico, um grupo por vez.

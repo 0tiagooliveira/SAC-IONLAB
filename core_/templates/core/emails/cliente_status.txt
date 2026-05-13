@@ -1,0 +1,1 @@
+Olá {{ cliente_nome }},\n\nSeu atendimento {{ numero_sac }} está em {{ status_cliente }}.\n{{ mensagem_livre }}\nReferência: {{ data_referencia }}\n

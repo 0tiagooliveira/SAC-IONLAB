@@ -1,0 +1,185 @@
+{% extends 'core/base.html' %}
+{% block title %}Análise Comercial do SAC{% endblock %}
+{% block topbar_title %}Gestão Comercial{% endblock %}
+{% block topbar_subtitle %}Painel padronizado da análise comercial.{% endblock %}
+
+{% block content %}
+<style>
+    .page{max-width:1380px;margin:0 auto;padding:22px}
+    .hero{display:grid;grid-template-columns:96px 1fr auto;gap:20px;align-items:center;padding:26px;border-radius:28px;background:linear-gradient(135deg,#0d3b66 0%,#145a8f 55%,#0f7490 100%);color:#fff;box-shadow:0 18px 40px rgba(13,59,102,.10)}
+    .logo-box{width:96px;height:96px;border-radius:22px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center}
+    .logo-box img{max-width:70px;max-height:70px}
+    .hero h1{margin:0;font-size:34px}
+    .hero p{margin:8px 0 0;line-height:1.5;color:rgba(255,255,255,.86)}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+    .btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:700;padding:13px 18px;border-radius:15px;border:none;cursor:pointer;font-size:14px}
+    .btn-light{background:#fff;color:#0d3b66}
+    .btn-outline{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.24)}
+    .btn-primary{background:linear-gradient(135deg,#00b4c7,#1499bd);color:#fff}
+    .btn-dark{background:linear-gradient(135deg,#0d3b66,#174e7e);color:#fff}
+    .messages{margin-top:16px}
+    .msg{padding:14px 16px;border-radius:14px;margin-bottom:10px;font-weight:700}
+    .msg.warning{background:#fff7e7;border:1px solid #f2d494;color:#7d5a00}
+    .msg.success{background:#e8f7ef;border:1px solid #c9ebd8;color:#185f37}
+    .msg.error{background:#b3261e;border:1px solid #8e1c16;color:#fff}
+    .section{margin-top:22px;background:#fff;border:1px solid #d6e3ef;border-radius:28px;box-shadow:0 18px 40px rgba(13,59,102,.10);overflow:hidden}
+    .section-header{padding:22px 24px;border-bottom:1px solid #e5edf5}
+    .section-title{margin:0;color:#0d3b66;font-size:24px}
+    .section-subtitle{margin:6px 0 0;color:#64748b;font-size:14px}
+    .list{padding:18px;display:grid;gap:14px}
+    .list-card{display:block;text-decoration:none;color:inherit;border:1px solid #dbe8f4;border-radius:22px;padding:18px;background:linear-gradient(180deg,#fff 0%,#f8fbfe 100%);transition:.18s ease}
+    .list-card:hover{transform:translateY(-2px);box-shadow:0 14px 26px rgba(13,59,102,.08);border-color:rgba(0,180,199,.42)}
+    .list-grid{display:grid;grid-template-columns:minmax(120px,160px) minmax(160px,1fr) minmax(140px,.9fr) minmax(90px,.5fr) minmax(170px,1fr) minmax(170px,1fr) minmax(130px,.7fr);gap:14px}
+    .meta-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#64748b;margin-bottom:6px}
+    .meta-value{font-weight:700;line-height:1.4;color:#17324d}
+    .tempo-badge{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;font-size:13px;font-weight:700;background:#d62839;color:#fff}
+    .detail-layout{margin-top:22px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+    .stack{display:grid;gap:18px;min-width:0}
+    .card{background:#fff;border:1px solid #d6e3ef;border-radius:24px;box-shadow:0 18px 40px rgba(13,59,102,.10);padding:22px}
+    .card h2{margin:0 0 18px;font-size:22px;color:#0d3b66}
+    .field{margin-bottom:14px}
+    .field label{display:block;margin-bottom:6px;font-size:13px;font-weight:700;color:#355675}
+    input,textarea,select{width:100%;border:1px solid #cfdeec;border-radius:14px;padding:12px 14px;font-size:14px;outline:none;background:#fff}
+    input[readonly],textarea[readonly],select[disabled]{background:#f4f7fb;color:#45627d}
+    textarea{min-height:120px;resize:vertical}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+    .empty{padding:24px;color:#64748b}
+    .history-item{border:1px solid #e1ecf5;background:#fff;border-radius:18px;padding:14px;margin-bottom:12px}
+    .history-title{font-weight:700;color:#0d3b66;font-size:15px}
+    .history-sub{color:#5f7893;font-size:13px;margin-top:4px}
+    .history-obs{margin-top:10px;background:#f9fbfd;border:1px solid #e6eef6;border-radius:12px;padding:12px;font-size:13px;white-space:pre-wrap}
+    .item-row-card{border:1px solid #e1ecf5;background:#fff;border-radius:18px;padding:14px;margin-bottom:12px}
+    .summary-line{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid #edf2f7;font-size:14px}
+    .summary-line:last-child{border-bottom:none}
+    @media (max-width:1100px){.detail-layout,.grid-2,.list-grid{grid-template-columns:1fr}.hero{grid-template-columns:1fr}.hero-actions{justify-content:flex-start}}
+</style>
+
+<div class="page">
+    <div class="hero">
+        <div class="logo-box">
+            <img src="/static/core/img/logo-ionlab.png" alt="Ionlab">
+        </div>
+        <div>
+            <h1>Gestão Comercial</h1>
+            <p>Painel padronizado da análise comercial.</p>
+        </div>
+        <div class="hero-actions">
+            <a class="btn btn-light" href="/intra/">⬅ Voltar ao painel</a>
+            <a class="btn btn-outline" href="/sac/abrir/">➕ Abrir novo SAC</a>
+        </div>
+    </div>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="msg {{ message.tags|default:'success' }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if fluxo_alertas %}
+    <div class="messages">
+        {% for alerta in fluxo_alertas %}
+            <div class="msg warning"><strong>{{ alerta.titulo }}</strong> — {{ alerta.mensagem }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <section class="section">
+        <div class="section-header">
+            <h2 class="section-title">SACs aguardando ação — Gestão Comercial</h2>
+            <p class="section-subtitle">Selecione um SAC para abrir o detalhe da análise comercial.</p>
+        </div>
+
+        {% if sacs_aguardando_acao_comercial %}
+        <div class="list">
+            {% for item in sacs_aguardando_acao_comercial %}
+            <a class="list-card" href="/sac/analise-comercial/?sac={{ item.id }}">
+                <div class="list-grid">
+                    <div><div class="meta-label">Número</div><div class="meta-value">{{ item.numero }}</div></div>
+                    <div><div class="meta-label">Cliente</div><div class="meta-value">{{ item.cliente_nome|default:'-' }}</div></div>
+                    <div><div class="meta-label">Empresa</div><div class="meta-value">{{ item.empresa_nome|default:'-' }}</div></div>
+                    <div><div class="meta-label">NF</div><div class="meta-value">{{ item.nota_fiscal_numero|default:'-' }}</div></div>
+                    <div><div class="meta-label">Status atual</div><div class="meta-value">{{ item.status_atual_nome|default:'-' }}</div></div>
+                    <div><div class="meta-label">Ação em espera</div><div class="meta-value">{{ item.acao_em_espera_nome|default:'-' }}</div></div>
+                    <div><div class="meta-label">Tempo aguardando</div><div class="meta-value"><span class="tempo-badge">{{ item.tempo_espera|default:'-' }}</span></div></div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty">Nenhum SAC aguardando ação na Gestão Comercial.</div>
+        {% endif %}
+    </section>
+
+    {% if sac %}
+    <div class="detail-layout">
+        <div class="stack">
+            <section class="card">
+                <h2>Dados do SAC</h2>
+                <div class="grid-2">
+                    <div class="field"><label>Número do SAC</label><input type="text" readonly value="{{ sac.numero|default:'-' }}"></div>
+                    <div class="field"><label>Status atual</label><input type="text" readonly value="{{ sac.status_atual.nome|default:'-' }}"></div>
+                </div>
+                <div class="field"><label>Ação em espera</label><input type="text" readonly value="{{ sac.acao_em_espera.nome|default:'-' }}"></div>
+                <div class="grid-2">
+                    <div class="field"><label>Empresa</label><input type="text" readonly value="{{ sac.empresa.razao_social|default:sac.empresa.nome|default:'-' }}"></div>
+                    <div class="field"><label>Setor atual</label><input type="text" readonly value="{{ sac.setor_atual.nome|default:'-' }}"></div>
+                </div>
+                <div class="field"><label>Cliente</label><input type="text" readonly value="{{ sac.cliente.razao_social|default:sac.cliente.nome|default:'-' }}"></div>
+                <div class="field"><label>Nota fiscal</label><input type="text" readonly value="{{ sac.nota_fiscal.numero_nf|default:sac.nota_fiscal.numero|default:'-' }}"></div>
+            </section>
+
+            {% if itens_sac %}
+            <section class="card">
+                <h2>Itens incluídos no SAC</h2>
+                {% for item in itens_sac %}
+                <div class="item-row-card">
+                    <div class="summary-line"><span>Referência</span><strong>{{ item.codigo_produto|default:'-' }}</strong></div>
+                    <div class="summary-line"><span>Descrição</span><strong>{{ item.descricao_item|default:'-' }}</strong></div>
+                    <div class="summary-line"><span>Ocorrência</span><strong>{{ item.tipo_ocorrencia_nome|default:'-' }}</strong></div>
+                    <div class="summary-line"><span>Identificador</span><strong>{{ item.identificador|default:'-' }} / {{ item.numero_rastreio|default:'-' }}</strong></div>
+                    <div class="summary-line"><span>Quantidade com problema</span><strong>{{ item.quantidade_com_problema|default:'-' }}</strong></div>
+                    <div class="summary-line"><span>Setor do item</span><strong>{{ item.setor_nome|default:'-' }}</strong></div>
+                </div>
+                {% endfor %}
+            </section>
+            {% endif %}
+
+            <section class="card">
+                <h2>Análise Comercial</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    {% if sac %}<input type="hidden" name="sac_id" value="{{ sac.id }}">{% endif %}
+                    {{ form.as_p }}
+                    <div class="actions">
+                        <button type="submit" class="btn btn-primary">Salvar análise comercial</button>
+                        <a href="/sac/analise-comercial/" class="btn btn-dark">Voltar para fila</a>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <div class="stack">
+            <section class="card">
+                <h2>Histórico recente</h2>
+                {% with hist=historicos|default:historico %}
+                {% if hist %}
+                    {% for h in hist %}
+                    <div class="history-item">
+                        <div class="history-title">{{ h.status_novo.nome|default:h.acao_executada|default:'Registro' }}</div>
+                        <div class="history-sub">{{ h.data_evento|date:"d/m/Y H:i" }}{% if h.usuario %} • {{ h.usuario }}{% endif %}</div>
+                        {% if h.observacao %}<div class="history-obs">{{ h.observacao }}</div>{% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty">Nenhum histórico encontrado para este SAC.</div>
+                {% endif %}
+                {% endwith %}
+            </section>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

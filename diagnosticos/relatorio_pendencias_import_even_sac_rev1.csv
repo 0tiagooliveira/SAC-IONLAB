@@ -1,0 +1,28 @@
+﻿SAC;Severidade;Tipo da pendencia;Problema;Coluna / campo;Valor atual;Referencia;Equipamento / item
+83;Bloqueia;Item nao encontrado na nota fiscal;O item informado na linha Excel 120 não foi localizado na base de itens da NF 910.;Referencia / Equipamento;1175-50 / Vidro de relógio borossilicato 050mm;1175-50;Vidro de relógio borossilicato 050mm
+103;Bloqueia;Item nao encontrado na nota fiscal;O item informado na linha Excel 158 não foi localizado na base de itens da NF 1086.;Referencia / Equipamento;BJ1000 / Copo de Bequer 1000 ML, graduado em alto relevo, Fabricado em PP, com alça;BJ1000;Copo de Bequer 1000 ML, graduado em alto relevo, Fabricado em PP, com alça
+103;Bloqueia;Item nao encontrado na nota fiscal;O item informado na linha Excel 159 não foi localizado na base de itens da NF 1086.;Referencia / Equipamento;OG-200 / Câmara de neubauer espelhada;OG-200;Câmara de neubauer espelhada
+119;Bloqueia;Nota fiscal nao informada;Sem Nota Fiscal Venda na planilha. Precisa informar a NF para vincular itens e dados oficiais.;Nota Fiscal Venda;;;
+121;Bloqueia;Item nao encontrado na nota fiscal;O item informado na linha Excel 182 não foi localizado na base de itens da NF 1216.;Referencia / Equipamento;CL-332 / Modelo do sistema urogenital feminino;CL-332;Modelo do sistema urogenital feminino
+123;Bloqueia;Nota fiscal nao informada;Sem Nota Fiscal Venda na planilha. Precisa informar a NF para vincular itens e dados oficiais.;Nota Fiscal Venda;;;
+127;Bloqueia;Item nao encontrado na nota fiscal;O item informado na linha Excel 191 não foi localizado na base de itens da NF 1040.;Referencia / Equipamento;TITAN-12-220V / Centrifuga digital titan até 5000rpm prp-prf 12x10 ml - registro anvisa n°80815670010;TITAN-12-220V;Centrifuga digital titan até 5000rpm prp-prf 12x10 ml - registro anvisa n°80815670010
+128;Bloqueia;Cliente nao identificado;Sem Cód. Cli na planilha. Precisa informar o código do cliente para vincular ao cadastro.;Cód. Cli;;;
+128;Bloqueia;Nota fiscal nao informada;Sem Nota Fiscal Venda na planilha. Precisa informar a NF para vincular itens e dados oficiais.;Nota Fiscal Venda;;;
+130;Bloqueia;Cliente nao identificado;Sem Cód. Cli na planilha. Precisa informar o código do cliente para vincular ao cadastro.;Cód. Cli;;;
+130;Bloqueia;Nota fiscal nao informada;Sem Nota Fiscal Venda na planilha. Precisa informar a NF para vincular itens e dados oficiais.;Nota Fiscal Venda;;;
+134;Bloqueia;Cliente nao identificado;Sem Cód. Cli na planilha. Precisa informar o código do cliente para vincular ao cadastro.;Cód. Cli;;;
+134;Bloqueia;Nota fiscal nao informada;Sem Nota Fiscal Venda na planilha. Precisa informar a NF para vincular itens e dados oficiais.;Nota Fiscal Venda;;;
+139;Bloqueia;Cliente nao identificado;Sem Cód. Cli na planilha. Precisa informar o código do cliente para vincular ao cadastro.;Cód. Cli;;;
+139;Bloqueia;Nota fiscal nao informada;Sem Nota Fiscal Venda na planilha. Precisa informar a NF para vincular itens e dados oficiais.;Nota Fiscal Venda;;;
+142;Bloqueia;Cliente nao identificado;Sem Cód. Cli na planilha. Precisa informar o código do cliente para vincular ao cadastro.;Cód. Cli;;;
+142;Bloqueia;Nota fiscal nao informada;Sem Nota Fiscal Venda na planilha. Precisa informar a NF para vincular itens e dados oficiais.;Nota Fiscal Venda;;;
+144;Bloqueia;Cliente nao identificado;Sem Cód. Cli na planilha. Precisa informar o código do cliente para vincular ao cadastro.;Cód. Cli;;;
+144;Bloqueia;Nota fiscal nao informada;Sem Nota Fiscal Venda na planilha. Precisa informar a NF para vincular itens e dados oficiais.;Nota Fiscal Venda;;;
+159;Bloqueia;Cliente nao identificado;Sem Cód. Cli na planilha. Precisa informar o código do cliente para vincular ao cadastro.;Cód. Cli;;;
+159;Bloqueia;Nota fiscal nao informada;Sem Nota Fiscal Venda na planilha. Precisa informar a NF para vincular itens e dados oficiais.;Nota Fiscal Venda;;;
+174;Bloqueia;Equipamento sem numero de serie;Categoria é Equipamento na linha Excel 250, mas Nº Série está vazio ou inválido. Equipamento precisa de serial.;Nº Série;;IL-593-S-BI;Espectrofotômetro digital uv-visível faixa 190-1100nm c/varredura banda 2 nm
+174;Bloqueia;Item nao encontrado na nota fiscal;O item informado na linha Excel 250 não foi localizado na base de itens da NF 2081.;Referencia / Equipamento;IL-593-S-BI / Espectrofotômetro digital uv-visível faixa 190-1100nm c/varredura banda 2 nm;IL-593-S-BI;Espectrofotômetro digital uv-visível faixa 190-1100nm c/varredura banda 2 nm
+185;Bloqueia;Item nao encontrado na nota fiscal;O item informado na linha Excel 267 não foi localizado na base de itens da NF 2361.;Referencia / Equipamento; / Agar Bile Esculina- frasco 500 g;;Agar Bile Esculina- frasco 500 g
+185;Bloqueia;Item nao encontrado na nota fiscal;O item informado na linha Excel 268 não foi localizado na base de itens da NF 2361.;Referencia / Equipamento; / Agar Verde Brilhante Moderado 500g;;Agar Verde Brilhante Moderado 500g
+194;Bloqueia;Cliente nao identificado;Sem Cód. Cli na planilha. Precisa informar o código do cliente para vincular ao cadastro.;Cód. Cli;;;UNIVERSIDADE FEDERAL DE SANTA CATARINA
+194;Bloqueia;Nota fiscal nao informada;Sem Nota Fiscal Venda na planilha. Precisa informar a NF para vincular itens e dados oficiais.;Nota Fiscal Venda;;;

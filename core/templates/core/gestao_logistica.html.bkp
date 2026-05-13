@@ -1,0 +1,774 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <title>Gestão Logística</title>
+    <style>
+        :root{--azul:#0d3b66;--azul-2:#145a8f;--ciano:#00b4c7;--texto:#17324d;--muted:#64748b;--borda:#d6e3ef;--card:#fff;--bg:#f4f8fc;--shadow:0 18px 40px rgba(13,59,102,.10);--danger:#d62839;}
+        *{box-sizing:border-box}
+        body{margin:0;font-family:Arial,sans-serif;color:var(--texto);background:radial-gradient(circle at top right,rgba(0,180,199,.14),transparent 30%),linear-gradient(180deg,#f8fbfe 0%,#eef5fb 100%)}
+        .page{max-width:1380px;margin:0 auto;padding:28px 22px 42px}
+        .hero{display:grid;grid-template-columns:96px 1fr auto;gap:20px;align-items:center;padding:26px;border-radius:28px;background:linear-gradient(135deg,var(--azul) 0%,var(--azul-2) 55%,#0f7490 100%);color:#fff;box-shadow:var(--shadow)}
+        .logo-box{width:96px;height:96px;border-radius:22px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center}
+        .logo-box img{max-width:70px;max-height:70px}
+        .hero h1{margin:0;font-size:34px}
+        .hero p{margin:8px 0 0;line-height:1.5;color:rgba(255,255,255,.86)}
+        .hero-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+        .btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:700;padding:13px 18px;border-radius:15px;border:none;cursor:pointer;font-size:14px}
+        .btn-light{background:#fff;color:var(--azul)}
+        .btn-outline{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.24)}
+        .section{margin-top:22px;background:var(--card);border:1px solid var(--borda);border-radius:28px;box-shadow:var(--shadow);overflow:hidden}
+        .section-header{padding:22px 24px;border-bottom:1px solid #e5edf5}
+        .section-title{margin:0;color:var(--azul);font-size:24px}
+        .section-subtitle{margin:6px 0 0;color:var(--muted);font-size:14px}
+        .list{padding:18px;display:grid;gap:14px}
+        .list-card{display:block;text-decoration:none;color:inherit;border:1px solid #dbe8f4;border-radius:22px;padding:18px;background:linear-gradient(180deg,#fff 0%,#f8fbfe 100%);transition:.18s ease}
+        .list-card:hover{transform:translateY(-1px);border-color:#bfd4e8;box-shadow:0 12px 24px rgba(13,59,102,.08)}
+        .list-grid{display:grid;grid-template-columns:minmax(120px,160px) minmax(160px,1fr) minmax(140px,.9fr) minmax(90px,.5fr) minmax(170px,1fr) minmax(170px,1fr) minmax(130px,.7fr);gap:14px}
+        .meta-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+        .meta-value{font-size:15px;font-weight:700;color:var(--texto);line-height:1.35}
+        .detail-layout{margin-top:22px;display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+        .stack{display:grid;gap:18px}
+        .card{background:var(--card);border:1px solid var(--borda);border-radius:24px;box-shadow:var(--shadow);padding:22px}
+        .card h2{margin:0 0 18px;font-size:22px;color:var(--azul)}
+        .subcard{border:1px solid #dbe8f3;border-radius:18px;padding:16px;background:#f8fbfe;margin-bottom:16px}
+        .subcard h3{margin:0 0 14px;color:#0d3b66;font-size:18px}
+        .field{margin-bottom:14px}
+        .field label{display:block;margin-bottom:6px;font-size:13px;font-weight:700;color:#355675}
+        input,select,textarea{width:100%;border:1px solid #cfdeec;border-radius:14px;padding:12px 14px;font-size:14px;outline:none;background:#fff}
+        input[readonly],textarea[readonly],select[disabled]{background:#f4f7fb;color:#45627d}
+        textarea{min-height:120px;resize:vertical}
+        .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+        .history-item{border:1px solid #dbe8f3;border-radius:18px;padding:16px;background:#fff}
+        .history-title{font-size:18px;font-weight:700;color:var(--azul);margin-bottom:6px}
+        .history-sub,.muted,.item-sub{color:#5f7893;font-size:13px}
+        .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+        .btn-primary{background:linear-gradient(135deg,var(--ciano),#1499bd);color:#fff}
+        .btn-dark{background:linear-gradient(135deg,var(--azul),#174e7e);color:#fff}
+        .empty{padding:24px;color:var(--muted)}
+        .msg{padding:14px 16px;border-radius:14px;margin-bottom:10px;font-weight:700}
+        .msg.warning{background:#fff7e7;border:1px solid #f2d494;color:#7d5a00}
+        .msg.error{background:#b3261e;border:1px solid #8e1c16;color:#fff}
+        .messages{margin-top:16px}
+        
+        .item-row-card{border:1px solid #e1ecf5;background:#fff;border-radius:18px;padding:14px;margin-bottom:12px}
+        .item-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px}
+        .item-title{font-weight:700;color:var(--azul);font-size:15px}
+        .summary-line{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid #edf2f7;font-size:14px}
+        .summary-line:last-child{border-bottom:none}
+        .history-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;margin-top:10px}
+        .history-meta .line{background:#f7fbff;border:1px solid #e3eef8;border-radius:12px;padding:10px 12px;font-size:13px}
+        .history-obs{margin-top:10px;background:#f9fbfd;border:1px solid #e6eef6;border-radius:12px;padding:12px;font-size:13px;white-space:pre-wrap}
+        .tempo-status-card{background:var(--card);border:1px solid var(--borda);border-radius:24px;box-shadow:var(--shadow);padding:18px;margin:18px 0}
+        .tempo-status-header{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+        .tempo-status-title{margin:0 0 6px 0;font-size:20px;color:var(--azul)}
+        .tempo-status-subtitle{margin:0;color:#5a728a;font-size:13px;max-width:760px}
+        .tempo-toggle{border:none;border-radius:14px;padding:10px 16px;background:linear-gradient(135deg,var(--azul),#174e7e);color:#fff;font-weight:700;cursor:pointer;white-space:nowrap}
+        .tempo-toggle .toggle-close{display:none}
+        .tempo-status-card.expanded .tempo-toggle .toggle-open{display:none}
+        .tempo-status-card.expanded .tempo-toggle .toggle-close{display:inline}
+        .tempo-resumo{margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+        .tempo-resumo-box{background:#f7fbff;border:1px solid #dbe8f4;border-radius:14px;padding:12px 14px}
+        .tempo-resumo-box strong{display:block;color:var(--azul);font-size:18px;margin-top:4px}
+        .tempo-flow-wrap{display:none;margin-top:16px;border-top:1px solid #e7eff7;padding-top:16px}
+        .tempo-status-card.expanded .tempo-flow-wrap{display:block}
+        .tempo-flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+        .tempo-node{background:linear-gradient(180deg,#ffffff 0%,#f4f9fd 100%);border:1px solid #d7e5f1;border-radius:18px;padding:14px;position:relative;min-height:170px}
+        .tempo-node::before{content:'';display:block;width:12px;height:12px;border-radius:50%;background:var(--ciano);margin-bottom:10px;box-shadow:0 0 0 6px rgba(0,180,199,.12)}
+        .tempo-node-status{font-size:16px;font-weight:700;color:var(--azul);line-height:1.3}
+        .tempo-node-setor{margin-top:6px;font-size:13px;color:#4a657d;font-weight:700}
+        .tempo-node-data{margin-top:10px;font-size:12px;color:#6e8296}
+        .tempo-duracao-chip{margin-top:14px;display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;background:#eff8fc;color:var(--azul);font-weight:700;font-size:13px;flex-wrap:wrap}
+        .tempo-duracao-chip.atual{background:#fff4e5;color:#8b4f00}
+        .tempo-duracao-label{display:block;margin-top:8px;font-size:12px;color:#5f7690;line-height:1.35}
+        @media (max-width:1100px){.detail-layout,.grid-2,.grid-3,.list-grid,.history-meta{grid-template-columns:1fr}.hero{grid-template-columns:1fr}.hero-actions{justify-content:flex-start}.tempo-status-header{align-items:flex-start}}
+    
+        .tempo-badge{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;font-size:13px;font-weight:700}
+        .tempo-verde{background:#0b6b3a;color:#fff}
+        .tempo-amarelo{background:#f2c94c;color:#1d1d1d}
+        .tempo-vermelho{background:#d62839;color:#fff}
+
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="hero">
+        <div class="logo-box">
+            <img src="{% static 'core/img/logo-ionlab.png' %}" alt="Ionlab">
+        </div>
+        <div>
+            <h1>Gestão Logística</h1>
+            <p>Painel operacional da logística no mesmo padrão visual da Gestão Comercial.</p>
+        </div>
+        <div class="hero-actions">
+            <a class="btn btn-light" href="/intra/">⬅ Voltar ao painel</a>
+            <a class="btn btn-outline" href="/sac/abrir/">➕ Abrir novo SAC</a>
+        </div>
+    </div>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="msg {{ message.tags|default:'warning' }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if modo_lista %}
+    <section class="section">
+        <div class="section-header">
+            <h2 class="section-title">SACs aguardando ação — Logística</h2>
+            <p class="section-subtitle">Selecione um SAC para abrir a análise logística.</p>
+        </div>
+        {% if sacs_disponiveis %}
+        <div class="list">
+            {% for item in sacs_disponiveis %}
+            <a class="list-card" href="/sac/{{ item.id }}/gestao-logistica/">
+                <div class="list-grid">
+                    <div><div class="meta-label">Número</div><div class="meta-value">{{ item.numero }}</div></div>
+                    <div><div class="meta-label">Cliente</div><div class="meta-value">{{ item.cliente_nome }}</div></div>
+                    <div><div class="meta-label">Empresa</div><div class="meta-value">{{ item.empresa_nome }}</div></div>
+                    <div><div class="meta-label">NF</div><div class="meta-value">{{ item.nota_fiscal_numero }}</div></div>
+                    <div><div class="meta-label">Status atual</div><div class="meta-value">{{ item.status_atual_nome }}</div></div>
+                    <div><div class="meta-label">Ação em espera</div><div class="meta-value">{{ item.acao_em_espera_nome }}</div></div>
+                    <div><div class="meta-label">Tempo aguardando</div><div class="meta-value"><span class="tempo-badge {{ item.tempo_cor|default:'tempo-verde' }}">{{ item.tempo_espera }}</span></div></div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty">Nenhum SAC aguardando ação na Gestão Logística.</div>
+        {% endif %}
+    </section>
+
+    <section class="section">
+        <div class="section-header">
+            <h2 class="section-title">SAC Agendamentos</h2>
+            <p class="section-subtitle">SACs com coleta agendada futura. Na data programada eles sobem automaticamente para a fila normal da Logística.</p>
+        </div>
+        {% if sacs_agendamentos %}
+        <div class="list">
+            {% for item in sacs_agendamentos %}
+            <a class="list-card" href="/sac/{{ item.id }}/gestao-logistica/">
+                <div class="list-grid">
+                    <div><div class="meta-label">Número</div><div class="meta-value">{{ item.numero }}</div></div>
+                    <div><div class="meta-label">Cliente</div><div class="meta-value">{{ item.cliente_nome }}</div></div>
+                    <div><div class="meta-label">Empresa</div><div class="meta-value">{{ item.empresa_nome }}</div></div>
+                    <div><div class="meta-label">NF</div><div class="meta-value">{{ item.nota_fiscal_numero }}</div></div>
+                    <div><div class="meta-label">Tipo ocorrência</div><div class="meta-value">{{ item.tipo_ocorrencia_nome }}</div></div>
+                    <div><div class="meta-label">Data agendada</div><div class="meta-value">{{ item.data_agendada_coleta }}</div></div>
+                    <div><div class="meta-label">Ação em espera</div><div class="meta-value">{{ item.acao_em_espera_nome }}</div></div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty">Nenhum SAC agendado no momento.</div>
+        {% endif %}
+    </section>
+    {% endif %}
+
+{% if sac and not modo_lista %}
+    <div class="detail-layout">
+        <div class="stack">
+            {% include 'core/components/dados_sac_oficiais.html' %}
+
+            <section class="card">
+                <h2>Dados complementares da Logística</h2>
+                <div class="grid-2">
+                    <div class="field"><label>Título</label><input type="text" readonly value="{{ dados_sac.titulo|default:dados_sac_oficiais.titulo|default:'-' }}"></div>
+                    <div class="field"><label>Tipo de Ocorrência</label><input type="text" readonly value="{{ dados_sac.tipo_ocorrencia_historico|default:dados_sac.tipo_ocorrencia|default:'-' }}"></div>
+                </div>
+                <div class="grid-2">
+                    <div class="field"><label>Status Adicionado pelo Setor</label><input type="text" readonly value="{{ dados_sac.status_adicionado_pelo_setor|default:'-' }}"></div>
+                    <div class="field"><label>Nome do Usuário solicitante</label><input type="text" readonly value="{{ dados_sac.nome_usuario_solicitante|default:'-' }}"></div>
+                </div>
+                <div class="field"><label>Ação em espera atual (histórico/logística)</label><input type="text" readonly value="{{ dados_sac.acao_em_espera_historico|default:dados_sac.acao_em_espera_atual|default:dados_sac_oficiais.acao_em_espera_atual|default:'-' }}"></div>
+                <div class="grid-2">
+                    <div class="field"><label>Data/Hora que veio para esse Setor</label><input type="text" readonly value="{{ dados_sac.data_hora_setor|default:'-' }}"></div>
+                    <div class="field"><label>Tempo nesse setor</label><input type="text" readonly value="{{ dados_sac.tempo_setor|default:'-' }}"></div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Ações a Serem Executadas por esse Setor</h2>
+                <form method="post" id="form-logistica">
+                    {% csrf_token %}
+                    <input type="hidden" id="tipo_ocorrencia_logistica_txt" value="{{ tipo_ocorrencia_logistica|default:''|escape }}">
+                    <input type="hidden" id="acao_atual_logistica_txt" value="{{ acao_atual_logistica|default:''|escape }}">
+                    <input type="hidden" id="eh_equipamento_logistica_txt" value="{% if eh_equipamento_logistica %}SIM{% else %}NAO{% endif %}">
+
+                    <section class="subcard">
+                        <h3>Execução</h3>
+
+                        {% if fluxo_especial_item_vencido_saida %}
+                        <div class="grid-2 bloco-item-vencido-saida">
+                            <div class="field">
+                                <label>Número da nota fiscal Impressa</label>
+                                <input type="text" name="numero_nota_fiscal_impressa" value="{{ request.POST.numero_nota_fiscal_impressa|default:'' }}">
+                            </div>
+                            <div class="field">
+                                <label>Data da emissão</label>
+                                <input type="date" name="data_emissao_saida" value="{{ request.POST.data_emissao_saida|default:'' }}">
+                            </div>
+                        </div>
+
+                        <div class="field bloco-item-vencido-saida">
+                            <label>Itens Ja separados e Bipados</label>
+                            <select name="itens_ja_separados_bipados" id="id_itens_ja_separados_bipados">
+                                <option value="">Selecione</option>
+                                <option value="SIM" {% if request.POST.itens_ja_separados_bipados == 'SIM' %}selected{% endif %}>Sim</option>
+                                <option value="NAO" {% if request.POST.itens_ja_separados_bipados == 'NAO' %}selected{% endif %}>Não</option>
+                            </select>
+                        </div>
+
+                        <div id="blocoQuantidadeSeparadaBipada" class="field bloco-item-vencido-saida" style="display:{% if request.POST.itens_ja_separados_bipados == 'SIM' %}block{% else %}none{% endif %};">
+                            <label>Quantidade Separada e Bipada</label>
+                            <input type="number" step="1" min="1" name="quantidade_separada_bipada" value="{{ request.POST.quantidade_separada_bipada|default:'' }}">
+                        </div>
+
+                        <div id="mensagemBloqueioItemVencidoSaida" class="msg warning bloco-item-vencido-saida" style="display:{% if request.POST.itens_ja_separados_bipados == 'NAO' %}block{% else %}none{% endif %};">
+                            Volte nesse formulário quando a nota fiscal estiver emitida e os itens estiverem separados e bipados.
+                        </div>
+
+                        <section class="subcard bloco-item-vencido-saida">
+                            <h3>Fluxo que será aplicado</h3>
+                            <div class="grid-3">
+                                <div class="field">
+                                    <label>Próximo status</label>
+                                    <input type="text" readonly id="preview_status_item_vencido_saida" value="{% if request.POST.itens_ja_separados_bipados == 'SIM' %}Confirmar Baixa de Itens Vencidos{% else %}-{% endif %}">
+                                </div>
+                                <div class="field">
+                                    <label>Ação em Espera próximo Setor</label>
+                                    <input type="text" readonly id="preview_acao_item_vencido_saida" value="{% if request.POST.itens_ja_separados_bipados == 'SIM' %}Confirmar Descarte/Eliminação/Doação{% else %}-{% endif %}">
+                                </div>
+                                <div class="field">
+                                    <label>Próximo setor</label>
+                                    <input type="text" readonly id="preview_setor_item_vencido_saida" value="{% if request.POST.itens_ja_separados_bipados == 'SIM' %}Assessoria Cientifica{% else %}-{% endif %}">
+                                </div>
+                            </div>
+                        </section>
+                        {% endif %}
+
+
+                        {% if not fluxo_especial_item_vencido_saida %}
+                        <div id="blocoColetaIonlab" class="bloco-coleta-ionlab" style="{% if acao_aguardando_coleta_ionlab %}display:block{% else %}display:none{% endif %};">
+                            <div class="grid-2">
+                                <div class="field"><label>{{ form.nome_transportadora.label }}</label>{{ form.nome_transportadora }}</div>
+                                <div class="field"><label>{{ form.telefone_transportadora.label }}</label>{{ form.telefone_transportadora }}</div>
+                            </div>
+                            <div class="grid-2">
+                                <div class="field"><label>{{ form.numero_cotacao_frete.label }}</label>{{ form.numero_cotacao_frete }}</div>
+                                <div class="field"><label>{{ form.valor_frete_cotado.label }}</label>{{ form.valor_frete_cotado }}</div>
+                            </div>
+                            <div class="grid-2">
+                                <div class="field"><label>Data da efetiva coleta *</label>{{ form.data_expedicao }}</div>
+                                <div class="field"><label>Tempo de entrega até o cliente *</label>{{ form.dias_entrega_cliente }}</div>
+                            </div>
+                            <div class="field">
+                                <label>Data prevista para entrega</label>
+                                {{ form.data_prevista_chegada_cliente }}
+                                <div class="muted" style="margin-top:6px;">Calculado automaticamente pela Data da efetiva coleta + Tempo de entrega até o cliente.</div>
+                            </div>
+                        </div>
+
+                        <div id="blocoLogisticaPadrao" style="{% if acao_aguardando_coleta_ionlab %}display:none{% endif %};">
+                        <div class="grid-2 bloco-cliente-nao-confirmou bloco-aguardando-coleta-cliente">
+                            <div class="field">
+                                <label>{{ form.nome_transportadora.label }}</label>
+                                {{ form.nome_transportadora }}
+                            </div>
+                            <div class="field">
+                                <label>{{ form.telefone_transportadora.label }}</label>
+                                {{ form.telefone_transportadora }}
+                            </div>
+                        </div>
+
+                        <div class="grid-2 bloco-aguardando-coleta-cliente">
+                            <div class="field">
+                                <label>{{ form.contato_transportadora.label }}</label>
+                                {{ form.contato_transportadora }}
+                            </div>
+                            <div class="field">
+                                <label>{{ form.email_transportadora.label }}</label>
+                                {{ form.email_transportadora }}
+                            </div>
+                        </div>
+
+                        <div class="grid-2 bloco-cliente-nao-confirmou bloco-aguardando-coleta-cliente">
+                            <div class="field">
+                                <label>{{ form.data_coleta.label }}</label>
+                                {{ form.data_coleta }}
+                            </div>
+                            <div class="field">
+                                <label>{{ form.numero_cotacao_frete.label }}</label>
+                                {{ form.numero_cotacao_frete }}
+                            </div>
+                        </div>
+
+                        <div class="grid-2 bloco-cliente-nao-confirmou bloco-aguardando-coleta-cliente">
+                            <div class="field">
+                                <label>{{ form.valor_frete_cotado.label }}</label>
+                                {{ form.valor_frete_cotado }}
+                            </div>
+                            <div class="field bloco-aguardando-coleta-cliente">
+                                <label>{{ form.dias_entrega_ionlab.label }}</label>
+                                {{ form.dias_entrega_ionlab }}
+                            </div>
+                        </div>
+
+                        <div class="grid-2 bloco-aguardando-coleta-cliente">
+                            <div class="field">
+                                <label>{{ form.data_prevista_chegada_ionlab.label }}</label>
+                                {{ form.data_prevista_chegada_ionlab }}
+                            </div>
+                            <div class="field">
+                                <label>{{ form.tipo_nota_fiscal.label }}</label>
+                                {{ form.tipo_nota_fiscal }}
+                            </div>
+                        </div>
+
+                        <div class="grid-2 bloco-cliente-nao-confirmou bloco-aguardando-coleta-cliente">
+                            <div class="field">
+                                <label>{{ form.data_emissao_nota_fiscal.label }}</label>
+                                {{ form.data_emissao_nota_fiscal }}
+                            </div>
+                            <div class="field">
+                                <label>{{ form.numero_nota_fiscal.label }}</label>
+                                {{ form.numero_nota_fiscal }}
+                            </div>
+                        </div>
+
+                        <div class="grid-3 bloco-recebimento-fisico-fiscal">
+                            <div class="field">
+                                <label>{{ form.numero_ctrc.label }}</label>
+                                {{ form.numero_ctrc }}
+                            </div>
+                            <div class="field">
+                                <label>{{ form.valor_frete_cotado.label }}</label>
+                                {{ form.valor_frete_cotado }}
+                            </div>
+                            <div class="field">
+                                <label>{{ form.valor_frete_ctrc.label }}</label>
+                                {{ form.valor_frete_ctrc }}
+                            </div>
+                        </div>
+
+                        <div class="field bloco-recebimento-fisico-fiscal" id="blocoDivergenciaCtrc" style="display:none;">
+                            <label>{{ form.ctrc_divergencia_valor.label }}</label>
+                            {{ form.ctrc_divergencia_valor }}
+                        </div>
+
+                        <div class="grid-2 bloco-recebimento-fisico-fiscal">
+                            <div class="field">
+                                <label>{{ form.data_recebimento.label }}</label>
+                                {{ form.data_recebimento }}
+                            </div>
+                            <div class="field">
+                                <label>{{ form.nome_recebedor.label }}</label>
+                                {{ form.nome_recebedor }}
+                            </div>
+                        </div>
+
+                        <div class="grid-2 bloco-recebimento-fisico-fiscal">
+                            <div class="field">
+                                <label>{{ form.embalagem_intacta.label }}</label>
+                                {{ form.embalagem_intacta }}
+                                <div id="msgEmbalagemNaoIntacta" class="msg warning" style="display:none;">Descreva nas Observações o estado em que recebeu a embalagem.</div>
+                            </div>
+                            <div class="field">
+                                <label>Feito ressalva no Ctrc</label>
+                                {{ form.ressalva_cte }}
+                                <div id="msgRessalvaNaoFeita" class="msg warning" style="display:none;">Descreva nas Observações o motivo de não ter feito a ressalva no Ctrc.</div>
+                            </div>
+                        </div>
+
+                        <div class="field bloco-recebimento-fisico-fiscal">
+                            <label>É um Equipamento</label>
+                            <input type="text" readonly value="{% if eh_equipamento_logistica %}Sim{% else %}Não{% endif %}">
+                        </div>
+
+                        <div class="field bloco-equipamento-caixa">
+                            <label>{{ form.lista_itens_embalagem.label }}</label>
+                            {{ form.lista_itens_embalagem }}
+                        </div>
+
+                        <div class="field bloco-avariado">
+                            <label>{{ form.tipo_produto.label }}</label>
+                            {{ form.tipo_produto }}
+                        </div>
+
+                        <div class="grid-3">
+                            <div class="field bloco-avariado bloco-faltante bloco-sobrando bloco-vencido">
+                                <label>{{ form.nome_embalador.label }}</label>
+                                {{ form.nome_embalador }}
+                            </div>
+                            <div class="field bloco-faltante bloco-sobrando bloco-vencido">
+                                <label>{{ form.nome_separador.label }}</label>
+                                {{ form.nome_separador }}
+                            </div>
+                            <div class="field bloco-faltante bloco-sobrando bloco-vencido">
+                                <label>{{ form.nome_bip.label }}</label>
+                                {{ form.nome_bip }}
+                            </div>
+                        </div>
+
+                        <div class="grid-3 bloco-avariado">
+                            <div class="field">
+                                <label>{{ form.embalagem_madeira.label }}</label>
+                                {{ form.embalagem_madeira }}
+                            </div>
+                            <div class="field bloco-avariado-equipamento">
+                                <label>{{ form.embalagem_original.label }}</label>
+                                {{ form.embalagem_original }}
+                            </div>
+                            <div class="field">
+                                <label>{{ form.ressalva_cte.label }}</label>
+                                {{ form.ressalva_cte }}
+                            </div>
+                        </div>
+
+                        <div class="grid-2 bloco-faltante bloco-sobrando">
+                            <div class="field">
+                                <label>{{ form.quantidade_total_romaneio.label }}</label>
+                                {{ form.quantidade_total_romaneio }}
+                            </div>
+                            <div class="field">
+                                <label>{{ form.quantidade_total_conferencia_embalagem.label }}</label>
+                                {{ form.quantidade_total_conferencia_embalagem }}
+                            </div>
+                        </div>
+
+                        <div id="alerta_divergencia_romaneio" class="msg error" style="display:none;">
+                            Quantidade embalada diferente da quantidade total do romaneio.
+                        </div>
+
+                        <div class="grid-3 bloco-faltante bloco-sobrando">
+                            <div class="field">
+                                <label>{{ form.peso_total_itens.label }}</label>
+                                {{ form.peso_total_itens }}
+                            </div>
+                            <div class="field">
+                                <label>{{ form.quantidade_volumes_expedidos.label }}</label>
+                                {{ form.quantidade_volumes_expedidos }}
+                            </div>
+                            <div class="field">
+                                <label>{{ form.quantidade_volumes_nota_fiscal.label }}</label>
+                                {{ form.quantidade_volumes_nota_fiscal }}
+                            </div>
+                        </div>
+
+                        <div class="grid-3 bloco-faltante bloco-sobrando">
+                            <div class="field">
+                                <label>{{ form.quantidade_volumes_cte.label }}</label>
+                                {{ form.quantidade_volumes_cte }}
+                            </div>
+                            <div class="field">
+                                <label>{{ form.peso_cte.label }}</label>
+                                {{ form.peso_cte }}
+                            </div>
+                            <div class="field">
+                                <label>{{ form.ressalva_cte.label }}</label>
+                                {{ form.ressalva_cte }}
+                            </div>
+                        </div>
+
+                        <div class="grid-2 bloco-vencido">
+                            <div class="field">
+                                <label>{{ form.numero_lote.label }}</label>
+                                {{ form.numero_lote }}
+                            </div>
+                            <div class="field">
+                                <label>{{ form.quantidade_estoque.label }}</label>
+                                {{ form.quantidade_estoque }}
+                            </div>
+                        </div>
+
+                        <div class="grid-2 bloco-vencido">
+                            <div class="field">
+                                <label>{{ form.fabricacao.label }}</label>
+                                {{ form.fabricacao }}
+                            </div>
+                            <div class="field">
+                                <label>{{ form.validade.label }}</label>
+                                {{ form.validade }}
+                            </div>
+                        </div>
+                    </section>
+                        </div>
+
+                    {% include 'core/components/fluxo_padrao_form.html' with status_field=form.proximo_status acao_field=form.proxima_acao_em_espera setor_field=form.proximo_setor %}
+                    {% endif %}
+
+                    <section class="subcard">
+                        <h3>Observações</h3>
+                        <div class="field">
+                            <label>{{ form.observacoes.label }}</label>
+                            {{ form.observacoes }}
+                        </div>
+                    </section>
+
+                    <div class="actions">
+                        <button type="submit" class="btn btn-primary" id="btnSalvarLogistica">Salvar análise logística</button>
+                        <a href="/sac/gestao-logistica/" class="btn btn-dark">Voltar para fila</a>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <div class="stack">
+            {% include 'core/components/itens_sac_padrao.html' %}
+
+            <div class="tempo-status-card" id="blocoTempoEtapas">
+                <div class="tempo-status-header">
+                    <div>
+                        <h2 class="tempo-status-title">Tempo entre etapas do SAC</h2>
+                        <p class="tempo-status-subtitle">O gráfico fica compacto para não atrapalhar o preenchimento. Clique para expandir e visualizar a linha do tempo completa em várias linhas.</p>
+                    </div>
+                    <button type="button" class="tempo-toggle" id="btnExpandirTempoEtapas">
+                        <span class="toggle-open">Ver linha do tempo completa</span>
+                        <span class="toggle-close">Recolher linha do tempo</span>
+                    </button>
+                </div>
+
+                {% if grafico_tempo_status %}
+                <div class="tempo-resumo">
+                    <div class="tempo-resumo-box">Total de etapas<strong>{{ grafico_tempo_status|length }}</strong></div>
+                    <div class="tempo-resumo-box">Status atual<strong>{% with ultimo=grafico_tempo_status|last %}{{ ultimo.status }}{% endwith %}</strong></div>
+                    <div class="tempo-resumo-box">Tempo atual<strong>{% with ultimo=grafico_tempo_status|last %}{{ ultimo.tempo_ate_proxima }}{% endwith %}</strong></div>
+                </div>
+                <div class="tempo-flow-wrap">
+                    <div class="tempo-flow">
+                        {% for etapa in grafico_tempo_status %}
+                            <div class="tempo-node">
+                                <div class="tempo-node-status">{{ etapa.status }}</div>
+                                <div class="tempo-node-setor">{{ etapa.setor }}</div>
+                                <div class="tempo-node-data">{{ etapa.data_evento_formatada }}</div>
+                                <div class="tempo-duracao-chip {% if forloop.last %}atual{% endif %}">{{ etapa.tempo_ate_proxima }}</div>
+                                <span class="tempo-duracao-label">{{ etapa.tempo_label }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="tempo-flow-wrap" style="display:block;">
+                    <div class="muted">Selecione um SAC para visualizar a linha do tempo entre os status.</div>
+                </div>
+                {% endif %}
+            </div>
+
+            <section class="card">
+                <h2>Histórico recente</h2>
+                {% if historicos %}
+                    {% for h in historicos %}
+                        <div class="item-row-card">
+                            <div class="item-top">
+                                <div>
+                                    <div class="item-title">{{ h.acao_executada|default:h.status_novo.nome|default:'Registro' }}</div>
+                                    <div class="muted">{{ h.data_evento|date:'d/m/Y H:i' }} | Usuário: {{ h.usuario|default:'-' }}</div>
+                                </div>
+                            </div>
+                            <div class="history-meta">
+                                <div class="line"><strong>Status:</strong> {{ h.status_anterior|default:'-' }} → {{ h.status_novo|default:'-' }}</div>
+                                <div class="line"><strong>Setor destino:</strong> {{ h.setor_destino|default:'-' }}</div>
+                                <div class="line"><strong>Setor origem:</strong> {{ h.setor_origem|default:'-' }}</div>
+                                <div class="line"><strong>Ação executada:</strong> {{ h.acao_executada|default:'-' }}</div>
+                            </div>
+                            {% if h.observacao %}<div class="history-obs"><strong>Dados da ação:</strong>
+{{ h.observacao }}</div>{% endif %}
+                            {% if h.arquivo %}
+                            <div class="actions" style="margin-top:10px;">
+                                <a href="{{ h.arquivo.url }}" target="_blank" class="btn btn-outline">📄 Visualizar arquivo</a>
+                                <a href="{{ h.arquivo.url }}" download class="btn btn-light">⬇️ Baixar arquivo</a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty">Nenhum histórico encontrado para este SAC.</div>
+                {% endif %}
+            </section>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+(function(){
+    function norm(texto){
+        return (texto || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+    }
+    function show(sel, on){
+        document.querySelectorAll(sel).forEach(el => el.style.display = on ? '' : 'none');
+    }
+    const tipoOc = norm(document.getElementById('tipo_ocorrencia_logistica_txt')?.value || '');
+    const acaoAtual = norm(document.getElementById('acao_atual_logistica_txt')?.value || '');
+    const ehEquipamento = norm(document.getElementById('eh_equipamento_logistica_txt')?.value || '') === 'sim';
+    const tipoProduto = document.getElementById('id_tipo_produto');
+    const qtdRom = document.getElementById('id_quantidade_total_romaneio');
+    const qtdConf = document.getElementById('id_quantidade_total_conferencia_embalagem');
+    const alerta = document.getElementById('alerta_divergencia_romaneio');
+    const dataColeta = document.getElementById('id_data_coleta');
+    const diasIonlab = document.getElementById('id_dias_entrega_ionlab');
+    const dataPrevistaIonlab = document.getElementById('id_data_prevista_chegada_ionlab');
+    const dataColetaIonlab = document.getElementById('id_data_expedicao');
+    const diasClienteIonlab = document.getElementById('id_dias_entrega_cliente');
+    const dataPrevistaClienteIonlab = document.getElementById('id_data_prevista_chegada_cliente');
+    const valorFreteCotado = document.getElementById('id_valor_frete_cotado');
+    const valorFreteCtrc = document.getElementById('id_valor_frete_ctrc');
+    const divergenciaCtrc = document.getElementById('id_ctrc_divergencia_valor');
+    const blocoDivergenciaCtrc = document.getElementById('blocoDivergenciaCtrc');
+    const embalagemIntacta = document.getElementById('id_embalagem_intacta');
+    const ressalvaCte = document.getElementById('id_ressalva_cte');
+    const msgEmbalagemNaoIntacta = document.getElementById('msgEmbalagemNaoIntacta');
+    const msgRessalvaNaoFeita = document.getElementById('msgRessalvaNaoFeita');
+
+    const selectItemVencidoSaida = document.getElementById('id_itens_ja_separados_bipados');
+    const blocoQtdBipada = document.getElementById('blocoQuantidadeSeparadaBipada');
+    const msgBloqueioItemVencidoSaida = document.getElementById('mensagemBloqueioItemVencidoSaida');
+    const btnSalvarLogistica = document.getElementById('btnSalvarLogistica');
+    const previewStatusItemVencidoSaida = document.getElementById('preview_status_item_vencido_saida');
+    const previewAcaoItemVencidoSaida = document.getElementById('preview_acao_item_vencido_saida');
+    const previewSetorItemVencidoSaida = document.getElementById('preview_setor_item_vencido_saida');
+    const blocoColetaIonlab = document.getElementById('blocoColetaIonlab');
+    const blocoLogisticaPadrao = document.getElementById('blocoLogisticaPadrao');
+    const isColetaIonlab = acaoAtual.includes('coleta') && acaoAtual.includes('ionlab');
+
+    function aplicarFluxoItemVencidoSaida(){
+        if (!selectItemVencidoSaida) return;
+        const valor = (selectItemVencidoSaida.value || '').toUpperCase();
+        const sim = valor === 'SIM';
+        const nao = valor === 'NAO';
+
+        if (blocoQtdBipada) blocoQtdBipada.style.display = sim ? 'block' : 'none';
+        if (msgBloqueioItemVencidoSaida) msgBloqueioItemVencidoSaida.style.display = nao ? 'block' : 'none';
+        if (btnSalvarLogistica) btnSalvarLogistica.disabled = nao;
+
+        if (previewStatusItemVencidoSaida) previewStatusItemVencidoSaida.value = sim ? 'Confirmar Baixa de Itens Vencidos' : '-';
+        if (previewAcaoItemVencidoSaida) previewAcaoItemVencidoSaida.value = sim ? 'Confirmar Descarte/Eliminação/Doação' : '-';
+        if (previewSetorItemVencidoSaida) previewSetorItemVencidoSaida.value = sim ? 'Assessoria Cientifica' : '-';
+    }
+
+
+    function aplicar(){
+        const tp = norm(tipoProduto ? tipoProduto.value : '');
+        show('.bloco-avariado', false);
+        show('.bloco-avariado-equipamento', false);
+        show('.bloco-faltante', false);
+        show('.bloco-sobrando', false);
+        show('.bloco-vencido', false);
+        show('.bloco-cliente-nao-confirmou', false);
+        show('.bloco-aguardando-coleta-cliente', false);
+        show('.bloco-recebimento-fisico-fiscal', false);
+        show('.bloco-equipamento-caixa', false);
+
+        if (blocoColetaIonlab) blocoColetaIonlab.style.display = isColetaIonlab ? '' : 'none';
+        if (blocoLogisticaPadrao) blocoLogisticaPadrao.style.display = isColetaIonlab ? 'none' : '';
+        if (isColetaIonlab) return;
+
+        if (acaoAtual.includes('aguardando coleta no cliente')){
+            show('.bloco-aguardando-coleta-cliente', true);
+        } else if (acaoAtual.includes('aguardando recebimento fisico fiscal') || acaoAtual.includes('aguardando recebimento fisico/fiscal')){
+            show('.bloco-recebimento-fisico-fiscal', true);
+            if (ehEquipamento) show('.bloco-equipamento-caixa', true);
+        } else if (
+            (tipoOc.includes('cliente') && tipoOc.includes('confirmou') && tipoOc.includes('compra'))
+        ){
+            show('.bloco-cliente-nao-confirmou', true);
+        } else if (tipoOc.includes('avariad')){
+            show('.bloco-avariado', true);
+            if (tp === 'equipamentos') show('.bloco-avariado-equipamento', true);
+        } else if (tipoOc.includes('faltantes na embalagem')){
+            show('.bloco-faltante', true);
+        } else if (tipoOc.includes('sobrando na embalagem')){
+            show('.bloco-sobrando', true);
+        } else if (tipoOc.includes('item vencido')){
+            show('.bloco-vencido', true);
+        }
+    }
+
+    function validarDivergencia(){
+        if (!alerta || !qtdRom || !qtdConf) return;
+        const a = qtdRom.value;
+        const b = qtdConf.value;
+        alerta.style.display = (a && b && a !== b) ? '' : 'none';
+    }
+
+
+    function atualizarDataPrevistaIonlab(){
+        if (!dataColeta || !diasIonlab || !dataPrevistaIonlab) return;
+        const data = dataColeta.value;
+        const dias = parseInt(diasIonlab.value || '0', 10);
+        if (!data || isNaN(dias)) return;
+        const dt = new Date(data + 'T00:00:00');
+        dt.setDate(dt.getDate() + dias);
+        dataPrevistaIonlab.value = dt.toISOString().slice(0,10);
+    }
+
+    function atualizarDataPrevistaClienteIonlab(){
+        if (!dataColetaIonlab || !diasClienteIonlab || !dataPrevistaClienteIonlab) return;
+        const data = dataColetaIonlab.value;
+        const dias = parseInt(diasClienteIonlab.value || '0', 10);
+        if (!data || isNaN(dias)) return;
+        const dt = new Date(data + 'T00:00:00');
+        dt.setDate(dt.getDate() + dias);
+        dataPrevistaClienteIonlab.value = dt.toISOString().slice(0,10);
+    }
+
+    function numeroBr(valor){
+        if (!valor) return NaN;
+        return parseFloat(String(valor).replace(/\./g,'').replace(',', '.'));
+    }
+
+    function validarDivergenciaCtrc(){
+        if (!valorFreteCotado || !valorFreteCtrc || !divergenciaCtrc || !blocoDivergenciaCtrc) return;
+        const cotado = numeroBr(valorFreteCotado.value);
+        const ctrc = numeroBr(valorFreteCtrc.value);
+        if (!cotado || isNaN(cotado) || isNaN(ctrc)) {
+            blocoDivergenciaCtrc.style.display = 'none';
+            divergenciaCtrc.value = '';
+            return;
+        }
+        const diff = Math.abs(ctrc - cotado) / cotado;
+        if (diff > 0.10) {
+            blocoDivergenciaCtrc.style.display = '';
+            divergenciaCtrc.value = 'Ctrc com divergência de valor. Contactar transportadora.';
+        } else {
+            blocoDivergenciaCtrc.style.display = 'none';
+            divergenciaCtrc.value = '';
+        }
+    }
+
+    function atualizarMensagensRecebimento(){
+        if (msgEmbalagemNaoIntacta && embalagemIntacta) msgEmbalagemNaoIntacta.style.display = embalagemIntacta.value === 'NAO' ? '' : 'none';
+        if (msgRessalvaNaoFeita && ressalvaCte) msgRessalvaNaoFeita.style.display = ressalvaCte.value === 'NAO' ? '' : 'none';
+    }
+
+    if (tipoProduto) tipoProduto.addEventListener('change', aplicar);
+    if (qtdRom) qtdRom.addEventListener('input', validarDivergencia);
+    if (qtdConf) qtdConf.addEventListener('input', validarDivergencia);
+    if (selectItemVencidoSaida) selectItemVencidoSaida.addEventListener('change', aplicarFluxoItemVencidoSaida);
+    if (dataColeta) dataColeta.addEventListener('change', atualizarDataPrevistaIonlab);
+    if (diasIonlab) diasIonlab.addEventListener('input', atualizarDataPrevistaIonlab);
+    if (dataColetaIonlab) dataColetaIonlab.addEventListener('change', atualizarDataPrevistaClienteIonlab);
+    if (diasClienteIonlab) diasClienteIonlab.addEventListener('input', atualizarDataPrevistaClienteIonlab);
+    if (valorFreteCotado) valorFreteCotado.addEventListener('input', validarDivergenciaCtrc);
+    if (valorFreteCtrc) valorFreteCtrc.addEventListener('input', validarDivergenciaCtrc);
+    if (embalagemIntacta) embalagemIntacta.addEventListener('change', atualizarMensagensRecebimento);
+    if (ressalvaCte) ressalvaCte.addEventListener('change', atualizarMensagensRecebimento);
+
+    aplicar();
+    validarDivergencia();
+    aplicarFluxoItemVencidoSaida();
+    atualizarDataPrevistaIonlab();
+    atualizarDataPrevistaClienteIonlab();
+    validarDivergenciaCtrc();
+    atualizarMensagensRecebimento();
+})();
+
+(function(){const blocoTempo=document.getElementById('blocoTempoEtapas');const btnTempo=document.getElementById('btnExpandirTempoEtapas');if(blocoTempo&&btnTempo){btnTempo.addEventListener('click',function(){blocoTempo.classList.toggle('expanded');});}})();
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+CHECKLIST DE HOMOLOGACAO
+1. python manage.py check
+2. Abrir /intra/
+3. Abrir /sac/gestao/
+4. Abrir /sac/analise-comercial/
+5. Abrir /sac/abrir/
+6. Abrir /admin/
+7. Testar um salvamento apenas na tela que sofreu ajuste

@@ -1,0 +1,7 @@
+PATCH MOTOR LOGISTICA VALIDACAO
+Backup: C:\Ionlab\SAC\programa\SAC_Intranet_oficial\backup_motor_logistica_validacao_20260501_150051
+Arquivos criados/atualizados:
+- C:\Ionlab\SAC\programa\SAC_Intranet_oficial\core\services\motor_fluxo_sac.py
+- C:\Ionlab\SAC\programa\SAC_Intranet_oficial\core\services\validacao_motor_fluxo.py
+- C:\Ionlab\SAC\programa\SAC_Intranet_oficial\core\test_motor_logistica_validacao.py
+Nenhuma regra, migration ou banco foi alterado.

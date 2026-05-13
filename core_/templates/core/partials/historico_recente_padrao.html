@@ -1,0 +1,20 @@
+<style>
+.histpad-card{background:linear-gradient(180deg,#ffffff 0%,#f7fbff 100%);border:1px solid #d7e5f1;border-radius:22px;padding:18px;margin-bottom:14px;box-shadow:0 12px 28px rgba(13,59,102,.08)}
+.histpad-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;border-bottom:1px solid #e5edf5;padding-bottom:13px;margin-bottom:13px}
+.histpad-setor{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#0d3b66,#145a8f);color:#fff;border-radius:999px;padding:8px 12px;font-weight:800;font-size:13px;letter-spacing:.02em;text-transform:uppercase}
+.histpad-title{margin:10px 0 0;color:#0d3b66;font-size:17px;font-weight:800;line-height:1.3}.histpad-meta{font-size:12px;color:#64748b;line-height:1.5;text-align:right}
+.histpad-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:12px 0}.histpad-info{background:#f8fbfe;border:1px solid #dce9f5;border-radius:14px;padding:10px 12px;font-size:13px;line-height:1.4}
+.histpad-info strong{display:block;color:#355675;font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}.histpad-dados{margin-top:12px;border-top:1px solid #e8eff6;padding-top:12px}.histpad-dados-title{font-weight:800;color:#0d3b66;margin-bottom:10px;font-size:14px}
+.histpad-campos{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}.histpad-campo{background:#fff;border:1px solid #dbe8f3;border-radius:14px;padding:11px 12px;min-width:0}.histpad-campo-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:800;margin-bottom:5px}.histpad-campo-valor{font-size:14px;color:#17324d;line-height:1.45;white-space:pre-wrap;word-break:break-word}.histpad-livre{background:#fff;border:1px dashed #c7d9ea;border-radius:14px;padding:11px 12px;margin-top:8px;color:#17324d;white-space:pre-wrap;line-height:1.45}.histpad-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.histpad-empty{padding:18px;border:1px dashed #c7d9ea;background:#f8fbfe;border-radius:18px;color:#64748b;text-align:center;font-weight:700}@media(max-width:800px){.histpad-meta{text-align:left}.histpad-campos{grid-template-columns:1fr}}
+</style>
+<h2>Histórico recente</h2>
+{% if historicos_visual %}
+    {% for h in historicos_visual %}
+        <article class="histpad-card">
+            <div class="histpad-top"><div><div class="histpad-setor">{{ h.setor_responsavel|default:'Sistema / SAC' }}</div><div class="histpad-title">{{ h.acao_executada|default:'Registro' }}</div></div><div class="histpad-meta"><strong>{{ h.data_evento_formatada|default:'-' }}</strong><br>Usuário: {{ h.usuario_nome|default:'-' }}</div></div>
+            {% if h.resumo_movimentacao %}<div class="histpad-grid">{% for linha in h.resumo_movimentacao %}<div class="histpad-info"><strong>{{ linha.rotulo }}</strong>{{ linha.valor }}</div>{% endfor %}</div>{% endif %}
+            {% if h.tem_dados %}<div class="histpad-dados"><div class="histpad-dados-title">Dados informados nesta etapa</div>{% if h.campos %}<div class="histpad-campos">{% for chave, valor in h.campos.items %}<div class="histpad-campo"><div class="histpad-campo-label">{{ chave }}</div><div class="histpad-campo-valor">{{ valor }}</div></div>{% endfor %}</div>{% endif %}{% if h.linhas_livres %}{% for linha in h.linhas_livres %}<div class="histpad-livre">{{ linha }}</div>{% endfor %}{% endif %}</div>{% endif %}
+            {% if h.arquivo %}<div class="histpad-actions"><a href="{{ h.arquivo.url }}" target="_blank" class="btn btn-outline">📄 Visualizar arquivo</a><a href="{{ h.arquivo.url }}" download class="btn btn-light">⬇️ Baixar arquivo</a></div>{% endif %}
+        </article>
+    {% endfor %}
+{% else %}<div class="histpad-empty">Nenhum histórico encontrado para este SAC.</div>{% endif %}

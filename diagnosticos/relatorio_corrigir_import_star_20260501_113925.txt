@@ -1,0 +1,4 @@
+Backup criado: C:\Ionlab\SAC\programa\SAC_Intranet_oficial\backup_corrigir_import_star_20260501_113925\core_services_sac_historico.py.bak
+Alterado: import * substituido por import explicito registrar_historico_sac.
+OK: sintaxe do arquivo valida.
+OK: manage.py check sem erros.

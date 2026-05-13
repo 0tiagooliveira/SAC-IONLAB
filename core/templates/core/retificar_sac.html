@@ -1,0 +1,137 @@
+{% extends 'core/base.html' %}
+{% block title %}Retificar SAC {{ sac.numero }}{% endblock %}
+{% block topbar_title %}Retificar SAC{% endblock %}
+{% block topbar_subtitle %}Correcao controlada dos dados informados na abertura.{% endblock %}
+{% block extra_head %}
+<style>
+
+        :root{--azul:#0d3b66;--azul-2:#145a8f;--ciano:#00b4c7;--verde:#149b7e;--texto:#0f2f4a;--muted:#5f7893;--borda:#d3e3f0;--bg:#eef6fb;--card:#fff;--shadow:0 18px 42px rgba(13,59,102,.13)}
+        *{box-sizing:border-box}
+        .page{max-width:1180px;margin:0 auto;padding:28px 22px 44px}
+        .hero{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;padding:28px;border-radius:24px;background:linear-gradient(135deg,var(--azul),var(--azul-2) 58%,#0f7892);color:#fff;box-shadow:var(--shadow);border-bottom:5px solid var(--ciano)}
+        .hero h1{margin:0;font-size:34px;line-height:1.15}
+        .hero p{margin:8px 0 0;color:rgba(255,255,255,.86);font-size:15px}
+        .hero-meta{text-align:right}
+        .hero-meta strong{display:block;font-size:26px;margin-top:4px}
+        .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:14px;padding:12px 18px;font-size:14px;font-weight:900;text-decoration:none;cursor:pointer;min-height:44px}
+        .btn-light{background:#fff;color:var(--azul)}
+        .btn-primary{background:linear-gradient(135deg,var(--ciano),var(--verde));color:#fff;box-shadow:0 14px 28px rgba(0,180,199,.2)}
+        .btn-muted{background:#edf5fb;color:#234c70;border:1px solid var(--borda)}
+        .layout{display:grid;grid-template-columns:1fr 320px;gap:22px;margin-top:22px;align-items:start}
+        .card{background:var(--card);border:1px solid var(--borda);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+        .card-head{padding:20px 22px;border-bottom:1px solid #e4eef6;background:linear-gradient(90deg,rgba(0,180,199,.12),rgba(255,255,255,.96))}
+        .card-head h2{margin:0;font-size:22px}
+        .card-
+        .section-title{margin:4px 0 16px;font-size:17px;color:var(--azul);font-weight:900}
+        .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+        .field{margin-bottom:16px}
+        label{display:block;margin-bottom:7px;font-size:13px;font-weight:900;color:#173a58}
+        input,select,textarea{width:100%;border:1px solid #bfd4e8;border-radius:14px;padding:12px 14px;font-size:15px;color:#102f4a;background:#fff;outline:none}
+        input:focus,select:focus,textarea:focus{border-color:var(--ciano);box-shadow:0 0 0 3px rgba(0,180,199,.14)}
+        textarea{resize:vertical;min-height:112px}
+        .check-row{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid #bfd4e8;border-radius:14px;background:#f8fcff}
+        .check-row input{width:auto;min-width:18px;height:18px}
+        .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+        .messages{display:grid;gap:10px;margin:18px 0}
+        .msg{padding:13px 15px;border-radius:14px;font-weight:800}
+        .msg.success{background:#e8f7ef;color:#185f37;border:1px solid #c9ebd8}
+        .msg.error{background:#fdecec;color:#9a1b18;border:1px solid #f3c0bd}
+        .msg.warning{background:#fff7e7;color:#735000;border:1px solid #f2d494}
+        .errors{margin-top:6px;color:#9a1b18;font-size:13px}
+        .summary-line{display:flex;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid #e4eef6;font-size:14px}
+        .summary-line:last-child{border-bottom:0}
+        .summary-line span{color:var(--muted)}
+        .summary-line strong{text-align:right}
+        @media(max-width:980px){.layout,.grid-2,.hero{grid-template-columns:1fr}.hero-meta{text-align:left}}
+    
+</style>
+{% endblock %}
+{% block content %}
+<div class="page">
+
+    <div class="hero">
+        <div>
+            <h1>Retificar SAC</h1>
+            <p>Correção controlada dos dados informados na abertura.</p>
+        </div>
+        <div class="hero-meta">
+            <a class="btn btn-light" href="{{ next_url }}">Voltar</a>
+            <strong>{{ sac.numero }}</strong>
+        </div>
+    </div>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="msg {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="layout">
+        <form method="post" class="card" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next_url }}">
+            <div class="card-head">
+                <h2>Dados corrigíveis</h2>
+            </div>
+            <div class="card-body">
+                <div class="section-title">Contato do cliente</div>
+                <div class="grid-2">
+                    <div class="field">{{ form.contato_nome.label_tag }}{{ form.contato_nome }}<div class="errors">{{ form.contato_nome.errors }}</div></div>
+                    <div class="field">{{ form.telefone_1.label_tag }}{{ form.telefone_1 }}<div class="errors">{{ form.telefone_1.errors }}</div></div>
+                    <div class="field">{{ form.telefone_2.label_tag }}{{ form.telefone_2 }}<div class="errors">{{ form.telefone_2.errors }}</div></div>
+                    <div class="field">{{ form.email_1.label_tag }}{{ form.email_1 }}<div class="errors">{{ form.email_1.errors }}</div></div>
+                </div>
+                <div class="field">{{ form.email_2.label_tag }}{{ form.email_2 }}<div class="errors">{{ form.email_2.errors }}</div></div>
+
+                <div class="section-title">Usuário do equipamento</div>
+                <div class="grid-2">
+                    <div class="field">{{ form.nome_usuario_contato.label_tag }}{{ form.nome_usuario_contato }}<div class="errors">{{ form.nome_usuario_contato.errors }}</div></div>
+                    <div class="field">{{ form.empresa_usuario_contato.label_tag }}{{ form.empresa_usuario_contato }}<div class="errors">{{ form.empresa_usuario_contato.errors }}</div></div>
+                    <div class="field">{{ form.telefone_usuario_contato.label_tag }}{{ form.telefone_usuario_contato }}<div class="errors">{{ form.telefone_usuario_contato.errors }}</div></div>
+                    <div class="field">{{ form.whatsapp_usuario_contato.label_tag }}{{ form.whatsapp_usuario_contato }}<div class="errors">{{ form.whatsapp_usuario_contato.errors }}</div></div>
+                    <div class="field">{{ form.email_usuario_contato.label_tag }}{{ form.email_usuario_contato }}<div class="errors">{{ form.email_usuario_contato.errors }}</div></div>
+                    <div class="field">{{ form.cidade_usuario_contato.label_tag }}{{ form.cidade_usuario_contato }}<div class="errors">{{ form.cidade_usuario_contato.errors }}</div></div>
+                    <div class="field">{{ form.estado_usuario_contato.label_tag }}{{ form.estado_usuario_contato }}<div class="errors">{{ form.estado_usuario_contato.errors }}</div></div>
+                </div>
+                <div class="field">{{ form.endereco_usuario_contato.label_tag }}{{ form.endereco_usuario_contato }}<div class="errors">{{ form.endereco_usuario_contato.errors }}</div></div>
+
+                <div class="section-title">Dados do SAC</div>
+                <div class="grid-2">
+                    <div class="field">{{ form.numero_nf_revenda.label_tag }}{{ form.numero_nf_revenda }}<div class="errors">{{ form.numero_nf_revenda.errors }}</div></div>
+                    <div class="field">{{ form.data_emissao_nf_revenda.label_tag }}{{ form.data_emissao_nf_revenda }}<div class="errors">{{ form.data_emissao_nf_revenda.errors }}</div></div>
+                </div>
+                <div class="field">{{ form.titulo.label_tag }}{{ form.titulo }}<div class="errors">{{ form.titulo.errors }}</div></div>
+                <div class="field">{{ form.descricao.label_tag }}{{ form.descricao }}<div class="errors">{{ form.descricao.errors }}</div></div>
+                <div class="check-row">{{ form.email_automatico_habilitado }}{{ form.email_automatico_habilitado.label_tag }}</div>
+                <div class="errors">{{ form.email_automatico_habilitado.errors }}</div>
+
+                <div class="section-title">Registro da correção</div>
+                <div class="field">{{ form.motivo_retificacao.label_tag }}{{ form.motivo_retificacao }}<div class="errors">{{ form.motivo_retificacao.errors }}</div></div>
+                <div class="errors">{{ form.non_field_errors }}</div>
+
+                <div class="actions">
+                    <button class="btn btn-primary" type="submit">Salvar retificação</button>
+                    <a class="btn btn-muted" href="{{ next_url }}">Cancelar</a>
+                </div>
+            </div>
+        </form>
+
+        <aside class="card">
+            <div class="card-head">
+                <h2>Resumo atual</h2>
+            </div>
+            <div class="card-body">
+                <div class="summary-line"><span>Status</span><strong>{{ sac.status_atual.nome|default:sac.status_inicial|default:"-" }}</strong></div>
+                <div class="summary-line"><span>Setor</span><strong>{{ sac.setor_atual.nome|default:"-" }}</strong></div>
+                <div class="summary-line"><span>Ação</span><strong>{{ sac.acao_em_espera.nome|default:"-" }}</strong></div>
+                <div class="summary-line"><span>Cliente</span><strong>{{ sac.cliente|default:"-" }}</strong></div>
+                <div class="summary-line"><span>Nota fiscal</span><strong>{{ sac.nota_fiscal|default:"-" }}</strong></div>
+                <div class="summary-line"><span>Tempo de uso</span><strong>{{ sac.tempo_uso_formatado|default:"Não calculado" }}</strong></div>
+            </div>
+        </aside>
+    </div>
+
+</div>
+{% endblock %}

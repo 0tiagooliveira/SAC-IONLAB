@@ -1,0 +1,56 @@
+{% extends 'core/base.html' %}
+{% block title %}Importar tabela de pecas{% endblock %}
+{% block topbar_title %}Importar tabela de pecas{% endblock %}
+{% block topbar_subtitle %}Importacao da tabela de precos de pecas.{% endblock %}
+{% block extra_head %}
+<style>
+        .wrap { max-width: 880px; margin: 30px auto; background:#fff; border:1px solid #dbe6f0; border-radius:20px; padding:24px; }
+        h1 { color:#0b3a67; margin-top:0; }
+        .msg { padding:12px 14px; border-radius:12px; margin-bottom:10px; font-weight:700; }
+        .success { background:#e8f7ef; color:#165c34; border:1px solid #c9ebd8; }
+        .error { background:#b3261e; color:#fff; border:1px solid #8f1a14; }
+        label { display:block; margin-bottom:6px; font-weight:700; color:#355675; }
+        input[type=file] { width:100%; padding:12px; border:1px solid #ccd9e6; border-radius:12px; }
+        button, a.btn { display:inline-block; margin-top:14px; border:none; padding:12px 16px; border-radius:12px; text-decoration:none; cursor:pointer; font-weight:700; }
+        button { background:#00b4c7; color:#fff; }
+        a.btn { background:#0b3a67; color:#fff; margin-left:8px; }
+        .resumo { margin-top:18px; background:#f7fbff; border:1px solid #dbe8f4; border-radius:14px; padding:14px; }
+        .resumo div { padding:4px 0; }
+    
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+    <h1>Importar Tabela de Preços de Peças</h1>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="msg {% if 'error' in message.tags %}error{% else %}success{% endif %}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label>{{ form.arquivo.label }}</label>
+        {{ form.arquivo }}
+        <button type="submit">Importar planilha</button>
+        <a class="btn" href="/admin/core/pecatabelapreco/">Voltar para Tabela de Preços de Peças</a>
+    </form>
+
+    <div class="resumo">
+        <div><strong>Estrutura esperada:</strong> ID_TAB, ID_EST, LC_COD, PR_COD, PR_DES, VAL_VEND, PER_DESC, PER_COM, GRUPO, ORIGEM, MODELO, VOLTAGEM, CUSTO</div>
+        <div><strong>Referência do item:</strong> coluna PR_COD</div>
+        <div><strong>Descrição do item:</strong> coluna PR_DES</div>
+        <div><strong>Valor unitário do item:</strong> coluna VAL_VEND</div>
+        <div><strong>Grupo do item:</strong> coluna GRUPO</div>
+        <div><strong>Custo da peça:</strong> coluna CUSTO</div>
+    </div>
+
+    {% if resumo %}
+    <div class="resumo">
+        <div><strong>Itens criados:</strong> {{ resumo.criadas }}</div>
+        <div><strong>Itens atualizados:</strong> {{ resumo.atualizadas }}</div>
+        <div><strong>Linhas ignoradas:</strong> {{ resumo.ignoradas }}</div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

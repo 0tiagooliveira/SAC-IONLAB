@@ -1,0 +1,2267 @@
+from decimal import Decimal, InvalidOperation
+from datetime import datetime, timedelta
+from core.models import SacHistorico
+from django import forms
+from types import SimpleNamespace
+import unicodedata
+from django.forms import formset_factory
+from core.utils_log_seguro import registrar_erro
+from .models import (
+    Empresa,
+    Setor,
+    StatusSAC,
+    SAC,
+    NotaFiscal,
+    AcaoEmEspera,
+    TratativaProblema,
+    TipoProblema,
+    TecnicoExterno,
+    PecaTabelaPreco,
+)
+
+from .services.fluxo_sac import (
+    FluxoSACNaoConfigurado,
+    acao_permite_selecao_manual_setor,
+    buscar_fluxo_obrigatorio,
+    obter_setor_destino_padrao,
+)
+from .services.fluxo_comercial import (
+    calcular_item_pequeno_valor as calcular_item_pequeno_valor_service,
+    calcular_total_com_problema,
+    resolver_instancias_fluxo_comercial,
+)
+from .services.regras_sac import (
+    resolver_acao_por_codigo as resolver_acao_por_codigo_service,
+    resolver_setor_por_codigo as resolver_setor_por_codigo_service,
+    resolver_status_por_codigo as resolver_status_por_codigo_service,
+)
+
+from .services.fluxo_formularios import (
+    aplicar_fluxo_resolvido_no_form,
+    eh_acao_analise_ocorrido_logistica,
+    eh_tipo_ocorrencia_cliente_nao_confirmou,
+    eh_tipo_ocorrencia_item_vencido,
+    normalizar_texto_fluxo as _normalizar_texto_fluxo_service,
+    resolver_fluxo_formulario,
+)
+
+
+
+
+def _normalizar_chave_fluxo(valor):
+    return _normalizar_texto_fluxo_service(valor)
+
+
+REGRAS_COMERCIAIS_APROVADAS = {
+    'confirmado': {
+        'status_aliases': [
+            'Concluído', 'Concluido',
+        ],
+        'status_codes': ['concluido', 'concluído', 'finalizado', 'encerrado'],
+        'acao_aliases': [],
+        'acao_codes': [],
+        'setor_aliases': [],
+        'setor_codes': [],
+    },
+    'negociacao': {
+        'status_aliases': [
+            'Em Análise', 'Em Analise', 'Em análise', 'Em analise',
+        ],
+        'status_codes': ['em_analise', 'em analise', 'analise'],
+        'acao_aliases': [
+            'Aguardando Aprovação de Desconto', 'Aguardando Aprovacao de Desconto',
+        ],
+        'acao_codes': ['aguardando_aprovacao_desconto', 'aprovacao_desconto'],
+        'setor_aliases': ['Diretoria'],
+        'setor_codes': ['diretoria'],
+    },
+    'sem_negociacao': {
+        'status_aliases': [
+            'Emissão de pedido de Entrada/Retorno',
+            'Emissao de pedido de Entrada/Retorno',
+            'Emitindo Pedido de Entrada/Retorno',
+            'Emitindo Pedido de Entrada Retorno',
+            'Emissão do Pedido de Entrada/Retorno',
+            'Emissao do Pedido de Entrada/Retorno',
+        ],
+        'status_codes': [
+            'emissao pedido entrada retorno', 'emitindo pedido entrada retorno',
+            'pedido entrada retorno', 'entrada retorno',
+        ],
+        'acao_aliases': [
+            'Aguardando Emissão do Pedido (Entrada/Retorno)',
+            'Aguardando Emissao do Pedido (Entrada/Retorno)',
+            'Aguardando Emissão do Pedido de Entrada/Retorno',
+            'Aguardando Emissao do Pedido de Entrada/Retorno',
+            'Emissão do Pedido de Entrada/Retorno',
+            'Emissao do Pedido de Entrada/Retorno',
+        ],
+        'acao_codes': [
+            'aguardando emissao pedido entrada retorno', 'pedido entrada retorno',
+        ],
+        'setor_aliases': ['SAC'],
+        'setor_codes': ['sac'],
+    },
+}
+
+
+def _resolver_por_aliases(queryset, aliases=(), codes=()):
+    candidatos = list(queryset)
+    mapa = {}
+    for obj in candidatos:
+        nome = _normalizar_chave_fluxo(getattr(obj, 'nome', None))
+        codigo = _normalizar_chave_fluxo(getattr(obj, 'codigo', None)) if hasattr(obj, 'codigo') else ''
+        if nome:
+            mapa.setdefault(nome, obj)
+        if codigo:
+            mapa.setdefault(codigo, obj)
+    for valor in list(aliases) + list(codes):
+        chave = _normalizar_chave_fluxo(valor)
+        if chave and chave in mapa:
+            return mapa[chave]
+    # fallback por contem para reduzir risco de quebra por ajuste pequeno de nomenclatura
+    for valor in list(aliases) + list(codes):
+        chave = _normalizar_chave_fluxo(valor)
+        if not chave:
+            continue
+        for base, obj in mapa.items():
+            if chave in base or base in chave:
+                return obj
+    return None
+
+
+def _resolver_status_por_nome(*nomes):
+    for nome in nomes:
+        status = resolver_status_por_codigo_service(nome)
+        if status is not None:
+            return status
+    return _resolver_por_aliases(StatusSAC.objects.all().filter(ativo=True), aliases=nomes)
+
+
+def _resolver_status_destino_fallback(*candidatos):
+    """Resolve status destino quando o fluxo estiver sem status configurado.
+
+    Prioriza códigos técnicos e depois aliases seguros, sem depender de nome literal.
+    """
+    status = resolver_status_por_codigo_service('EM_ANALISE')
+    if status is not None:
+        return status
+
+    termos = [
+        'Em Análise', 'Em Analise', 'EM_ANALISE', 'em_analise', 'analise',
+    ]
+    for candidato in candidatos:
+        if candidato is None:
+            continue
+        nome = getattr(candidato, 'nome', None)
+        codigo = getattr(candidato, 'codigo', None)
+        if nome:
+            termos.append(nome)
+        if codigo:
+            termos.append(codigo)
+
+    return _resolver_por_aliases(
+        StatusSAC.objects.all().filter(ativo=True),
+        aliases=termos,
+        codes=termos,
+    )
+
+
+def _resolver_status_conclusao_comercial():
+    regra = REGRAS_COMERCIAIS_APROVADAS['confirmado']
+    queryset = StatusSAC.objects.all().filter(ativo=True)
+
+    status = resolver_status_por_codigo_service('CONCLUIDO')
+    if status is not None:
+        return status
+
+    status = _resolver_por_aliases(
+        queryset,
+        aliases=regra['status_aliases'],
+        codes=regra['status_codes'],
+    )
+    if status is not None:
+        return status
+
+    candidatos = list(queryset)
+    chaves = ('conclu', 'finaliz', 'encerr')
+    for obj in candidatos:
+        nome = _normalizar_chave_fluxo(getattr(obj, 'nome', ''))
+        codigo = _normalizar_chave_fluxo(getattr(obj, 'codigo', '')) if hasattr(obj, 'codigo') else ''
+        if any(chave in nome or chave in codigo for chave in chaves):
+            return obj
+
+    return None
+
+
+def _criar_fluxo_preview(status=None, acao=None, setor=None):
+    return {
+        'status_id': str(status.id) if status else '',
+        'status_nome': status.nome if status else '',
+        'acao_id': str(acao.id) if acao else '',
+        'acao_nome': acao.nome if acao else '',
+        'setor_id': str(setor.id) if setor else '',
+        'setor_nome': setor.nome if setor else '',
+    }
+
+
+
+
+def _fluxo_preview_completo(preview):
+    return bool(
+        preview
+        and preview.get('status_id')
+        and preview.get('acao_id')
+        and preview.get('setor_id')
+    )
+
+
+def _definir_select_disabled(field, obj):
+    if obj is None:
+        field.initial = None
+        field.queryset = field.queryset.model.objects.none()
+        return
+    field.initial = obj.id
+    field.queryset = field.queryset.model.objects.filter(id=obj.id)
+    field.widget.attrs['disabled'] = 'disabled'
+
+ESTADOS_BRASIL = [
+    ('', 'Selecione o estado'),
+    ('AC', 'Acre'),
+    ('AL', 'Alagoas'),
+    ('AP', 'Amapá'),
+    ('AM', 'Amazonas'),
+    ('BA', 'Bahia'),
+    ('CE', 'Ceará'),
+    ('DF', 'Distrito Federal'),
+    ('ES', 'Espírito Santo'),
+    ('GO', 'Goiás'),
+    ('MA', 'Maranhão'),
+    ('MT', 'Mato Grosso'),
+    ('MS', 'Mato Grosso do Sul'),
+    ('MG', 'Minas Gerais'),
+    ('PA', 'Pará'),
+    ('PB', 'Paraíba'),
+    ('PR', 'Paraná'),
+    ('PE', 'Pernambuco'),
+    ('PI', 'Piauí'),
+    ('RJ', 'Rio de Janeiro'),
+    ('RN', 'Rio Grande do Norte'),
+    ('RS', 'Rio Grande do Sul'),
+    ('RO', 'Rondônia'),
+    ('RR', 'Roraima'),
+    ('SC', 'Santa Catarina'),
+    ('SP', 'São Paulo'),
+    ('SE', 'Sergipe'),
+    ('TO', 'Tocantins'),
+]
+
+
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    widget = MultipleFileInput
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            return [single_file_clean(d, initial) for d in data if d]
+        return single_file_clean(data, initial)
+
+
+class ImportarNotasExcelForm(forms.Form):
+    empresa = forms.ModelChoiceField(
+        queryset=Empresa.objects.filter(ativo=True).order_by('razao_social'),
+        label='Empresa'
+    )
+    arquivo = forms.FileField(label='Planilha Excel')
+
+
+class ImportarRastreiosExcelForm(forms.Form):
+    empresa = forms.ModelChoiceField(
+        queryset=Empresa.objects.filter(ativo=True).order_by('razao_social'),
+        label='Empresa'
+    )
+    arquivo = forms.FileField(label='Planilha Excel de serial/lote')
+
+
+class AberturaSACForm(forms.ModelForm):
+    empresa = forms.ModelChoiceField(
+        queryset=Empresa.objects.filter(ativo=True).order_by('razao_social'),
+        label='Empresa'
+    )
+
+    setor_responsavel = forms.ModelChoiceField(
+        queryset=Setor.objects.all().order_by('nome').order_by('nome'),
+        label='Setor que abriu o SAC',
+        required=False,
+        widget=forms.Select(attrs={'disabled': 'disabled'})
+    )
+
+    status = forms.ModelChoiceField(
+        queryset=StatusSAC.objects.all().filter(ativo=True).order_by('nome'),
+        widget=forms.HiddenInput()
+    )
+
+    display_status = forms.CharField(
+        required=False,
+        label='Status inicial',
+        widget=forms.TextInput(attrs={'readonly': 'readonly'})
+    )
+
+    acao_em_espera = forms.ModelChoiceField(
+        queryset=AcaoEmEspera.objects.filter(ativo=True).order_by('nome'),
+        required=False,
+        label='Ação em espera',
+        widget=forms.HiddenInput()
+    )
+
+    display_acao_em_espera = forms.CharField(
+        required=False,
+        label='Ação em espera',
+        widget=forms.TextInput(attrs={'readonly': 'readonly'})
+    )
+
+    setor_destino = forms.ModelChoiceField(
+        queryset=Setor.objects.all().order_by('nome').order_by('nome'),
+        required=False,
+        label='Setor de destino',
+        widget=forms.HiddenInput()
+    )
+
+    display_setor_destino = forms.CharField(
+        required=False,
+        label='Setor de destino',
+        widget=forms.TextInput(attrs={'readonly': 'readonly'})
+    )
+
+    cliente_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    contato_salvo_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
+
+    cliente_busca = forms.CharField(
+        required=False,
+        label='Busca de cliente por palavra chave',
+        widget=forms.TextInput(attrs={'placeholder': 'Digite código, nome ou parte do nome do cliente'})
+    )
+
+    cliente_selecionado_texto = forms.CharField(
+        required=False,
+        label='Cliente selecionado',
+        widget=forms.TextInput(attrs={'readonly': 'readonly'})
+    )
+
+    nota_fiscal = forms.ModelChoiceField(
+        queryset=NotaFiscal.objects.none(),
+        required=True,
+        label='Nota fiscal',
+        empty_label='Selecione a nota fiscal'
+    )
+
+    data_emissao_nf = forms.DateField(
+        required=False,
+        label='Data de emissão da nota fiscal',
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'readonly': 'readonly',
+            'class': 'input-readonly',
+        })
+    )
+
+    numero_nf_revenda = forms.CharField(
+        required=False,
+        label='Número da nota fiscal de Revenda',
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Opcional',
+        })
+    )
+
+    data_emissao_nf_revenda = forms.DateField(
+        required=False,
+        label='Data de emissão da nota fiscal Revenda',
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+        })
+    )
+
+    usuario_abertura_nome = forms.CharField(
+        required=False,
+        label='Usuário que abriu o SAC',
+        widget=forms.TextInput(attrs={'readonly': 'readonly'})
+    )
+
+    vendedor_nome = forms.CharField(
+        required=False,
+        label='Vendedor',
+        widget=forms.TextInput(attrs={'readonly': 'readonly'})
+    )
+
+    contato_nome = forms.CharField(required=False, label='Nome do contato')
+    whatsapp = forms.CharField(required=False, label='WhatsApp do contato')
+    telefone = forms.CharField(required=False, label='Telefone do contato')
+    email_1 = forms.EmailField(required=False, label='E-mail 1 do contato')
+    email_2 = forms.EmailField(required=False, label='E-mail 2 do contato')
+
+    nome_usuario_contato = forms.CharField(required=False, label='Nome do usuário do Equipamento')
+    empresa_usuario_contato = forms.CharField(required=False, label='Nome da empresa do usuário')
+    telefone_usuario_contato = forms.CharField(required=False, label='Telefone do usuário')
+    whatsapp_usuario_contato = forms.CharField(required=False, label='WhatsApp do usuário')
+    email_usuario_contato = forms.EmailField(required=False, label='E-mail do usuário')
+    endereco_usuario_contato = forms.CharField(required=False, label='Endereço do usuário')
+    cidade_usuario_contato = forms.CharField(required=False, label='Cidade do usuário')
+    estado_usuario_contato = forms.ChoiceField(required=False, choices=ESTADOS_BRASIL, label='Estado do usuário')
+
+    fotos = MultipleFileField(required=False, label='Fotos', widget=MultipleFileInput(attrs={'accept': 'image/*'}))
+    videos = MultipleFileField(required=False, label='Vídeos', widget=MultipleFileInput(attrs={'accept': 'video/*'}))
+
+    itens_json = forms.CharField(required=False, widget=forms.HiddenInput())
+
+    class Meta:
+        model = SAC
+        fields = [
+            'empresa',
+            'cliente_busca',
+            'cliente_selecionado_texto',
+            'nota_fiscal',
+            'data_emissao_nf',
+            'numero_nf_revenda',
+            'data_emissao_nf_revenda',
+            'status',
+            'display_status',
+            'acao_em_espera',
+            'display_acao_em_espera',
+            'setor_destino',
+            'display_setor_destino',
+            'setor_responsavel',
+            'usuario_abertura_nome',
+            'contato_nome',
+            'whatsapp',
+            'telefone',
+            'email_1',
+            'email_2',
+            'nome_usuario_contato',
+            'empresa_usuario_contato',
+            'telefone_usuario_contato',
+            'whatsapp_usuario_contato',
+            'email_usuario_contato',
+            'endereco_usuario_contato',
+            'cidade_usuario_contato',
+            'estado_usuario_contato',
+            'fotos',
+            'videos',
+            'itens_json',
+        ]
+
+    def __init__(self, *args, **kwargs):
+        usuario = kwargs.pop('usuario', None)
+        super().__init__(*args, **kwargs)
+
+        # PATCH_SALVAR_ABERTURA_V5
+        # Quando o form é bound, a NF selecionada precisa existir no queryset do campo.
+        # Sem isso, Django acusa: "Faça uma escolha válida", mesmo com o ID correto no POST.
+        try:
+            if self.is_bound:
+                nota_id_post = self.data.get(self.add_prefix('nota_fiscal')) or self.data.get('nota_fiscal')
+                if nota_id_post:
+                    self.fields['nota_fiscal'].queryset = NotaFiscal.objects.filter(id=nota_id_post)
+        except Exception as e:
+            registrar_erro('core.forms.py:except_1', e)
+            pass
+
+        if usuario and usuario.is_authenticated:
+            nome = None
+            setor = None
+
+            if hasattr(usuario, 'usuario_sistema'):
+                nome = usuario.usuario_sistema.nome_completo
+                setor = usuario.usuario_sistema.setor
+
+            if not nome:
+                nome = usuario.get_full_name() or usuario.get_username()
+
+            self.fields['usuario_abertura_nome'].initial = nome
+
+            if setor:
+                self.fields['setor_responsavel'].initial = setor.id
+                self.fields['setor_responsavel'].queryset = Setor.objects.filter(id=setor.id)
+                self.fields['display_setor_destino'].initial = ''
+
+        status_aberto = StatusSAC.objects.all().filter(nome__iexact='Aberto', ativo=True).first()
+        if not status_aberto:
+            status_aberto = StatusSAC.objects.all().filter(ativo=True).first()
+
+        if status_aberto:
+            if not self.is_bound:
+                self.fields['status'].initial = status_aberto.id
+            self.fields['display_status'].initial = status_aberto.nome
+
+        acao_aberto = AcaoEmEspera.objects.filter(nome__iexact='Aberto', ativo=True).first()
+        if not acao_aberto:
+            acao_aberto = AcaoEmEspera.objects.filter(ativo=True).order_by('nome').first()
+        if acao_aberto:
+            if not self.is_bound:
+                self.fields['acao_em_espera'].initial = acao_aberto.id
+            self.fields['display_acao_em_espera'].initial = acao_aberto.nome
+
+        self.fields['nota_fiscal'].widget.attrs.update({'required': 'required'})
+
+        nota_atual = None
+        try:
+            nota_id = None
+            if self.is_bound:
+                nota_id = self.data.get(self.add_prefix('nota_fiscal')) or self.data.get('nota_fiscal')
+            if not nota_id and getattr(self.instance, 'nota_fiscal_id', None):
+                nota_id = self.instance.nota_fiscal_id
+            if nota_id:
+                nota_atual = NotaFiscal.objects.filter(id=nota_id).only('vendedor_nome', 'data_emissao').first()
+        except Exception:
+            nota_atual = None
+
+        if nota_atual:
+            self.fields['vendedor_nome'].initial = nota_atual.vendedor_nome or ''
+            if nota_atual.data_emissao:
+                self.fields['data_emissao_nf'].initial = nota_atual.data_emissao.isoformat()
+
+
+
+
+def _aplicar_setor_conforme_acao(cleaned_data, *, nome_campo_acao, nome_campo_setor, form=None, obrigar_manual=True):
+    """Centraliza a regra segura de próximo setor conforme a ação em espera.
+
+    - Se a ação tiver setor padrão e não for manual, força esse setor.
+    - Se a ação exigir seleção manual, cobra o preenchimento quando necessário.
+    """
+    acao = cleaned_data.get(nome_campo_acao)
+    setor = cleaned_data.get(nome_campo_setor)
+
+    if not acao:
+        return cleaned_data
+
+    if acao_permite_selecao_manual_setor(acao):
+        if obrigar_manual and not setor and form is not None:
+            form.add_error(nome_campo_setor, 'Selecione o próximo setor.')
+        return cleaned_data
+
+    setor_padrao = obter_setor_destino_padrao(acao)
+    if setor_padrao is not None:
+        cleaned_data[nome_campo_setor] = setor_padrao
+    elif obrigar_manual and not setor and form is not None:
+        form.add_error(nome_campo_setor, 'Selecione o próximo setor.')
+
+    return cleaned_data
+
+
+def _resolver_acao_por_nome(*nomes, codes=()):
+    for codigo in codes:
+        acao = resolver_acao_por_codigo_service(codigo)
+        if acao is not None:
+            return acao
+    for nome in nomes:
+        acao = resolver_acao_por_codigo_service(nome)
+        if acao is not None:
+            return acao
+    return _resolver_por_aliases(
+        AcaoEmEspera.objects.filter(ativo=True).select_related('setor_destino'),
+        aliases=nomes,
+        codes=codes,
+    )
+
+
+def _resolver_setor_por_nome(*nomes, codes=()):
+    for codigo in codes:
+        setor = resolver_setor_por_codigo_service(codigo)
+        if setor is not None:
+            return setor
+    for nome in nomes:
+        setor = resolver_setor_por_codigo_service(nome)
+        if setor is not None:
+            return setor
+    return _resolver_por_aliases(Setor.objects.filter(ativo=True), aliases=nomes, codes=codes)
+
+
+def _resolver_setor_destino_por_acao(acao, *fallback_nomes):
+    setor = None
+    if acao is not None:
+        try:
+            setor = obter_setor_destino_padrao(acao)
+        except (AttributeError, TypeError, ValueError):
+            setor = None
+        if setor is None:
+            setor = getattr(acao, 'setor_destino', None)
+    if setor is not None:
+        return setor
+    if fallback_nomes:
+        return _resolver_setor_por_nome(*fallback_nomes)
+    return None
+
+
+def _configurar_campo_setor_por_acao(form, *, nome_campo_acao, nome_campo_setor):
+    acao = form.fields[nome_campo_acao].initial if nome_campo_acao in form.fields else None
+    try:
+        if hasattr(acao, 'pk'):
+            acao_obj = acao
+        elif acao:
+            acao_obj = AcaoEmEspera.objects.filter(pk=acao).select_related('setor_destino').first()
+        else:
+            acao_obj = None
+    except (TypeError, ValueError):
+        acao_obj = None
+
+    campo_setor = form.fields.get(nome_campo_setor)
+    if not campo_setor:
+        return
+
+    if acao_obj and not acao_permite_selecao_manual_setor(acao_obj):
+        setor_padrao = obter_setor_destino_padrao(acao_obj)
+        if setor_padrao:
+            campo_setor.initial = setor_padrao.id
+            campo_setor.queryset = Setor.objects.filter(id=setor_padrao.id)
+            campo_setor.widget.attrs['disabled'] = 'disabled'
+            return
+
+    campo_setor.queryset = Setor.objects.all().order_by('nome').order_by('nome')
+    campo_setor.widget.attrs.pop('disabled', None)
+
+
+
+def _mensagem_fluxo_nao_configurado(acao_atual, setor_atual):
+    acao_nome = getattr(acao_atual, 'nome', None) or '-'
+    setor_nome = getattr(setor_atual, 'nome', None) or '-'
+    return (
+        'Fluxo não configurado para:\n'
+        f'Ação atual: {acao_nome}\n'
+        f'Setor atual: {setor_nome}\n\n'
+        'Cadastre a regra em FluxoAcaoSetor informando:\n'
+        '- próxima ação\n'
+        '- próximo setor'
+    )
+
+
+def _parse_data_br(valor):
+    valor = (valor or '').strip()
+    if not valor:
+        return None
+    for fmt in ('%d/%m/%Y', '%Y-%m-%d'):
+        try:
+            return datetime.strptime(valor, fmt).date()
+        except ValueError:
+            continue
+    return None
+
+
+def _parse_decimal_br(valor):
+    valor = (valor or '').strip()
+    if not valor:
+        return None
+    valor = valor.replace('.', '').replace(',', '.')
+    try:
+        return Decimal(valor)
+    except (InvalidOperation, ValueError):
+        return None
+
+
+def _parse_int_br(valor):
+    valor = (valor or '').strip()
+    if not valor:
+        return None
+    try:
+        return int(valor)
+    except ValueError:
+        return None
+
+
+def _normalizar_tipo_nota(valor):
+    texto = (valor or '').strip().lower()
+    if not texto:
+        return None
+    if 'cliente' in texto:
+        return 'NOTA_FISCAL_CLIENTE'
+    if 'nossa' in texto:
+        return 'NOSSA_NOTA_FISCAL'
+    return None
+
+
+def _extrair_dados_historico_logistica(sac):
+    if sac is None:
+        return {}
+    historicos = (
+        SacHistorico.objects.filter(sac=sac)
+        .exclude(observacao__isnull=True)
+        .exclude(observacao__exact='')
+        .order_by('-data_evento', '-id')
+    )
+    mapa_labels = {
+        'Nome da Transportadora': ('nome_transportadora', str),
+        'Telefone da Transportadora': ('telefone_transportadora', str),
+        'Contato': ('contato_transportadora', str),
+        'Email': ('email_transportadora', str),
+        'Data da Coleta': ('data_coleta', _parse_data_br),
+        'Data prevista para coleta': ('data_coleta', _parse_data_br),
+        'Número da Cotação do frete': ('numero_cotacao_frete', str),
+        'Valor do frete Cotado': ('valor_frete_cotado', _parse_decimal_br),
+        'Quantos dias para entregar na Ionlab': ('dias_entrega_ionlab', _parse_int_br),
+        'Data Prevista para Chegar na Ionlab': ('data_prevista_chegada_ionlab', _parse_data_br),
+        'Nossa Nota fiscal ou Nota fiscal do Cliente': ('tipo_nota_fiscal', _normalizar_tipo_nota),
+        'Data de emissão da Nota fiscal': ('data_emissao_nota_fiscal', _parse_data_br),
+        'Numero da Nota Fiscal': ('numero_nota_fiscal', str),
+        'Data da Expedição': ('data_expedicao', _parse_data_br),
+        'Quantos dias para entregar no Cliente': ('dias_entrega_cliente', _parse_int_br),
+        'Data Prevista para Chegar no Cliente': ('data_prevista_chegada_cliente', _parse_data_br),
+        'Data efetiva da Entrega': ('data_efetiva_entrega', _parse_data_br),
+        'Data do Recebimento': ('data_recebimento', _parse_data_br),
+        'Nome do Recebedor': ('nome_recebedor', str),
+        'Embalagem Intacta': ('embalagem_intacta', str),
+        'Número do Ctrc': ('numero_ctrc', str),
+        'Valor do Frete no Ctrc': ('valor_frete_ctrc', _parse_decimal_br),
+        'Ctrc com divergência de valor': ('ctrc_divergencia_valor', str),
+        'Quantidade de volumes recebido': ('quantidade_volumes_recebido', _parse_int_br),
+        'Peso Total': ('peso_total', _parse_decimal_br),
+        'Próxima ação em espera': ('_historico_proxima_acao', str),
+        'Ação em espera próximo setor': ('_historico_proxima_acao', str),
+        'Setor Destino': ('_historico_proximo_setor', str),
+        'Próximo Setor': ('_historico_proximo_setor', str),
+    }
+    dados = {}
+    for hist in historicos:
+        texto = (hist.observacao or '').strip()
+        if not texto:
+            continue
+        for linha in texto.splitlines():
+            if ':' not in linha:
+                continue
+            label, valor = linha.split(':', 1)
+            label = label.strip()
+            valor = valor.strip()
+            if not valor:
+                continue
+            alvo = mapa_labels.get(label)
+            if not alvo:
+                continue
+            nome_campo, caster = alvo
+            if nome_campo in dados and dados[nome_campo] not in (None, ''):
+                continue
+            convertido = caster(valor) if caster else valor
+            if convertido not in (None, ''):
+                dados[nome_campo] = convertido
+        if dados:
+            break
+    return dados
+
+
+def _preencher_form_logistica_com_historico(form):
+    if form.is_bound or form.sac is None:
+        return
+    dados = _extrair_dados_historico_logistica(form.sac)
+    if not dados:
+        return
+    for nome_campo, valor in dados.items():
+        if nome_campo.startswith('_'):
+            continue
+        if nome_campo not in form.fields:
+            continue
+        campo = form.fields[nome_campo]
+        if campo.initial not in (None, ''):
+            continue
+        campo.initial = valor
+
+    data_coleta = form.fields['data_coleta'].initial if 'data_coleta' in form.fields else None
+    dias_ionlab = form.fields['dias_entrega_ionlab'].initial if 'dias_entrega_ionlab' in form.fields else None
+    if data_coleta and dias_ionlab not in (None, '') and 'data_prevista_chegada_ionlab' in form.fields and not form.fields['data_prevista_chegada_ionlab'].initial:
+        try:
+            form.fields['data_prevista_chegada_ionlab'].initial = data_coleta + timedelta(days=int(dias_ionlab))
+        except Exception as e:
+            registrar_erro('core.forms.py:except_2', e)
+            pass
+
+    data_expedicao = form.fields['data_expedicao'].initial if 'data_expedicao' in form.fields else None
+    dias_cliente = form.fields['dias_entrega_cliente'].initial if 'dias_entrega_cliente' in form.fields else None
+    if data_expedicao and dias_cliente not in (None, '') and 'data_prevista_chegada_cliente' in form.fields and not form.fields['data_prevista_chegada_cliente'].initial:
+        try:
+            form.fields['data_prevista_chegada_cliente'].initial = data_expedicao + timedelta(days=int(dias_cliente))
+        except Exception as e:
+            registrar_erro('core.forms.py:except_3', e)
+            pass
+
+
+def _aplicar_fluxo_obrigatorio_no_form(form, *, acao_atual, setor_atual, nome_campo_acao, nome_campo_setor):
+    try:
+        fluxo = buscar_fluxo_obrigatorio(acao_atual, setor_atual)
+    except FluxoSACNaoConfigurado as exc:
+        form.fields[nome_campo_acao].queryset = AcaoEmEspera.objects.none()
+        form.fields[nome_campo_setor].queryset = Setor.objects.none()
+        form._erro_fluxo = str(exc)
+        return None
+
+    status_destino = getattr(fluxo, 'status_destino', None)
+    if status_destino is None:
+        status_destino = _resolver_status_destino_fallback(
+            getattr(acao_atual, 'codigo', None),
+            getattr(acao_atual, 'nome', None),
+            getattr(fluxo, 'proxima_acao', None),
+            getattr(fluxo, 'proximo_setor', None),
+            getattr(setor_atual, 'codigo', None),
+            getattr(setor_atual, 'nome', None),
+        )
+
+    fluxo = SimpleNamespace(
+        proxima_acao=getattr(fluxo, 'proxima_acao', None),
+        proxima_acao_id=getattr(getattr(fluxo, 'proxima_acao', None), 'id', None),
+        proximo_setor=getattr(fluxo, 'proximo_setor', None),
+        proximo_setor_id=getattr(getattr(fluxo, 'proximo_setor', None), 'id', None),
+        status_destino=status_destino,
+        status_destino_id=getattr(status_destino, 'id', None),
+    )
+
+    campo_acao = form.fields.get(nome_campo_acao)
+    campo_setor = form.fields.get(nome_campo_setor)
+    if campo_acao:
+        campo_acao.initial = fluxo.proxima_acao_id
+        campo_acao.queryset = AcaoEmEspera.objects.filter(id=fluxo.proxima_acao_id) if fluxo.proxima_acao_id else AcaoEmEspera.objects.none()
+        campo_acao.widget.attrs['disabled'] = 'disabled'
+    if campo_setor:
+        campo_setor.initial = fluxo.proximo_setor_id
+        campo_setor.queryset = Setor.objects.filter(id=fluxo.proximo_setor_id) if fluxo.proximo_setor_id else Setor.objects.none()
+        campo_setor.widget.attrs['disabled'] = 'disabled'
+
+    campo_status = form.fields.get('proximo_status') if hasattr(form, 'fields') else None
+    if campo_status:
+        campo_status.initial = fluxo.status_destino_id
+        if fluxo.status_destino_id:
+            campo_status.queryset = StatusSAC.objects.all().filter(id=fluxo.status_destino_id)
+        else:
+            campo_status.queryset = StatusSAC.objects.none()
+        campo_status.widget.attrs['disabled'] = 'disabled'
+
+    form._fluxo_resolvido = fluxo
+    form._erro_fluxo = ''
+    return fluxo
+
+class RetificacaoSACForm(forms.ModelForm):
+    motivo_retificacao = forms.CharField(
+        label='Motivo da retificação',
+        required=True,
+        widget=forms.Textarea(attrs={
+            'rows': 4,
+            'placeholder': 'Descreva o motivo da correção',
+        }),
+    )
+
+    class Meta:
+        model = SAC
+        fields = [
+            'contato_nome',
+            'telefone_1',
+            'telefone_2',
+            'email_1',
+            'email_2',
+            'nome_usuario_contato',
+            'empresa_usuario_contato',
+            'telefone_usuario_contato',
+            'whatsapp_usuario_contato',
+            'email_usuario_contato',
+            'endereco_usuario_contato',
+            'cidade_usuario_contato',
+            'estado_usuario_contato',
+            'numero_nf_revenda',
+            'data_emissao_nf_revenda',
+            'titulo',
+            'descricao',
+            'email_automatico_habilitado',
+        ]
+        labels = {
+            'contato_nome': 'Nome do contato',
+            'telefone_1': 'Telefone do contato',
+            'telefone_2': 'WhatsApp do contato',
+            'email_1': 'E-mail 1 do contato',
+            'email_2': 'E-mail 2 do contato',
+            'nome_usuario_contato': 'Nome do usuário',
+            'empresa_usuario_contato': 'Empresa do usuário',
+            'telefone_usuario_contato': 'Telefone do usuário',
+            'whatsapp_usuario_contato': 'WhatsApp do usuário',
+            'email_usuario_contato': 'E-mail do usuário',
+            'endereco_usuario_contato': 'Endereço do usuário',
+            'cidade_usuario_contato': 'Cidade do usuário',
+            'estado_usuario_contato': 'Estado do usuário',
+            'numero_nf_revenda': 'Número da nota fiscal de revenda',
+            'data_emissao_nf_revenda': 'Data de emissão da NF de revenda',
+            'titulo': 'Título do SAC',
+            'descricao': 'Relato do problema',
+            'email_automatico_habilitado': 'E-mail automático habilitado',
+        }
+        widgets = {
+            'data_emissao_nf_revenda': forms.DateInput(attrs={'type': 'date'}),
+            'descricao': forms.Textarea(attrs={'rows': 6}),
+            'titulo': forms.TextInput(attrs={'placeholder': 'Resumo do problema'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for nome, campo in self.fields.items():
+            if nome == 'email_automatico_habilitado':
+                campo.widget.attrs.setdefault('class', 'check-input')
+                continue
+            campo.widget.attrs.setdefault('class', 'form-control')
+        self.fields['estado_usuario_contato'].widget.attrs.setdefault('maxlength', '2')
+
+
+class AnaliseTecnicaSACForm(forms.Form):
+    tratativa_problema = forms.ModelChoiceField(
+        queryset=TratativaProblema.objects.filter(ativo=True).order_by('nome'),
+        label='Tratativa do Problema'
+    )
+    tipo_problema = forms.ModelChoiceField(
+        queryset=TipoProblema.objects.filter(ativo=True).order_by('nome'),
+        label='Tipo de Problema',
+        required=False
+    )
+    proximo_status = forms.ModelChoiceField(
+        queryset=StatusSAC.objects.none(),
+        label='Próximo status'
+    )
+    observacao_tecnica = forms.CharField(
+        label='Observação técnica',
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 6})
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        nomes_permitidos = [
+            'Concluído',
+            'Orçamento Técnico Externo',
+            'Gestão do SAC',
+            'Manutenção pelo Cliente',
+            'Aguardando Cliente',
+        ]
+        self.fields['proximo_status'].queryset = StatusSAC.objects.all().filter(
+            ativo=True,
+            nome__in=nomes_permitidos
+        ).order_by('nome')
+
+
+    def clean(self):
+        cleaned_data = super().clean()
+        tratativa = cleaned_data.get('tratativa_problema')
+        tipo_problema = cleaned_data.get('tipo_problema')
+        proximo_status = cleaned_data.get('proximo_status')
+
+        nome_tratativa = (tratativa.nome or '').strip().lower() if tratativa else ''
+        nome_status = (proximo_status.nome or '').strip().lower() if proximo_status else ''
+
+        resolvido = 'resolvido' in nome_tratativa and 'não' not in nome_tratativa and 'nao' not in nome_tratativa
+
+        if resolvido:
+            if proximo_status and nome_status != 'concluído':
+                raise forms.ValidationError('Quando o problema for resolvido em atendimento remoto, o próximo status deve ser Concluído.')
+        else:
+            if not tipo_problema:
+                self.add_error('tipo_problema', 'Informe o tipo de problema quando não for resolvido remotamente.')
+            if nome_status == 'concluído':
+                self.add_error('proximo_status', 'Concluído só pode ser usado quando o problema for resolvido em atendimento remoto.')
+
+        return cleaned_data
+
+
+class OrcamentoTecnicoExternoForm(forms.Form):
+    tecnico_externo = forms.ModelChoiceField(
+        queryset=TecnicoExterno.objects.filter(ativo=True).order_by('nome'),
+        label='Nome do técnico externo'
+    )
+    telefone = forms.CharField(required=False, label='Telefone')
+    whatsapp = forms.CharField(required=False, label='WhatsApp')
+    email = forms.EmailField(required=False, label='E-mail')
+    cidade = forms.CharField(required=False, label='Cidade')
+    estado = forms.ChoiceField(required=False, choices=ESTADOS_BRASIL, label='Estado')
+    precisa_peca_reposicao = forms.ChoiceField(
+        choices=[('nao', 'Não'), ('sim', 'Sim')],
+        label='A manutenção precisará de peça de reposição?'
+    )
+    quantidade_horas = forms.DecimalField(required=False, label='Quantidade de horas', min_value=0, decimal_places=2, max_digits=10)
+    valor_unitario_hora = forms.DecimalField(required=False, label='Valor unitário das horas', min_value=0, decimal_places=2, max_digits=15)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        qtd = cleaned_data.get('quantidade_horas') or 0
+        valor = cleaned_data.get('valor_unitario_hora') or 0
+        cleaned_data['valor_total_horas'] = qtd * valor
+        return cleaned_data
+
+
+class OrcamentoPecaForm(forms.Form):
+    peca = forms.ModelChoiceField(
+        queryset=PecaTabelaPreco.objects.filter(ativo=True).order_by('descricao', 'referencia'),
+        label='Descrição',
+        required=False
+    )
+    quantidade = forms.DecimalField(required=False, label='Quantidade', min_value=0, decimal_places=2, max_digits=10)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        peca = cleaned_data.get('peca')
+        quantidade = cleaned_data.get('quantidade')
+        if peca and not quantidade:
+            self.add_error('quantidade', 'Informe a quantidade da peça.')
+        if quantidade and not peca:
+            self.add_error('peca', 'Selecione a peça.')
+        return cleaned_data
+
+
+OrcamentoPecaFormSet = formset_factory(OrcamentoPecaForm, extra=1, can_delete=True)
+
+
+
+
+
+def _extrair_primeiro_valor_historico_generico(sac, labels):
+    if sac is None:
+        return ''
+    if isinstance(labels, str):
+        labels = [labels]
+    labels_norm = [str(l or '').strip().lower() for l in labels if str(l or '').strip()]
+    if not labels_norm:
+        return ''
+    historicos = (
+        SacHistorico.objects.filter(sac=sac)
+        .exclude(observacao__isnull=True)
+        .exclude(observacao__exact='')
+        .order_by('-data_evento', '-id')
+    )
+    for hist in historicos:
+        texto = (hist.observacao or '').strip()
+        if not texto:
+            continue
+        for linha in texto.splitlines():
+            if ':' not in linha:
+                continue
+            label, valor = linha.split(':', 1)
+            if label.strip().lower() in labels_norm and valor.strip():
+                return valor.strip()
+    return ''
+
+
+def _historico_reprovacao_diretoria(sac):
+    if sac is None:
+        return False
+    historicos = (
+        SacHistorico.objects.filter(sac=sac)
+        .exclude(observacao__isnull=True)
+        .exclude(observacao__exact='')
+        .order_by('-data_evento', '-id')
+    )
+    for hist in historicos:
+        texto = (hist.observacao or '').lower()
+        acao = (getattr(hist, 'acao_executada', '') or '').lower()
+        if 'diretoria' not in acao and 'valor do desconto' not in texto and 'contra proposta' not in texto:
+            continue
+        if (
+            'decisão da diretoria: reprovado' in texto
+            or 'decisao da diretoria: reprovado' in texto
+            or 'o valor do desconto será: reprovado' in texto
+            or 'o valor do desconto sera: reprovado' in texto
+        ):
+            return True
+    return False
+
+
+def _extrair_contra_proposta_historico(sac):
+    valor = _extrair_primeiro_valor_historico_generico(sac, [
+        'Contra Proposta',
+        'Contra Proposta de desconto',
+        'Valor da contra proposta',
+    ])
+    if valor:
+        return valor
+    return _extrair_primeiro_valor_historico_generico(sac, 'Valor do desconto pleiteado')
+
+class AnaliseComercialSACForm(forms.Form):
+    # REGRA ÚNICA DA GESTÃO COMERCIAL: manter toda a lógica aqui.
+    cliente_confirmou_pedido = forms.ChoiceField(
+        choices=[('sim', 'Sim'), ('nao', 'Não')],
+        label='E-mail ou mensagem WhatsApp do Cliente confirmando o pedido'
+    )
+    cliente_aceita_negociacao = forms.ChoiceField(
+        choices=[('sim', 'Sim'), ('nao', 'Não')],
+        required=False,
+        label='Cliente aceita ficar com o item mediante alguma negociação'
+    )
+    item_pequeno_valor = forms.CharField(
+        required=False,
+        label='Item de pequeno Valor',
+        widget=forms.TextInput(attrs={'readonly': 'readonly'})
+    )
+    valor_desconto_pleiteado = forms.DecimalField(
+        required=False,
+        max_digits=12,
+        decimal_places=2,
+        min_value=0,
+        label='Qual o Valor do desconto Pleiteado'
+    )
+    contra_proposta_visual = forms.CharField(
+        required=False,
+        label='Contra Proposta',
+        widget=forms.TextInput(attrs={'readonly': 'readonly'})
+    )
+    cliente_aceitou_contra_proposta = forms.ChoiceField(
+        choices=[('', 'Selecione'), ('sim', 'Sim'), ('nao', 'Não')],
+        required=False,
+        label='Cliente Aceitou a Contra proposta'
+    )
+    proximo_status_sugerido = forms.ModelChoiceField(
+        queryset=StatusSAC.objects.none(),
+        required=False,
+        label='Próximo status',
+        widget=forms.Select(attrs={'disabled': 'disabled'})
+    )
+    acao_em_espera = forms.ModelChoiceField(
+        queryset=AcaoEmEspera.objects.none(),
+        required=False,
+        label='Ação em Espera próximo Setor',
+        widget=forms.Select(attrs={'disabled': 'disabled'})
+    )
+    proximo_setor = forms.ModelChoiceField(
+        queryset=Setor.objects.none(),
+        required=False,
+        label='Próximo setor',
+        widget=forms.Select(attrs={'disabled': 'disabled'})
+    )
+    observacao_comercial = forms.CharField(
+        required=False,
+        label='Observação sobre a ocorrência',
+        widget=forms.Textarea(attrs={'rows': 5})
+    )
+
+    LIMITE_ITEM_PEQUENO_VALOR = Decimal('200.00')
+
+    def __init__(self, *args, **kwargs):
+        self.sac = kwargs.pop('sac', None)
+        self.setor_contexto = kwargs.pop('setor_contexto', None)
+        super().__init__(*args, **kwargs)
+
+        confirmou_inicial = self.data.get('cliente_confirmou_pedido') if self.is_bound else (self.initial.get('cliente_confirmou_pedido') or 'nao')
+        aceita_inicial = self.data.get('cliente_aceita_negociacao') if self.is_bound else (self.initial.get('cliente_aceita_negociacao') or '')
+        self.fields['cliente_confirmou_pedido'].initial = confirmou_inicial or 'nao'
+        self.fields['cliente_aceita_negociacao'].initial = aceita_inicial or ''
+
+        self.modo_contra_proposta = False
+        self._contra_proposta_inicial = ''
+        self._preview_fluxo_contra_aceita = _criar_fluxo_preview()
+        self._preview_fluxo_contra_recusa = _criar_fluxo_preview()
+        if self.sac is not None:
+            acao_nome = ((getattr(getattr(self.sac, 'acao_em_espera', None), 'nome', '') or '').strip().lower())
+            if 'ligar para o cliente' in acao_nome and _historico_reprovacao_diretoria(self.sac):
+                self.modo_contra_proposta = True
+                self._contra_proposta_inicial = _extrair_contra_proposta_historico(self.sac)
+        if self.modo_contra_proposta:
+            aceitou_contra = self.data.get('cliente_aceitou_contra_proposta') if self.is_bound else (self.initial.get('cliente_aceitou_contra_proposta') or '')
+            self.fields['cliente_aceitou_contra_proposta'].initial = aceitou_contra or ''
+            self.fields['contra_proposta_visual'].initial = self._contra_proposta_inicial
+
+        self._erro_fluxo = ''
+        self._fluxo_resolvido = None
+        self.fields['proximo_status_sugerido'].queryset = StatusSAC.objects.filter(ativo=True).order_by('nome')
+        self.fields['acao_em_espera'].queryset = AcaoEmEspera.objects.filter(ativo=True).order_by('nome')
+        self.fields['proximo_setor'].queryset = Setor.objects.filter(ativo=True).order_by('nome')
+
+        self._item_pequeno_valor_bool = self._calcular_item_pequeno_valor()
+        self.fields['item_pequeno_valor'].initial = 'Sim' if self._item_pequeno_valor_bool else 'Não'
+
+        self._preview_fluxo_confirmado = _criar_fluxo_preview()
+        self._preview_fluxo_negociacao = _criar_fluxo_preview()
+        self._preview_fluxo_sem_negociacao = _criar_fluxo_preview()
+        self._preview_fluxo_doacao_brinde = _criar_fluxo_preview()
+        if self.modo_contra_proposta:
+            status_concluido = _resolver_status_conclusao_comercial()
+            self._preview_fluxo_contra_aceita = _criar_fluxo_preview(status_concluido, None, None)
+            fluxo_recusa = _aplicar_fluxo_obrigatorio_no_form(
+                self,
+                acao_atual=getattr(self.sac, 'acao_em_espera', None),
+                setor_atual=getattr(self.sac, 'setor_atual', None),
+                nome_campo_acao='acao_em_espera',
+                nome_campo_setor='proximo_setor',
+            ) if self.sac is not None else None
+            status_recusa = getattr(self, '_fluxo_resolvido', None)
+            self._preview_fluxo_contra_recusa = _criar_fluxo_preview(
+                getattr(status_recusa, 'status_destino', None) if hasattr(status_recusa, 'status_destino') else getattr(self, '_status_resolvido', None),
+                getattr(fluxo_recusa, 'proxima_acao', None),
+                getattr(fluxo_recusa, 'proximo_setor', None),
+            )
+            self._configurar_fluxo_contra_proposta(aceitou_contra)
+        else:
+            self._configurar_fluxo_conforme_resposta(confirmou_inicial, aceita_inicial)
+
+    def _configurar_fluxo_contra_proposta(self, aceitou_valor):
+        self._erro_fluxo = ''
+        self._fluxo_resolvido = None
+        self._status_resolvido = None
+        status_concluido = _resolver_status_conclusao_comercial()
+        self._preview_fluxo_contra_aceita = _criar_fluxo_preview(status_concluido, None, None)
+        try:
+            fluxo = buscar_fluxo_obrigatorio(getattr(self.sac, 'acao_em_espera', None), getattr(self.sac, 'setor_atual', None)) if self.sac is not None else None
+        except FluxoSACNaoConfigurado as exc:
+            fluxo = None
+            self._erro_fluxo = str(exc)
+        status_fluxo = getattr(fluxo, 'status_destino', None) if fluxo is not None else None
+        self._preview_fluxo_contra_recusa = _criar_fluxo_preview(status_fluxo, getattr(fluxo, 'proxima_acao', None), getattr(fluxo, 'proximo_setor', None))
+
+        if (aceitou_valor or '') == 'sim':
+            self._status_resolvido = status_concluido
+            _definir_select_disabled(self.fields['proximo_status_sugerido'], status_concluido)
+            _definir_select_disabled(self.fields['acao_em_espera'], None)
+            _definir_select_disabled(self.fields['proximo_setor'], None)
+            return
+        if (aceitou_valor or '') == 'nao':
+            if fluxo is None:
+                _definir_select_disabled(self.fields['proximo_status_sugerido'], None)
+                _definir_select_disabled(self.fields['acao_em_espera'], None)
+                _definir_select_disabled(self.fields['proximo_setor'], None)
+                return
+            self._fluxo_resolvido = fluxo
+            self._status_resolvido = status_fluxo
+            _definir_select_disabled(self.fields['proximo_status_sugerido'], status_fluxo)
+            _definir_select_disabled(self.fields['acao_em_espera'], getattr(fluxo, 'proxima_acao', None))
+            _definir_select_disabled(self.fields['proximo_setor'], getattr(fluxo, 'proximo_setor', None))
+            return
+        _definir_select_disabled(self.fields['proximo_status_sugerido'], None)
+        _definir_select_disabled(self.fields['acao_em_espera'], None)
+        _definir_select_disabled(self.fields['proximo_setor'], None)
+
+    def _calcular_item_pequeno_valor(self):
+        if self.sac is None:
+            return False
+        total = calcular_total_com_problema(self.sac.itens_sac.select_related('item_nota_fiscal').all())
+        return calcular_item_pequeno_valor_service(total)
+
+    def _resolver_fluxo_unico(self, confirmou_valor, aceita_valor):
+        confirmou = (confirmou_valor or '').strip().lower() == 'sim'
+        aceita = (aceita_valor or '').strip().lower() == 'sim'
+        instancias = resolver_instancias_fluxo_comercial(
+            confirmado_cliente=confirmou,
+            aceita_negociacao=aceita,
+            item_pequeno_valor=self._item_pequeno_valor_bool,
+        )
+        faltando = []
+        if instancias['status'] is None:
+            faltando.append(f"StatusSAC: {instancias['resultado'].status_nome}")
+        if instancias['resultado'].acao_nome and instancias['acao'] is None:
+            faltando.append(f"Ação em Espera: {instancias['resultado'].acao_nome}")
+        if instancias['resultado'].setor_nome and instancias['setor'] is None:
+            faltando.append(f"Setor: {instancias['resultado'].setor_nome}")
+        fluxo = SimpleNamespace(proxima_acao=instancias['acao'], proximo_setor=instancias['setor']) if not faltando else None
+        return fluxo, instancias['status'], faltando
+
+    def _configurar_fluxo_conforme_resposta(self, cliente_confirmou_valor, cliente_aceita_valor):
+        self._erro_fluxo = ''
+        self._fluxo_resolvido = None
+        self._status_resolvido = None
+
+        fluxo_confirmado, status_confirmado, _ = self._resolver_fluxo_unico('sim', 'nao')
+        self._preview_fluxo_confirmado = _criar_fluxo_preview(status_confirmado, getattr(fluxo_confirmado, 'proxima_acao', None), getattr(fluxo_confirmado, 'proximo_setor', None))
+        fluxo_neg, status_neg, _ = self._resolver_fluxo_unico('nao', 'sim')
+        self._preview_fluxo_negociacao = _criar_fluxo_preview(status_neg, getattr(fluxo_neg, 'proxima_acao', None), getattr(fluxo_neg, 'proximo_setor', None))
+        valor_small_original = self._item_pequeno_valor_bool
+        self._item_pequeno_valor_bool = False
+        fluxo_sem_neg, status_sem_neg, _ = self._resolver_fluxo_unico('nao', 'nao')
+        self._preview_fluxo_sem_negociacao = _criar_fluxo_preview(status_sem_neg, getattr(fluxo_sem_neg, 'proxima_acao', None), getattr(fluxo_sem_neg, 'proximo_setor', None))
+        self._item_pequeno_valor_bool = True
+        fluxo_doacao, status_doacao, _ = self._resolver_fluxo_unico('nao', 'nao')
+        self._preview_fluxo_doacao_brinde = _criar_fluxo_preview(status_doacao, getattr(fluxo_doacao, 'proxima_acao', None), getattr(fluxo_doacao, 'proximo_setor', None))
+        self._item_pequeno_valor_bool = valor_small_original
+
+        fluxo, status_resolvido, faltando = self._resolver_fluxo_unico(cliente_confirmou_valor, cliente_aceita_valor)
+        if faltando:
+            self._erro_fluxo = 'Configuração obrigatória não encontrada para a Gestão Comercial: ' + '; '.join(faltando)
+            _definir_select_disabled(self.fields['proximo_status_sugerido'], None)
+            _definir_select_disabled(self.fields['acao_em_espera'], None)
+            _definir_select_disabled(self.fields['proximo_setor'], None)
+            return
+
+        self._status_resolvido = status_resolvido
+        _definir_select_disabled(self.fields['proximo_status_sugerido'], status_resolvido)
+        if fluxo is None:
+            _definir_select_disabled(self.fields['acao_em_espera'], None)
+            _definir_select_disabled(self.fields['proximo_setor'], None)
+            return
+
+        self._fluxo_resolvido = fluxo
+        _definir_select_disabled(self.fields['acao_em_espera'], getattr(fluxo, 'proxima_acao', None))
+        _definir_select_disabled(self.fields['proximo_setor'], getattr(fluxo, 'proximo_setor', None))
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        cliente_confirmou = cleaned_data.get('cliente_confirmou_pedido')
+        cliente_aceita = cleaned_data.get('cliente_aceita_negociacao')
+        desconto = cleaned_data.get('valor_desconto_pleiteado')
+        aceitou_contra = cleaned_data.get('cliente_aceitou_contra_proposta')
+
+        cleaned_data['item_pequeno_valor'] = 'sim' if self._item_pequeno_valor_bool else 'nao'
+
+        if self.modo_contra_proposta:
+            cleaned_data['cliente_confirmou_pedido'] = 'nao'
+            cleaned_data['cliente_aceita_negociacao'] = 'nao'
+            cleaned_data['valor_desconto_pleiteado'] = None
+            if not aceitou_contra:
+                self.add_error('cliente_aceitou_contra_proposta', 'Informe se o cliente aceitou a contra proposta.')
+            self._configurar_fluxo_contra_proposta(aceitou_contra)
+        else:
+            self._configurar_fluxo_conforme_resposta(cliente_confirmou, cliente_aceita)
+            if cliente_confirmou == 'nao' and not cliente_aceita:
+                self.add_error('cliente_aceita_negociacao', 'Informe se o cliente aceita ficar com o item mediante alguma negociação.')
+
+            if cliente_confirmou == 'nao' and cliente_aceita == 'sim' and desconto in (None, ''):
+                self.add_error('valor_desconto_pleiteado', 'Informe o valor do desconto pleiteado.')
+
+            if cliente_confirmou == 'sim':
+                cleaned_data['cliente_aceita_negociacao'] = 'nao'
+                cleaned_data['valor_desconto_pleiteado'] = None
+
+        if getattr(self, '_erro_fluxo', ''):
+            raise forms.ValidationError(self._erro_fluxo)
+
+        status_id = self.fields['proximo_status_sugerido'].initial
+        cleaned_data['proximo_status_sugerido'] = StatusSAC.objects.filter(id=status_id).first() if status_id else None
+
+        fluxo = getattr(self, '_fluxo_resolvido', None)
+        if cleaned_data.get('proximo_status_sugerido') and _resolver_status_conclusao_comercial() == cleaned_data.get('proximo_status_sugerido'):
+            cleaned_data['acao_em_espera'] = None
+            cleaned_data['proximo_setor'] = None
+            return cleaned_data
+
+        if fluxo is None and cleaned_data.get('proximo_status_sugerido') is None:
+            raise forms.ValidationError('Não foi possível determinar o próximo fluxo da análise comercial.')
+
+        cleaned_data['acao_em_espera'] = getattr(fluxo, 'proxima_acao', None)
+        cleaned_data['proximo_setor'] = getattr(fluxo, 'proximo_setor', None)
+        return cleaned_data
+
+
+class ImportarTabelaPecasExcelForm(forms.Form):
+    arquivo = forms.FileField(label='Planilha Excel da tabela de preços de peças')
+
+
+
+class GestaoSACPedidoRetornoForm(forms.Form):
+    OPCAO_SIM_NAO = (('', 'Selecione'), ('SIM', 'Sim'), ('NAO', 'Não'))
+    TIPO_TECNICO_EQUIPAMENTO = 'tecnico - equipamento nao funciona'
+
+    cliente_emite_nf = forms.ChoiceField(
+        choices=OPCAO_SIM_NAO,
+        required=False,
+        label='Cliente emite nota fiscal de Devolução/Remessa'
+    )
+    nf_solicitada = forms.ChoiceField(
+        choices=OPCAO_SIM_NAO,
+        required=False,
+        label='Já foi solicitado a emissão da Nota fiscal'
+    )
+    data_emissao_nf = forms.DateField(
+        label='Data que será emitida',
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
+    numero_pedido = forms.CharField(label='Número do Pedido', max_length=100, required=False)
+    data_pedido = forms.DateField(
+        label='Data do Pedido',
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
+    nota_fiscal_venda_visual = forms.CharField(
+        required=False,
+        label='Nota Fiscal de Venda',
+        widget=forms.TextInput(attrs={'readonly': 'readonly'})
+    )
+    data_emissao_nf_venda_visual = forms.CharField(
+        required=False,
+        label='Data da Emissão da Nota fiscal',
+        widget=forms.TextInput(attrs={'readonly': 'readonly'})
+    )
+    numero_nf_venda_usuario = forms.CharField(
+        label='Número da Nota fiscal de venda ao Usuário',
+        max_length=100,
+        required=False
+    )
+    data_emissao_venda_usuario = forms.DateField(
+        label='Data de Emissão de venda ao usuário',
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
+    tempo_uso_visual = forms.CharField(
+        required=False,
+        label='Tempo de uso',
+        widget=forms.TextInput(attrs={'readonly': 'readonly'})
+    )
+    proxima_acao_em_espera = forms.ModelChoiceField(
+        queryset=AcaoEmEspera.objects.none(),
+        required=False,
+        label='Próxima Ação',
+        widget=forms.Select(attrs={'disabled': 'disabled'})
+    )
+    proximo_setor = forms.ModelChoiceField(
+        queryset=Setor.objects.none(),
+        required=False,
+        label='Próximo Setor',
+        widget=forms.Select(attrs={'disabled': 'disabled'})
+    )
+    proximo_status = forms.ModelChoiceField(
+        queryset=StatusSAC.objects.none(),
+        required=False,
+        label='Próximo Status',
+        widget=forms.Select(attrs={'disabled': 'disabled'})
+    )
+    observacao_importante = forms.CharField(
+        required=False,
+        label='Observação importante',
+        widget=forms.Textarea(attrs={'rows': 5})
+    )
+    anexos_pdf = MultipleFileField(
+        required=False,
+        label='Pedido Gerado para Esse SAC',
+        widget=MultipleFileInput(attrs={'accept': 'application/pdf'})
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.sac = kwargs.pop('sac', None)
+        self.acao_atual_nome = (kwargs.pop('acao_atual_nome', '') or '').strip()
+        self.setor_contexto = kwargs.pop('setor_contexto', None)
+        self.tipo_ocorrencia_nome = ''
+        if self.sac is not None:
+            try:
+                itens = self.sac.itens_sac.select_related('tipo_ocorrencia').all()
+                for item in itens:
+                    nome_tipo = ((getattr(getattr(item, 'tipo_ocorrencia', None), 'nome', '') or '').strip())
+                    if nome_tipo:
+                        self.tipo_ocorrencia_nome = nome_tipo
+                        break
+            except Exception:
+                self.tipo_ocorrencia_nome = ''
+        super().__init__(*args, **kwargs)
+
+        _aplicar_fluxo_obrigatorio_no_form(
+            self,
+            acao_atual=getattr(self.sac, 'acao_em_espera', None),
+            setor_atual=getattr(self.sac, 'setor_atual', None),
+            nome_campo_acao='proxima_acao_em_espera',
+            nome_campo_setor='proximo_setor',
+        )
+
+        if self._eh_tipo_tecnico_equipamento():
+            self.fields['anexos_pdf'].required = False
+            self._preencher_campos_visuais_manutencao()
+            self._configurar_fluxo_tecnico_preview()
+        elif self._acao_e_analise_ocorrido_logistica() and 'item vencido' in self._tipo_ocorrencia_normalizado():
+            self._configurar_fluxo_item_vencido({})
+
+    def _preencher_campos_visuais_manutencao(self):
+        if self.sac is None:
+            return
+        nota = getattr(self.sac, 'nota_fiscal', None)
+        numero_nf = ''
+        data_nf = None
+        if nota is not None:
+            numero_nf = getattr(nota, 'numero_nf', None) or getattr(nota, 'numero', None) or ''
+            data_nf = getattr(nota, 'data_emissao', None)
+        self.fields['nota_fiscal_venda_visual'].initial = numero_nf or '-'
+        self.fields['data_emissao_nf_venda_visual'].initial = data_nf.strftime('%d/%m/%Y') if hasattr(data_nf, 'strftime') else '-'
+
+    def _acao_e_analise_ocorrido_logistica(self):
+        return eh_acao_analise_ocorrido_logistica(self.acao_atual_nome)
+
+    def _tipo_ocorrencia_normalizado(self):
+        return _normalizar_chave_fluxo(getattr(self, 'tipo_ocorrencia_nome', '') or '')
+
+    def _eh_tipo_tecnico_equipamento(self):
+        return self._tipo_ocorrencia_normalizado() == self.TIPO_TECNICO_EQUIPAMENTO
+
+    def _acao_atual_normalizada(self):
+        return _normalizar_chave_fluxo(self.acao_atual_nome)
+
+    def _eh_acao_autorizar_manutencao_interna(self):
+        acao = self._acao_atual_normalizada()
+        # Blindagem: aceita variações do nome da ação e também identifica o fluxo
+        # quando a tela de manutenção interna envia seus campos específicos.
+        if 'autorizar manutencao interna' in acao:
+            return True
+        if 'manutencao interna' in acao:
+            return True
+        if 'autorizar manutencao' in acao:
+            return True
+        try:
+            dados = self.data if self.is_bound else {}
+            if dados.get(self.add_prefix('numero_nf_venda_usuario')) is not None or dados.get('numero_nf_venda_usuario') is not None:
+                return True
+            if dados.get(self.add_prefix('data_emissao_venda_usuario')) is not None or dados.get('data_emissao_venda_usuario') is not None:
+                return True
+        except Exception as e:
+            registrar_erro('core.forms.py:except_4', e)
+            pass
+        return False
+
+    def _configurar_fluxo_analise_ocorrido_logistica(self, cleaned_data):
+        resultado = resolver_fluxo_formulario('analise ocorrido logistica para sac')
+        return aplicar_fluxo_resolvido_no_form(
+            self,
+            cleaned_data,
+            status=resultado.status,
+            acao=resultado.acao,
+            setor=resultado.setor,
+        )
+
+    def _tipo_ocorrencia_cliente_nao_confirmou(self):
+        return eh_tipo_ocorrencia_cliente_nao_confirmou(self.tipo_ocorrencia_nome)
+
+    def _configurar_fluxo_cliente_nao_confirmou(self, cleaned_data):
+        resultado = resolver_fluxo_formulario('cliente nao confirmou coleta logistica')
+        return aplicar_fluxo_resolvido_no_form(
+            self,
+            cleaned_data,
+            status=resultado.status,
+            acao=resultado.acao,
+            setor=resultado.setor,
+        )
+
+    def _resolver_fluxo_tecnico_cliente_emite(self):
+        status = _resolver_status_por_nome(
+            'Aguardando Cliente Emitir Nota Fiscal',
+            'AGUARDANDO_CLIENTE_EMITIR_NOTA_FISCAL',
+        )
+        acao = _resolver_acao_por_nome(
+            'Aguardando disponibilidade do Cliente',
+            'Aguardando Disponibilidade do Cliente',
+            codes=('AGUARDANDO_DISPONIBILIDADE_DO_CLIENTE',),
+        )
+        setor = _resolver_setor_por_nome('SAC', codes=('SAC',))
+        return status, acao, setor
+
+    def _resolver_fluxo_tecnico_ionlab_emite(self):
+        status = _resolver_status_por_nome(
+            'Emissão Nota Fiscal de Retorno',
+            'Emissao Nota Fiscal de Retorno',
+            'EMISSAO_NOTA_FISCAL_RETORNO',
+        )
+        acao = _resolver_acao_por_nome(
+            'Aguardando Emissão da Nota fiscal (Entrada/Retorno)',
+            'Aguardando Emissao da Nota fiscal (Entrada/Retorno)',
+            codes=('AGUARDANDO_EMISSAO_DA_NOTA_FISCAL_ENTRADA_RETORNO',),
+        )
+        setor = _resolver_setor_por_nome('Logística', 'Logistica', codes=('LOGISTICA',))
+        return status, acao, setor
+
+    def _resolver_fluxo_tecnico_manutencao_interna(self):
+        status = _resolver_status_por_nome(
+            'Em Análise',
+            'Em Analise',
+            'EM_ANALISE',
+        )
+        acao = _resolver_acao_por_nome(
+            'Aguardando Inspeção física e Funcional',
+            'Aguardando Inspecao fisica e Funcional',
+            'Aguardando Inspeção Física e Funcional',
+            'Aguardando Inspecao Fisica e Funcional',
+            codes=('AGUARDANDO_INSPECAO_FISICA_FUNCIONAL',),
+        )
+        setor = _resolver_setor_por_nome(
+            'Assistência Técnica',
+            'Assistencia Tecnica',
+            codes=('ASSISTENCIA_TECNICA',),
+        )
+        return status, acao, setor
+
+    def _configurar_campo_fluxo_fixo(self, status, acao, setor):
+        campo_status = self.fields.get('proximo_status')
+        campo_acao = self.fields.get('proxima_acao_em_espera')
+        campo_setor = self.fields.get('proximo_setor')
+        if campo_status:
+            campo_status.initial = getattr(status, 'id', None)
+            campo_status.queryset = StatusSAC.objects.filter(id=status.id) if status else StatusSAC.objects.none()
+            campo_status.widget.attrs['disabled'] = 'disabled'
+        if campo_acao:
+            campo_acao.initial = getattr(acao, 'id', None)
+            campo_acao.queryset = AcaoEmEspera.objects.filter(id=acao.id) if acao else AcaoEmEspera.objects.none()
+            campo_acao.widget.attrs['disabled'] = 'disabled'
+        if campo_setor:
+            campo_setor.initial = getattr(setor, 'id', None)
+            campo_setor.queryset = Setor.objects.filter(id=setor.id) if setor else Setor.objects.none()
+            campo_setor.widget.attrs['disabled'] = 'disabled'
+
+    def _configurar_fluxo_tecnico_preview(self):
+        if self._eh_acao_autorizar_manutencao_interna():
+            status, acao, setor = self._resolver_fluxo_tecnico_manutencao_interna()
+            self._configurar_campo_fluxo_fixo(status, acao, setor)
+            return
+
+        cliente_emite = (self.data.get(self.add_prefix('cliente_emite_nf')) or self.data.get('cliente_emite_nf') or '').strip().upper() if self.is_bound else ''
+        solicitou = (self.data.get(self.add_prefix('nf_solicitada')) or self.data.get('nf_solicitada') or '').strip().upper() if self.is_bound else ''
+        if cliente_emite == 'NAO':
+            status, acao, setor = self._resolver_fluxo_tecnico_ionlab_emite()
+            self._configurar_campo_fluxo_fixo(status, acao, setor)
+        elif cliente_emite == 'SIM' and solicitou == 'SIM':
+            status, acao, setor = self._resolver_fluxo_tecnico_cliente_emite()
+            self._configurar_campo_fluxo_fixo(status, acao, setor)
+
+    def _exigir_objetos_fluxo(self, status, acao, setor):
+        if not status:
+            raise forms.ValidationError('Status de destino não encontrado. Cadastre o status necessário para este fluxo.')
+        if not acao:
+            raise forms.ValidationError('Ação em espera de destino não encontrada. Cadastre a ação necessária para este fluxo.')
+        if not setor:
+            raise forms.ValidationError('Setor de destino não encontrado. Cadastre o setor necessário para este fluxo.')
+
+    def _clean_tecnico_manutencao_interna(self, cleaned_data):
+        status, acao, setor = self._resolver_fluxo_tecnico_manutencao_interna()
+        self._exigir_objetos_fluxo(status, acao, setor)
+        cleaned_data['proximo_status'] = status
+        cleaned_data['proxima_acao_em_espera'] = acao
+        cleaned_data['proximo_setor'] = setor
+        return cleaned_data
+
+    def _clean_tecnico_equipamento(self, cleaned_data):
+        if self._eh_acao_autorizar_manutencao_interna():
+            return self._clean_tecnico_manutencao_interna(cleaned_data)
+
+        cliente_emite = (cleaned_data.get('cliente_emite_nf') or '').strip().upper()
+        solicitou = (cleaned_data.get('nf_solicitada') or '').strip().upper()
+        data_emissao = cleaned_data.get('data_emissao_nf')
+        numero_pedido = (cleaned_data.get('numero_pedido') or '').strip()
+        data_pedido = cleaned_data.get('data_pedido')
+
+        if cliente_emite not in ('SIM', 'NAO'):
+            self.add_error('cliente_emite_nf', 'Informe se o cliente emite nota fiscal de Devolução/Remessa.')
+            return cleaned_data
+
+        if cliente_emite == 'SIM':
+            if solicitou not in ('SIM', 'NAO'):
+                self.add_error('nf_solicitada', 'Informe se já foi solicitada a emissão da nota fiscal.')
+                return cleaned_data
+            if solicitou == 'NAO':
+                raise forms.ValidationError('Retornar para dar continuidade após confirmação da Data de emissão da nota fiscal')
+            if not data_emissao:
+                self.add_error('data_emissao_nf', 'Informe a data que será emitida.')
+                return cleaned_data
+            status, acao, setor = self._resolver_fluxo_tecnico_cliente_emite()
+            self._exigir_objetos_fluxo(status, acao, setor)
+            cleaned_data['proximo_status'] = status
+            cleaned_data['proxima_acao_em_espera'] = acao
+            cleaned_data['proximo_setor'] = setor
+            return cleaned_data
+
+        if not numero_pedido:
+            self.add_error('numero_pedido', 'Informe o número do pedido.')
+        if not data_pedido:
+            self.add_error('data_pedido', 'Informe a data do pedido.')
+        if self.errors:
+            return cleaned_data
+        status, acao, setor = self._resolver_fluxo_tecnico_ionlab_emite()
+        self._exigir_objetos_fluxo(status, acao, setor)
+        cleaned_data['proximo_status'] = status
+        cleaned_data['proxima_acao_em_espera'] = acao
+        cleaned_data['proximo_setor'] = setor
+        return cleaned_data
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # Prioridade absoluta: fluxo de manutenção interna.
+        # Não pode cair na validação antiga de pedido/NF.
+        if self._eh_acao_autorizar_manutencao_interna():
+            return self._clean_tecnico_manutencao_interna(cleaned_data)
+
+        if self._eh_tipo_tecnico_equipamento():
+            return self._clean_tecnico_equipamento(cleaned_data)
+
+        numero_pedido = (cleaned_data.get('numero_pedido') or '').strip()
+        data_pedido = cleaned_data.get('data_pedido')
+        if not numero_pedido:
+            self.add_error('numero_pedido', 'Informe o número do pedido.')
+        if not data_pedido:
+            self.add_error('data_pedido', 'Informe a data do pedido.')
+
+        if getattr(self, '_erro_fluxo', ''):
+            raise forms.ValidationError(self._erro_fluxo)
+
+        fluxo = getattr(self, '_fluxo_resolvido', None)
+        if fluxo is None:
+            raise forms.ValidationError(
+                _mensagem_fluxo_nao_configurado(
+                    getattr(self.sac, 'acao_em_espera', None),
+                    self.setor_contexto or getattr(self.sac, 'setor_atual', None),
+                )
+            )
+
+        if getattr(fluxo, 'status_destino', None) is None:
+            status_fallback = _resolver_status_destino_fallback(
+                getattr(getattr(self.sac, 'acao_em_espera', None), 'codigo', None),
+                getattr(getattr(self.sac, 'acao_em_espera', None), 'nome', None),
+                getattr(fluxo, 'proxima_acao', None),
+                getattr(fluxo, 'proximo_setor', None),
+            )
+            fluxo = SimpleNamespace(
+                proxima_acao=getattr(fluxo, 'proxima_acao', None),
+                proxima_acao_id=getattr(getattr(fluxo, 'proxima_acao', None), 'id', None),
+                proximo_setor=getattr(fluxo, 'proximo_setor', None),
+                proximo_setor_id=getattr(getattr(fluxo, 'proximo_setor', None), 'id', None),
+                status_destino=status_fallback,
+                status_destino_id=getattr(status_fallback, 'id', None),
+            )
+            self._fluxo_resolvido = fluxo
+
+        cleaned_data['proxima_acao_em_espera'] = fluxo.proxima_acao
+        cleaned_data['proximo_setor'] = fluxo.proximo_setor
+        cleaned_data['proximo_status'] = getattr(fluxo, 'status_destino', None)
+        return cleaned_data
+
+
+class GestaoLogisticaAcaoExecutadaForm(forms.Form):
+    OPCOES_SIM_NAO = (('SIM', 'Sim'), ('NAO', 'Não'))
+    OPCOES_TIPO_NOTA = (
+        ('NOSSA_NOTA_FISCAL', 'Nossa Nota fiscal'),
+        ('NOTA_FISCAL_CLIENTE', 'Nota fiscal do Cliente'),
+    )
+    OPCOES_TIPO_PRODUTO = (
+        ('EQUIPAMENTOS', 'Equipamentos'),
+        ('FERRAGENS', 'Ferragens'),
+        ('MEIOS_DE_CULTURA', 'Meios de Cultura'),
+        ('PLASTICOS', 'Plásticos'),
+        ('VIDRARIAS', 'Vidrarias'),
+    )
+
+    fiscalmente_entrou_estoque = forms.ChoiceField(choices=OPCOES_SIM_NAO, required=False, label='Fiscalmente o item já entrou no estoque')
+    item_alocado_prateleira = forms.ChoiceField(choices=OPCOES_SIM_NAO, required=False, label='Item/Equipamento alocado em Prateleira')
+    endereco_alocado = forms.CharField(required=False, label='Endereço alocado', max_length=255)
+    nome_alocacao_prateleira = forms.CharField(required=False, label='Nome de quem fez a Alocação em prateleira', max_length=255)
+
+    nome_transportadora = forms.ChoiceField(required=False, label='Nome da Transportadora', choices=())
+    telefone_transportadora = forms.CharField(required=False, label='Telefone da Transportadora', max_length=50)
+    contato_transportadora = forms.CharField(required=False, label='Contato', max_length=255)
+    email_transportadora = forms.EmailField(required=False, label='Email')
+    data_coleta = forms.DateField(required=False, label='Data da Coleta', widget=forms.DateInput(attrs={'type': 'date'}), input_formats=['%Y-%m-%d'])
+    numero_cotacao_frete = forms.CharField(required=False, label='Número da Cotação do frete', max_length=100)
+    valor_frete_cotado = forms.DecimalField(required=False, label='Valor do frete Cotado', max_digits=12, decimal_places=2)
+    dias_entrega_ionlab = forms.IntegerField(required=False, label='Quantos dias para entregar na Ionlab', min_value=0)
+    data_prevista_chegada_ionlab = forms.DateField(required=False, label='Data Prevista para Chegar na Ionlab', widget=forms.DateInput(attrs={'type': 'date', 'readonly': 'readonly'}), input_formats=['%Y-%m-%d'])
+    tipo_nota_fiscal = forms.ChoiceField(required=False, label='Nossa Nota fiscal ou Nota fiscal do Cliente', choices=OPCOES_TIPO_NOTA)
+    data_emissao_nota_fiscal = forms.DateField(required=False, label='Data de emissão da Nota fiscal', widget=forms.DateInput(attrs={'type': 'date'}), input_formats=['%Y-%m-%d'])
+    numero_nota_fiscal = forms.CharField(required=False, label='Numero da Nota Fiscal', max_length=100)
+
+    proxima_acao_em_espera = forms.ModelChoiceField(
+        queryset=AcaoEmEspera.objects.none(), required=False,
+        label='Ação em espera próximo setor', widget=forms.Select(attrs={'disabled': 'disabled'})
+    )
+    proximo_setor = forms.ModelChoiceField(
+        queryset=Setor.objects.none(), required=False,
+        label='Próximo Setor', widget=forms.Select(attrs={'disabled': 'disabled'})
+    )
+    proximo_status = forms.ModelChoiceField(
+        queryset=StatusSAC.objects.none(), required=False,
+        label='Próximo Status', widget=forms.Select(attrs={'disabled': 'disabled'})
+    )
+
+    data_expedicao = forms.DateField(required=False, label='Data da Expedição', widget=forms.DateInput(attrs={'type': 'date'}), input_formats=['%Y-%m-%d'])
+    dias_entrega_cliente = forms.IntegerField(required=False, label='Quantos dias para entregar no Cliente', min_value=0)
+    data_prevista_chegada_cliente = forms.DateField(required=False, label='Data Prevista para Chegar no Cliente', widget=forms.DateInput(attrs={'type': 'date', 'readonly': 'readonly'}), input_formats=['%Y-%m-%d'])
+    data_efetiva_entrega = forms.DateField(required=False, label='Data efetiva da Entrega', widget=forms.DateInput(attrs={'type': 'date'}), input_formats=['%Y-%m-%d'])
+
+    data_recebimento = forms.DateField(required=False, label='Data do Recebimento', widget=forms.DateInput(attrs={'type': 'date'}), input_formats=['%Y-%m-%d'])
+    nome_recebedor = forms.CharField(required=False, label='Nome do Recebedor', max_length=255)
+    embalagem_intacta = forms.ChoiceField(required=False, label='Embalagem Intacta', choices=OPCOES_SIM_NAO)
+    numero_ctrc = forms.CharField(required=False, label='Número do Ctrc', max_length=100)
+    valor_frete_ctrc = forms.DecimalField(required=False, label='Valor do Frete no Ctrc', max_digits=12, decimal_places=2)
+    ctrc_divergencia_valor = forms.CharField(required=False, label='Ctrc com divergência de valor', widget=forms.Textarea(attrs={'rows': 2, 'readonly': 'readonly'}))
+
+    equipamento_com_avaria = forms.ChoiceField(required=False, label='Equipamento com alguma avaria', choices=OPCOES_SIM_NAO)
+    itens_com_avaria = forms.ChoiceField(required=False, label='Itens com alguma avaria', choices=OPCOES_SIM_NAO)
+    detalhamento_avarias = forms.CharField(required=False, label='Detalhamento das avarias', widget=forms.Textarea(attrs={'rows': 3}))
+    total_itens_embalagem = forms.IntegerField(required=False, label='Total de Itens dentro da Embalagem incluindo o equipamento', min_value=0)
+    lista_itens_embalagem = forms.CharField(required=False, label='Lista de itens dentro da embalagem', widget=forms.Textarea(attrs={'rows': 3}))
+    equipamento_embalagem_original = forms.ChoiceField(required=False, label='Equipamento recebido com embalagem original', choices=OPCOES_SIM_NAO)
+    equipamento_caixa_madeira = forms.ChoiceField(required=False, label='Equipamento Recebido em caixa de Madeira', choices=OPCOES_SIM_NAO)
+    quantidade_volumes_recebido = forms.IntegerField(required=False, label='Quantidade de volumes recebido', min_value=0)
+    peso_total = forms.DecimalField(required=False, label='Peso Total', max_digits=12, decimal_places=3)
+
+    tipo_produto = forms.ChoiceField(required=False, label='Tipo de produto', choices=OPCOES_TIPO_PRODUTO)
+    nome_embalador = forms.CharField(required=False, label='Nome do Embalador', max_length=255)
+    embalagem_madeira = forms.ChoiceField(required=False, label='Embalagem de madeira', choices=OPCOES_SIM_NAO)
+    embalagem_original = forms.ChoiceField(required=False, label='Embalagem Original', choices=OPCOES_SIM_NAO)
+    ressalva_cte = forms.ChoiceField(required=False, label='Ressalva no CT-e', choices=OPCOES_SIM_NAO)
+    nome_separador = forms.CharField(required=False, label='Nome do Separador', max_length=255)
+    nome_bip = forms.CharField(required=False, label='Nome de quem fez o BIP', max_length=255)
+    quantidade_total_romaneio = forms.DecimalField(required=False, label='Quantidade total Romaneio', max_digits=12, decimal_places=2)
+    quantidade_total_conferencia_embalagem = forms.DecimalField(required=False, label='Quantidade total na conferência de embalagem', max_digits=12, decimal_places=2)
+    peso_total_itens = forms.DecimalField(required=False, label='Peso Total dos itens', max_digits=12, decimal_places=3)
+    quantidade_volumes_expedidos = forms.IntegerField(required=False, label='Quantidade de volumes expedidos', min_value=0)
+    quantidade_volumes_nota_fiscal = forms.IntegerField(required=False, label='Quantidade de volumes na nota fiscal', min_value=0)
+    quantidade_volumes_cte = forms.IntegerField(required=False, label='Quantidade de volumes no CT-e', min_value=0)
+    peso_cte = forms.DecimalField(required=False, label='Peso no CT-e', max_digits=12, decimal_places=3)
+    numero_lote = forms.CharField(required=False, label='Numero do Lote', max_length=120)
+    fabricacao = forms.DateField(required=False, label='Fabricação', widget=forms.DateInput(attrs={'type': 'date'}), input_formats=['%Y-%m-%d'])
+    validade = forms.DateField(required=False, label='Validade', widget=forms.DateInput(attrs={'type': 'date'}), input_formats=['%Y-%m-%d'])
+    quantidade_estoque = forms.DecimalField(required=False, label='Quantidade em Estoque', max_digits=12, decimal_places=2)
+    observacoes = forms.CharField(required=False, label='Observações', widget=forms.Textarea(attrs={'rows': 4}))
+
+    def __init__(self, *args, **kwargs):
+        self.acao_atual_nome = (kwargs.pop('acao_atual_nome', '') or '').strip()
+        self.tem_serial = bool(kwargs.pop('tem_serial', False))
+        self.sac = kwargs.pop('sac', None)
+        self.origem_fluxo_aguardando_emissao_nf = (kwargs.pop('origem_fluxo_aguardando_emissao_nf', '') or '').strip().upper()
+        self.tipo_ocorrencia_nome = ''
+        if self.sac is not None:
+            try:
+                itens = self.sac.itens_sac.select_related('tipo_ocorrencia').all()
+                for item in itens:
+                    nome_tipo = ((getattr(getattr(item, 'tipo_ocorrencia', None), 'nome', '') or '').strip())
+                    if nome_tipo:
+                        self.tipo_ocorrencia_nome = nome_tipo
+                        break
+            except Exception:
+                self.tipo_ocorrencia_nome = ''
+        super().__init__(*args, **kwargs)
+
+        transportadoras = [
+            nome for nome in NotaFiscal.objects.exclude(transportadora_nome__isnull=True)
+            .exclude(transportadora_nome__exact='').values_list('transportadora_nome', flat=True)
+            .distinct().order_by('transportadora_nome')
+        ]
+        valor_transportadora = ''
+        if self.is_bound:
+            valor_transportadora = (self.data.get(self.add_prefix('nome_transportadora')) or '').strip()
+        elif self.initial.get('nome_transportadora'):
+            valor_transportadora = str(self.initial.get('nome_transportadora')).strip()
+        if valor_transportadora and valor_transportadora not in transportadoras:
+            transportadoras.append(valor_transportadora)
+            transportadoras = sorted({item for item in transportadoras if item})
+        self.fields['nome_transportadora'].choices = [('', 'Selecione a transportadora')] + [(item, item) for item in transportadoras]
+
+        if self._eh_tipo_tecnico_equipamento_logistica():
+            # Fluxo específico: Técnico - Equipamento não funciona nunca deve cair em Cliente não confirmou.
+            self._configurar_fluxo_tecnico_coleta_ionlab({})
+        elif self._acao_aguardando_coleta_cliente():
+            self.fields['numero_nota_fiscal'].label = 'Número da Nota Fiscal'
+            self.fields['data_emissao_nota_fiscal'].label = 'Data de emissão da Nota fiscal'
+            self.fields['nome_transportadora'].label = 'Nome da Transportadora'
+            self.fields['telefone_transportadora'].label = 'Telefone da Transportadora'
+            self.fields['contato_transportadora'].label = 'Contato'
+            self.fields['email_transportadora'].label = 'Email'
+            self.fields['numero_cotacao_frete'].label = 'Número da Cotação do frete'
+            self.fields['valor_frete_cotado'].label = 'Valor do frete Cotado'
+            self.fields['data_coleta'].label = 'Data da Coleta'
+            self.fields['data_prevista_chegada_ionlab'].label = 'Data Prevista para Chegar na Ionlab'
+            self._configurar_fluxo_coleta_cliente({})
+        elif self._acao_aguardando_recebimento_fisico_fiscal():
+            self.fields['lista_itens_embalagem'].label = 'Descreva todos os itens que veio dentro da caixa solto ou não'
+            self._configurar_fluxo_recebimento_fisico_fiscal({})
+        elif self._tipo_ocorrencia_cliente_nao_confirmou():
+            self.fields['numero_nota_fiscal'].label = 'Número da Nota fiscal emitida'
+            self.fields['data_emissao_nota_fiscal'].label = 'Data de Emissão'
+            self.fields['nome_transportadora'].label = 'Nome da Transportadora'
+            self.fields['numero_cotacao_frete'].label = 'Número do Orçamento'
+            self.fields['valor_frete_cotado'].label = 'Valor do Frete'
+            self.fields['data_coleta'].label = 'Data agendada para coleta no Cliente'
+
+        if self.is_bound:
+            data_coleta = self.data.get(self.add_prefix('data_coleta'))
+            dias = self.data.get(self.add_prefix('dias_entrega_ionlab'))
+            try:
+                if data_coleta and dias not in (None, ''):
+                    data_base = datetime.strptime(data_coleta, '%Y-%m-%d').date()
+                    self.fields['data_prevista_chegada_ionlab'].initial = data_base + timedelta(days=int(dias))
+                data_expedicao = self.data.get(self.add_prefix('data_expedicao'))
+                dias_cliente = self.data.get(self.add_prefix('dias_entrega_cliente'))
+                if data_expedicao and dias_cliente not in (None, ''):
+                    data_base_cliente = datetime.strptime(data_expedicao, '%Y-%m-%d').date()
+                    self.fields['data_prevista_chegada_cliente'].initial = data_base_cliente + timedelta(days=int(dias_cliente))
+            except (TypeError, ValueError):
+                pass
+
+        _preencher_form_logistica_com_historico(self)
+
+        if self._eh_tipo_tecnico_equipamento_logistica():
+            self._configurar_fluxo_tecnico_coleta_ionlab({})
+        elif self._acao_aguardando_coleta_cliente():
+            self._configurar_fluxo_coleta_cliente({})
+        elif self._acao_aguardando_recebimento_fisico_fiscal():
+            self._configurar_fluxo_recebimento_fisico_fiscal({})
+        elif self._tipo_ocorrencia_cliente_nao_confirmou():
+            self._configurar_fluxo_cliente_nao_confirmou({})
+        else:
+            _aplicar_fluxo_obrigatorio_no_form(
+                self,
+                acao_atual=getattr(self.sac, 'acao_em_espera', None),
+                setor_atual=getattr(self.sac, 'setor_atual', None),
+                nome_campo_acao='proxima_acao_em_espera',
+                nome_campo_setor='proximo_setor',
+            )
+
+    def _tipo_ocorrencia_normalizado(self):
+        return _normalizar_chave_fluxo(getattr(self, 'tipo_ocorrencia_nome', '') or '')
+
+    def _tipo_ocorrencia_cliente_nao_confirmou(self):
+        return eh_tipo_ocorrencia_cliente_nao_confirmou(self.tipo_ocorrencia_nome)
+
+    def _acao_e_analise_ocorrido_logistica(self):
+        return eh_acao_analise_ocorrido_logistica(self.acao_atual_nome)
+
+    def _acao_aguardando_coleta_cliente(self):
+        texto = _normalizar_chave_fluxo(self.acao_atual_nome)
+        return 'aguardando coleta no cliente' in texto
+
+    def _acao_aguardando_recebimento_fisico_fiscal(self):
+        texto = _normalizar_chave_fluxo(self.acao_atual_nome)
+        return (
+            'aguardando recebimento fisico fiscal' in texto
+            or 'aguardando recebimento fisico/fiscal' in texto
+        )
+
+    def _sac_equipamento_por_grupo(self):
+        if self.sac is None:
+            return False
+        try:
+            itens = self.sac.itens_sac.select_related('item_nota_fiscal').all()
+            for item in itens:
+                item_nf = getattr(item, 'item_nota_fiscal', None)
+                valores = [
+                    getattr(item, 'grupo', ''),
+                    getattr(item_nf, 'grupo', '') if item_nf else '',
+                    getattr(item_nf, 'agrp', '') if item_nf else '',
+                ]
+                for valor in valores:
+                    texto = _normalizar_chave_fluxo(valor)
+                    if 'equipamento' in texto or 'equipamentos' in texto:
+                        return True
+        except Exception:
+            return False
+        return False
+
+    def _resolver_fluxo_coleta_cliente_para_transito(self):
+        status = _resolver_status_por_nome(
+            'Em Trânsito (Com destino a Ionlab)',
+            'Em Transito (Com destino a Ionlab)',
+            'EM_TRANSITO_COM_DESTINO_A_IONLAB',
+        )
+        acao = _resolver_acao_por_nome(
+            'Aguardando Recebimento Físico/Fiscal',
+            'Aguardando Recebimento Fisico/Fiscal',
+            'Aguardando Recebimento Físico Fiscal',
+            'Aguardando Recebimento Fisico Fiscal',
+            codes=('AGUARDANDO_RECEBIMENTO_FISICO_FISCAL',),
+        )
+        setor = _resolver_setor_por_nome('Logística', 'Logistica', codes=('LOGISTICA',))
+        return status, acao, setor
+
+    def _resolver_fluxo_recebimento_para_sac(self):
+        status = _resolver_status_por_nome('Em Análise', 'Em Analise', 'EM_ANALISE')
+        acao = _resolver_acao_por_nome(
+            'Autorizar manutenção Interna',
+            'Autorizar manutencao Interna',
+            'Autorizar Manutenção Interna',
+            codes=('AUTORIZAR_MANUTENCAO_INTERNA',),
+        )
+        setor = _resolver_setor_por_nome('SAC', codes=('SAC',))
+        return status, acao, setor
+
+    def _resolver_fluxo_tecnico_coleta_ionlab(self):
+        status = _resolver_status_por_nome(
+            'Aguardando Coleta na Ionlab',
+            'AGUARDANDO_COLETA_NA_IONLAB',
+        )
+        acao = _resolver_acao_por_nome(
+            'Aguardando coleta na Ionlab',
+            'Aguardando Coleta na Ionlab',
+            codes=('AGUARDANDO_COLETA_NA_IONLAB',),
+        )
+        setor = _resolver_setor_por_nome('Logística', 'Logistica', codes=('LOGISTICA',))
+        return status, acao, setor
+
+    def _eh_tipo_tecnico_equipamento_logistica(self):
+        tipo = self._tipo_ocorrencia_normalizado()
+        return (
+            'tecnico equipamento nao funciona' in tipo
+            or 'tecnico equipamento nao' in tipo
+            or tipo == 'tecnico equipamento nao funciona'
+        )
+
+    def _configurar_fluxo_tecnico_coleta_ionlab(self, cleaned_data):
+        status, acao, setor = self._resolver_fluxo_tecnico_coleta_ionlab()
+        return aplicar_fluxo_resolvido_no_form(self, cleaned_data, status=status, acao=acao, setor=setor)
+
+    def _configurar_fluxo_coleta_cliente(self, cleaned_data):
+        status, acao, setor = self._resolver_fluxo_coleta_cliente_para_transito()
+        return aplicar_fluxo_resolvido_no_form(self, cleaned_data, status=status, acao=acao, setor=setor)
+
+    def _configurar_fluxo_recebimento_fisico_fiscal(self, cleaned_data):
+        status, acao, setor = self._resolver_fluxo_recebimento_para_sac()
+        return aplicar_fluxo_resolvido_no_form(self, cleaned_data, status=status, acao=acao, setor=setor)
+
+    def _configurar_fluxo_analise_ocorrido_logistica(self, cleaned_data):
+        resultado = resolver_fluxo_formulario('analise ocorrido logistica para sac')
+        return aplicar_fluxo_resolvido_no_form(
+            self,
+            cleaned_data,
+            status=resultado.status,
+            acao=resultado.acao,
+            setor=resultado.setor,
+        )
+
+    def _configurar_fluxo_item_vencido(self, cleaned_data):
+        resultado = resolver_fluxo_formulario('item vencido assessoria')
+        return aplicar_fluxo_resolvido_no_form(
+            self,
+            cleaned_data,
+            status=resultado.status,
+            acao=resultado.acao,
+            setor=resultado.setor,
+        )
+
+    def _configurar_fluxo_cliente_nao_confirmou(self, cleaned_data):
+        resultado = resolver_fluxo_formulario('cliente nao confirmou coleta logistica')
+        return aplicar_fluxo_resolvido_no_form(
+            self,
+            cleaned_data,
+            status=resultado.status,
+            acao=resultado.acao,
+            setor=resultado.setor,
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        acao_normalizada = _normalizar_chave_fluxo(self.acao_atual_nome)
+
+        # Prioridade absoluta: Técnico - Equipamento não funciona tem fluxo próprio na Logística.
+        # Não pode herdar regras de Cliente não confirmou compra nem Item Vencido.
+        if self._eh_tipo_tecnico_equipamento_logistica():
+            status, acao_destino, setor_destino = self._configurar_fluxo_tecnico_coleta_ionlab(cleaned_data)
+            if not status or not acao_destino or not setor_destino:
+                raise forms.ValidationError('Não foi possível resolver o fluxo Técnico - Equipamento não funciona para Aguardando Coleta na Ionlab.')
+            return cleaned_data
+
+        if self._acao_aguardando_coleta_cliente():
+            obrigatorios = [
+                'nome_transportadora', 'data_coleta', 'numero_cotacao_frete',
+                'valor_frete_cotado', 'dias_entrega_ionlab', 'tipo_nota_fiscal',
+                'data_emissao_nota_fiscal', 'numero_nota_fiscal',
+            ]
+            for campo in obrigatorios:
+                valor = cleaned_data.get(campo)
+                if valor in (None, '', []):
+                    self.add_error(campo, 'Campo obrigatório.')
+            data_coleta = cleaned_data.get('data_coleta')
+            dias = cleaned_data.get('dias_entrega_ionlab')
+            if data_coleta and dias not in (None, ''):
+                try:
+                    cleaned_data['data_prevista_chegada_ionlab'] = data_coleta + timedelta(days=int(dias))
+                except Exception:
+                    self.add_error('dias_entrega_ionlab', 'Informe um número válido de dias.')
+            status, acao_destino, setor_destino = self._configurar_fluxo_coleta_cliente(cleaned_data)
+            if not status or not acao_destino or not setor_destino:
+                raise forms.ValidationError('Não foi possível resolver o fluxo de Aguardando Coleta no Cliente para Logística.')
+            return cleaned_data
+
+        if self._acao_aguardando_recebimento_fisico_fiscal():
+            for campo in ['data_recebimento', 'nome_recebedor', 'embalagem_intacta', 'ressalva_cte']:
+                valor = cleaned_data.get(campo)
+                if valor in (None, '', []):
+                    self.add_error(campo, 'Campo obrigatório.')
+
+            valor_cotado = cleaned_data.get('valor_frete_cotado')
+            valor_ctrc = cleaned_data.get('valor_frete_ctrc')
+            if valor_cotado not in (None, '') and valor_ctrc not in (None, ''):
+                try:
+                    cotado = Decimal(str(valor_cotado))
+                    ctrc = Decimal(str(valor_ctrc))
+                    if cotado > 0:
+                        diferenca = abs(ctrc - cotado) / cotado
+                        if diferenca > Decimal('0.10'):
+                            cleaned_data['ctrc_divergencia_valor'] = 'Ctrc com divergência de valor. Contactar transportadora.'
+                except Exception as e:
+                    registrar_erro('core.forms.py:except_5', e)
+                    pass
+
+            if cleaned_data.get('embalagem_intacta') == 'NAO' and not cleaned_data.get('observacoes'):
+                self.add_error('observacoes', 'Descreva nas observações o estado em que recebeu a embalagem.')
+            if cleaned_data.get('ressalva_cte') == 'NAO' and not cleaned_data.get('observacoes'):
+                self.add_error('observacoes', 'Descreva nas observações o motivo de não ter feito ressalva no Ctrc.')
+            if self._sac_equipamento_por_grupo() and not cleaned_data.get('lista_itens_embalagem'):
+                self.add_error('lista_itens_embalagem', 'Campo obrigatório para equipamentos.')
+
+            status, acao_destino, setor_destino = self._configurar_fluxo_recebimento_fisico_fiscal(cleaned_data)
+            if not status or not acao_destino or not setor_destino:
+                raise forms.ValidationError('Não foi possível resolver o fluxo de Aguardando Recebimento Físico/Fiscal para SAC.')
+            return cleaned_data
+
+        if self._tipo_ocorrencia_cliente_nao_confirmou():
+            obrigatorios = ['numero_nota_fiscal', 'data_emissao_nota_fiscal', 'nome_transportadora', 'numero_cotacao_frete', 'valor_frete_cotado', 'data_coleta']
+            for campo in obrigatorios:
+                valor = cleaned_data.get(campo)
+                if valor in (None, '', []):
+                    self.add_error(campo, 'Campo obrigatório.')
+            status, acao_destino, setor_destino = self._configurar_fluxo_cliente_nao_confirmou(cleaned_data)
+            if not status or not acao_destino or not setor_destino:
+                raise forms.ValidationError('Não foi possível resolver o fluxo padrão de coleta no cliente para este tipo de ocorrência.')
+            return cleaned_data
+
+        if self._acao_e_analise_ocorrido_logistica() and 'item vencido' in self._tipo_ocorrencia_normalizado():
+            status, acao_destino, setor_destino = self._configurar_fluxo_item_vencido(cleaned_data)
+            if not status or not acao_destino or not setor_destino:
+                raise forms.ValidationError('Não foi possível resolver o fluxo padrão do Item Vencido para Assessoria Científica.')
+            for campo in ['nome_separador', 'nome_bip', 'nome_embalador', 'numero_lote', 'fabricacao', 'validade']:
+                if cleaned_data.get(campo) in (None, '', []):
+                    self.add_error(campo, 'Campo obrigatório.')
+            return cleaned_data
+
+        try:
+            fluxo = buscar_fluxo_obrigatorio(getattr(self.sac, 'acao_em_espera', None), getattr(self.sac, 'setor_atual', None))
+        except FluxoSACNaoConfigurado as exc:
+            raise forms.ValidationError(str(exc))
+
+        if fluxo.status_destino_id is None and not self._acao_e_analise_ocorrido_logistica():
+            status_fallback = _resolver_status_destino_fallback(
+                getattr(getattr(self.sac, 'acao_em_espera', None), 'codigo', None),
+                getattr(getattr(self.sac, 'acao_em_espera', None), 'nome', None),
+                getattr(fluxo, 'proxima_acao', None),
+                getattr(fluxo, 'proximo_setor', None),
+            )
+            if status_fallback is not None:
+                fluxo = SimpleNamespace(
+                    proxima_acao=getattr(fluxo, 'proxima_acao', None),
+                    proxima_acao_id=getattr(getattr(fluxo, 'proxima_acao', None), 'id', None),
+                    proximo_setor=getattr(fluxo, 'proximo_setor', None),
+                    proximo_setor_id=getattr(getattr(fluxo, 'proximo_setor', None), 'id', None),
+                    status_destino=status_fallback,
+                    status_destino_id=getattr(status_fallback, 'id', None),
+                )
+            else:
+                raise forms.ValidationError('Fluxo encontrado, mas o Status de Destino não foi configurado na tabela FluxoAcaoSetor. Cadastre o campo "Status Destino" na regra ativa deste fluxo.')
+
+        if self._acao_e_analise_ocorrido_logistica():
+            tipo = self._tipo_ocorrencia_normalizado()
+            tipo_produto = cleaned_data.get('tipo_produto')
+            status, acao_destino, setor_destino = self._configurar_fluxo_analise_ocorrido_logistica(cleaned_data)
+            if not status or not acao_destino or not setor_destino:
+                raise forms.ValidationError('Não foi possível resolver o fluxo padrão da Análise do Ocorrido - Logística.')
+            if 'avariad' in tipo:
+                if not tipo_produto:
+                    self.add_error('tipo_produto', 'Campo obrigatório.')
+                for campo in ['nome_embalador', 'embalagem_madeira', 'ressalva_cte']:
+                    if cleaned_data.get(campo) in (None, '', []):
+                        self.add_error(campo, 'Campo obrigatório.')
+                if tipo_produto == 'EQUIPAMENTOS' and cleaned_data.get('embalagem_original') in (None, '', []):
+                    self.add_error('embalagem_original', 'Campo obrigatório.')
+            elif 'faltantes na embalagem' in tipo or 'sobrando na embalagem' in tipo:
+                for campo in ['nome_separador', 'nome_bip', 'nome_embalador', 'quantidade_total_romaneio', 'quantidade_total_conferencia_embalagem', 'peso_total_itens', 'quantidade_volumes_expedidos', 'quantidade_volumes_nota_fiscal', 'quantidade_volumes_cte', 'peso_cte', 'ressalva_cte']:
+                    if cleaned_data.get(campo) in (None, '', []):
+                        self.add_error(campo, 'Campo obrigatório.')
+                qtd_rom = cleaned_data.get('quantidade_total_romaneio')
+                qtd_conf = cleaned_data.get('quantidade_total_conferencia_embalagem')
+                if qtd_rom not in (None, '') and qtd_conf not in (None, '') and qtd_rom != qtd_conf:
+                    cleaned_data['_alerta_divergencia_romaneio'] = 'Quantidade embalada diferente da quantidade total do romaneio.'
+            return cleaned_data
+
+        if acao_normalizada in {'aguardando alocacao em prateleira', 'aguardando alocação em prateleira'}:
+            fiscal = cleaned_data.get('fiscalmente_entrou_estoque')
+            alocado = cleaned_data.get('item_alocado_prateleira')
+            if not fiscal:
+                self.add_error('fiscalmente_entrou_estoque', 'Selecione Sim ou Não.')
+            if fiscal == 'SIM' and not alocado:
+                self.add_error('item_alocado_prateleira', 'Selecione Sim ou Não.')
+            if fiscal == 'SIM' and alocado == 'SIM':
+                if not (cleaned_data.get('endereco_alocado') or '').strip():
+                    self.add_error('endereco_alocado', 'Informe o endereço alocado.')
+                if not (cleaned_data.get('nome_alocacao_prateleira') or '').strip():
+                    self.add_error('nome_alocacao_prateleira', 'Informe quem fez a alocação em prateleira.')
+            cleaned_data['proxima_acao_em_espera'] = fluxo.proxima_acao
+            cleaned_data['proximo_setor'] = fluxo.proximo_setor
+            cleaned_data['proximo_status'] = fluxo.status_destino
+        elif acao_normalizada == 'aguardando coleta no cliente':
+            obrigatorios = ['nome_transportadora', 'telefone_transportadora', 'contato_transportadora', 'email_transportadora', 'data_coleta', 'numero_cotacao_frete', 'valor_frete_cotado', 'dias_entrega_ionlab', 'tipo_nota_fiscal', 'data_emissao_nota_fiscal', 'numero_nota_fiscal']
+            for campo in obrigatorios:
+                valor = cleaned_data.get(campo)
+                if valor in (None, '', []):
+                    self.add_error(campo, 'Campo obrigatório.')
+            data_coleta = cleaned_data.get('data_coleta')
+            dias = cleaned_data.get('dias_entrega_ionlab')
+            if data_coleta and dias is not None:
+                cleaned_data['data_prevista_chegada_ionlab'] = data_coleta + timedelta(days=dias)
+            cleaned_data['proxima_acao_em_espera'] = fluxo.proxima_acao
+            cleaned_data['proximo_setor'] = fluxo.proximo_setor
+            cleaned_data['proximo_status'] = fluxo.status_destino
+        elif acao_normalizada in {'aguardando emissao da nota fiscal', 'aguardando emissão da nota fiscal'}:
+            if self.origem_fluxo_aguardando_emissao_nf == 'RETORNO':
+                obrigatorios = ['numero_nota_fiscal', 'data_emissao_nota_fiscal', 'nome_transportadora', 'telefone_transportadora', 'contato_transportadora', 'email_transportadora', 'data_coleta', 'numero_cotacao_frete', 'valor_frete_cotado', 'dias_entrega_ionlab']
+                for campo in obrigatorios:
+                    valor = cleaned_data.get(campo)
+                    if valor in (None, '', []):
+                        self.add_error(campo, 'Campo obrigatório.')
+                data_coleta = cleaned_data.get('data_coleta')
+                dias = cleaned_data.get('dias_entrega_ionlab')
+                if data_coleta and dias is not None:
+                    cleaned_data['data_prevista_chegada_ionlab'] = data_coleta + timedelta(days=dias)
+                cleaned_data['proxima_acao_em_espera'] = fluxo.proxima_acao
+                cleaned_data['proximo_setor'] = fluxo.proximo_setor
+                cleaned_data['proximo_status'] = fluxo.status_destino
+            else:
+                obrigatorios = ['numero_nota_fiscal', 'data_emissao_nota_fiscal', 'nome_transportadora', 'telefone_transportadora', 'contato_transportadora', 'email_transportadora', 'data_expedicao', 'numero_cotacao_frete', 'valor_frete_cotado', 'dias_entrega_cliente']
+                for campo in obrigatorios:
+                    valor = cleaned_data.get(campo)
+                    if valor in (None, '', []):
+                        self.add_error(campo, 'Campo obrigatório.')
+                data_expedicao = cleaned_data.get('data_expedicao')
+                dias_cliente = cleaned_data.get('dias_entrega_cliente')
+                if data_expedicao and dias_cliente is not None:
+                    cleaned_data['data_prevista_chegada_cliente'] = data_expedicao + timedelta(days=dias_cliente)
+                cleaned_data['proxima_acao_em_espera'] = _resolver_acao_por_nome('Em Transito (Com destino ao Cliente)', 'Em Trânsito (Com destino ao Cliente)')
+                cleaned_data['proximo_setor'] = _resolver_setor_destino_por_acao(cleaned_data['proxima_acao_em_espera'], 'Logística', 'Logistica')
+                cleaned_data['proximo_status'] = fluxo.status_destino
+        elif acao_normalizada in {'aguardando devolucao ao cliente', 'aguardando devolução ao cliente'}:
+            obrigatorios = ['nome_transportadora', 'telefone_transportadora', 'contato_transportadora', 'email_transportadora', 'data_expedicao', 'numero_cotacao_frete', 'valor_frete_cotado', 'dias_entrega_cliente', 'data_emissao_nota_fiscal', 'numero_nota_fiscal']
+            for campo in obrigatorios:
+                valor = cleaned_data.get(campo)
+                if valor in (None, '', []):
+                    self.add_error(campo, 'Campo obrigatório.')
+            data_expedicao = cleaned_data.get('data_expedicao')
+            dias_cliente = cleaned_data.get('dias_entrega_cliente')
+            if data_expedicao and dias_cliente is not None:
+                cleaned_data['data_prevista_chegada_cliente'] = data_expedicao + timedelta(days=dias_cliente)
+            cleaned_data['proxima_acao_em_espera'] = _resolver_acao_por_nome('Em Transito (Com destino ao Cliente)', 'Em Trânsito (Com destino ao Cliente)')
+            cleaned_data['proximo_setor'] = _resolver_setor_destino_por_acao(cleaned_data['proxima_acao_em_espera'], 'Logística', 'Logistica')
+            cleaned_data['proximo_status'] = fluxo.status_destino
+        elif acao_normalizada in {'em transito com destino ao cliente', 'em trânsito com destino ao cliente'}:
+            if not cleaned_data.get('data_efetiva_entrega'):
+                self.add_error('data_efetiva_entrega', 'Campo obrigatório.')
+            cleaned_data['proxima_acao_em_espera'] = fluxo.proxima_acao
+            cleaned_data['proximo_setor'] = fluxo.proximo_setor
+            cleaned_data['proximo_status'] = fluxo.status_destino
+        elif acao_normalizada in {'em transito com destino a ionlab', 'em trânsito com destino a ionlab'}:
+            obrigatorios = ['data_recebimento', 'nome_recebedor', 'embalagem_intacta', 'numero_ctrc', 'valor_frete_ctrc', 'quantidade_volumes_recebido', 'peso_total']
+            for campo in obrigatorios:
+                valor = cleaned_data.get(campo)
+                if valor in (None, '', []):
+                    self.add_error(campo, 'Campo obrigatório.')
+            if self.tem_serial:
+                if cleaned_data.get('equipamento_com_avaria') in (None, '', []):
+                    self.add_error('equipamento_com_avaria', 'Campo obrigatório.')
+                if cleaned_data.get('equipamento_com_avaria') == 'SIM':
+                    if not (cleaned_data.get('detalhamento_avarias') or '').strip():
+                        self.add_error('detalhamento_avarias', 'Campo obrigatório.')
+                    cleaned_data['ctrc_divergencia_valor'] = ''
+                cleaned_data['itens_com_avaria'] = ''
+                cleaned_data['total_itens_embalagem'] = None
+                cleaned_data['lista_itens_embalagem'] = ''
+                cleaned_data['equipamento_embalagem_original'] = ''
+                cleaned_data['equipamento_caixa_madeira'] = ''
+            else:
+                if cleaned_data.get('itens_com_avaria') in (None, '', []):
+                    self.add_error('itens_com_avaria', 'Campo obrigatório.')
+                if cleaned_data.get('itens_com_avaria') == 'SIM' and not (cleaned_data.get('detalhamento_avarias') or '').strip():
+                    self.add_error('detalhamento_avarias', 'Campo obrigatório.')
+                for campo in ['total_itens_embalagem', 'lista_itens_embalagem', 'equipamento_embalagem_original', 'equipamento_caixa_madeira']:
+                    if cleaned_data.get(campo) in (None, '', []):
+                        self.add_error(campo, 'Campo obrigatório.')
+                cleaned_data['equipamento_com_avaria'] = ''
+            cleaned_data['proxima_acao_em_espera'] = fluxo.proxima_acao
+            cleaned_data['proximo_setor'] = fluxo.proximo_setor
+            cleaned_data['proximo_status'] = fluxo.status_destino
+        else:
+            cleaned_data['proxima_acao_em_espera'] = fluxo.proxima_acao
+            cleaned_data['proximo_setor'] = fluxo.proximo_setor
+            cleaned_data['proximo_status'] = fluxo.status_destino
+
+        return cleaned_data
